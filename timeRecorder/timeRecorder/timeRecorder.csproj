@@ -104,6 +104,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TimeRecordObj.cs" />
     <Compile Include="Utils.cs" />
@@ -124,14 +129,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="app.manifest">
       <SubType>Designer</SubType>
     </None>
@@ -223,8 +223,6 @@
     </None>
     <None Include="Resources\导出.png" />
     <None Include="Resources\导入%281%29.png" />
-    <None Include="Resources\总计%281%29.png" />
-    <None Include="Resources\停止.png" />
     <None Include="Resources\开始.png" />
   </ItemGroup>
   <ItemGroup>

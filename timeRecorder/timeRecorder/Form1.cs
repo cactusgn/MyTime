@@ -185,9 +185,16 @@ namespace timeRecorder
             label1.Text = "间隔时间：";
             form2.SetTime(format_date(timeSpan));
             int tempRemindTime = Convert.ToInt32(TimeReminder.Text);
-            if (time3.Date!=startTime.Date & form2.Mode.Equals("start"))
+            if (time3.AddSeconds(2).Date != startTime.Date && form2.Mode.Equals("start"))
             {
                 end_btn_Click(sender, e);
+                if (useDatabase)
+                {
+                    connectToDb.Checked = false;
+                    connectToDb.Checked = true;
+                }
+                Thread.Sleep(2000);
+                timelist.Clear();
                 btn_start_Click(sender, e);
             }
             if (TimeReminder.Text!= "" && !hasRemindCurrentTask)
@@ -232,6 +239,7 @@ namespace timeRecorder
             stopTime = DateTime.Now;
             btn_start.Enabled = true;
             reset.Enabled = true;
+           
             TimeRecordObj time = addTimeRecord(startTime, stopTime, ThingsToDo.Text);
             for (int i = 0; i < timelist.Count; i++)
             {

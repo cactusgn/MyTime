@@ -602,6 +602,7 @@ namespace timeRecorder
             for (i = 0; i < timelist.Count; i++)
             {
                 timelist[i].rightLabel.Text = format_date(timelist[i].mStartTime);
+                timelist[i].rightLabel.BackColor = Color.Red;
                 timelist[i].rightLabel.Location = new Point(260, Convert.ToInt32(startPoint));
                 for (int j = i - 1; j >= 0; j--)
                 {

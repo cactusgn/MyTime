@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "timeRecorder", "timeRecorder\timeRecorder.csproj", "{BC8BC430-90FC-4DF1-AD69-45C407C7B8A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Summary", "Summary\Summary.csproj", "{D78DF211-AE97-496D-A9C9-EA8CCCB43B74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Summary", "Summary\Summary.csproj", "{D78DF211-AE97-496D-A9C9-EA8CCCB43B74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BindingTest", "BindingTest\BindingTest.csproj", "{68A40161-4BA7-4334-92F1-FFDD414AEA28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyToDo", "MyToDo\MyToDo.csproj", "{9CD213AD-2E51-4D95-BBFC-DFB615AF8075}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyToDoApi", "MyToDoApi\MyToDoApi.csproj", "{567E2E55-46CD-48BC-BB3C-7B23131A45AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{D78DF211-AE97-496D-A9C9-EA8CCCB43B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D78DF211-AE97-496D-A9C9-EA8CCCB43B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D78DF211-AE97-496D-A9C9-EA8CCCB43B74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68A40161-4BA7-4334-92F1-FFDD414AEA28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68A40161-4BA7-4334-92F1-FFDD414AEA28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68A40161-4BA7-4334-92F1-FFDD414AEA28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68A40161-4BA7-4334-92F1-FFDD414AEA28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CD213AD-2E51-4D95-BBFC-DFB615AF8075}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CD213AD-2E51-4D95-BBFC-DFB615AF8075}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CD213AD-2E51-4D95-BBFC-DFB615AF8075}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CD213AD-2E51-4D95-BBFC-DFB615AF8075}.Release|Any CPU.Build.0 = Release|Any CPU
+		{567E2E55-46CD-48BC-BB3C-7B23131A45AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{567E2E55-46CD-48BC-BB3C-7B23131A45AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{567E2E55-46CD-48BC-BB3C-7B23131A45AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{567E2E55-46CD-48BC-BB3C-7B23131A45AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

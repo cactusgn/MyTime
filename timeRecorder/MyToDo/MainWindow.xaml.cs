@@ -34,8 +34,15 @@ namespace MyToDo
             ColorZone.MouseMove+=(s, e) => {
                 if(e.LeftButton == MouseButtonState.Pressed)
                 {
-                    this.DragOver();
+                    this.DragMove();
                 }
+            };
+            ColorZone.MouseDoubleClick += (s, e) =>
+            {
+                if (this.WindowState == WindowState.Normal)
+                    this.WindowState = WindowState.Maximized;
+                else
+                    this.WindowState = WindowState.Normal;
             };
         }
     }

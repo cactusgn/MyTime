@@ -4,23 +4,225 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Summary"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:uc="clr-namespace:Summary.Domain"
+        xmlns:cv="clr-namespace:Summary.Common.Converter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        FontFamily="微软雅黑"
+        FontSize="16"
+        Title="总览" Height="660" Width="1200">
+    <Window.Resources>
+        <cv:TimeConverter x:Key="timeConverter"/>
+        <cv:DateConverter x:Key="dateConverter"/>
+        <cv:TypeComboboxConverter x:Key="typeConverter"/>
+        <Style x:Key="HorizontalExpanderContentTextBlock" TargetType="{x:Type TextBlock}">
+            <Setter Property="Opacity" Value=".68" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="HorizontalDividerBorder" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignDivider}" />
+            <Setter Property="Height" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="UseLayoutRounding" Value="True" />
+        </Style>
 
-    <Grid  ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="7*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+    </Window.Resources>
+    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
+                             Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
 
-        <Grid.RowDefinitions>
-            <RowDefinition x:Name="Filter" Height="70"/>
-            <RowDefinition x:Name="Result" Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="LightYellow" Grid.ColumnSpan="2"/>
-        <StackPanel   Grid.Row="1" Grid.Column="0" x:Name="leftPanel" Background="#FFFB9A9A" />
-        <StackPanel  Grid.Row="1" Grid.Column="2" x:Name="rightPanel" Background="#FFB1DCF6" />
-    </Grid>
+        <materialDesign:DialogHost.DialogContent>
+            <!-- 这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字-->
+            <!-- 不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写-->
+            <!-- 也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
 
+            <uc:SampleProgressDialog ></uc:SampleProgressDialog>
+        </materialDesign:DialogHost.DialogContent>
+
+        <!-- 这里放原本页面的内容，比如我的是<Grid>需要被遮罩层包住的页面</Grid>-->
+
+        <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="Filter" Height="70"/>
+                <RowDefinition x:Name="Result" Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Padding="0,0,0,4">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" ShadowDepth="4" BlurRadius="5" Opacity="0.3" Direction="286"/>
+                </Border.Effect>
+                <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="LightYellow" Grid.ColumnSpan="2" Orientation="Horizontal" >
+               
+                <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10"></TextBlock>
+                <DatePicker
+                  Width="150" Margin="10"
+                  materialDesign:CalendarAssist.IsHeaderVisible="False"
+                  materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
+                </DatePicker>
+                <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
+
+                <DatePicker
+                  Width="150" Margin="10"
+                  materialDesign:CalendarAssist.IsHeaderVisible="False"
+                  materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
+                </DatePicker>
+                <Button Content="确定" Margin="10" Command="{Binding ClickOkButtonCommand}"></Button>
+
+            </StackPanel>
+            </Border>
+            <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="7*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition MinWidth="280"/>
+                </Grid.ColumnDefinitions>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <StackPanel   Grid.Row="1" Grid.Column="0" x:Name="leftPanel"  HorizontalAlignment="Center">
+                        <!--<DataGrid x:Name="DataList"/>-->
+
+                        <ItemsControl ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="10" VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel  IsVirtualizing="True"
+                              VirtualizationMode="Recycling" Orientation="Horizontal"/>
+                                    <!--<StackPanel Orientation="Horizontal"/>-->
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    
+                                    <StackPanel Orientation="Vertical" Width="100">
+                                       
+                                        <Border  Margin="0,5,0,1"  CornerRadius="6" >
+                                            <Button Content="{Binding Title}" Background="LightSalmon" Padding="2" BorderBrush="LightSalmon" Foreground="White"></Button>
+                                        </Border>
+                                        <Border  Margin="0,0,0,1"    CornerRadius="6" >
+                                            <Button Content="{Binding Week}" Padding="2" Background="{Binding Color}" FontSize="12" BorderBrush="{Binding Color}" Foreground="White"></Button>
+                                        </Border>
+                                        <ItemsControl ItemsSource="{Binding DailyObjs}" >
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border >
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                                <i:InvokeCommandAction 
+                                                                    CommandParameter="{Binding }"
+                                                                    Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                            <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0">
+                                                        </TextBox>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </StackPanel>
+                </ScrollViewer>
+                <GridSplitter HorizontalAlignment="Center"   
+                      VerticalAlignment="Stretch"   
+                      Grid.Column="1"   
+                      Width="2" Background="Silver">
+                </GridSplitter>
+                <StackPanel Grid.Row="1" Grid.Column="2">
+                <materialDesign:Card  >
+                    <StackPanel  x:Name="rightPanel"  >
+                        <Expander
+                              HorizontalAlignment="Stretch" FontWeight="Bold"
+                              Header="时间块">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*" x:Name="secondColumn"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Margin="5" Style="{StaticResource HorizontalExpanderContentTextBlock}">日期</TextBlock>
+                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}" Margin="5" Grid.Row="1">开始时间</TextBlock>
+                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="2">结束时间</TextBlock>
+                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="3">持续时间</TextBlock>
+                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="4">类型</TextBlock>
+                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">记录</TextBlock>
+
+                                <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Text="{Binding SelectedTimeObj.CreatedDate,Converter={StaticResource dateConverter}}" FontWeight="Normal"></TextBox>
+                                <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+                                <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+                                <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" FontWeight="Normal" Width="100" Grid.Row="3"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
+
+                                    <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}">
+                                        <ComboBoxItem  Background="LightGreen">
+                                            <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="rest"/>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Background="pink" >
+                                            <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="study"/>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Background="yellow" >
+                                            <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="work"/>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem  Background="OrangeRed" >
+                                            <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="waste"/>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem >
+                                            <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="none"/>
+                                        </ComboBoxItem>
+                                    </ComboBox>
+
+
+                                    <TextBox FontWeight="Normal" 
+                                         HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5" 
+                                        VerticalAlignment="Top"
+                                        AcceptsReturn="True"
+                                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                        TextWrapping="Wrap"
+                                        VerticalScrollBarVisibility="Auto" Text="{Binding SelectedTimeObj.Note}" />
+                            </Grid>
+                        </Expander>
+                            <Border
+      Style="{StaticResource HorizontalDividerBorder}" />
+                            <Expander
+                              HorizontalAlignment="Stretch"
+                              Header="单日"> 
+                        </Expander>
+                            <Border
+      Style="{StaticResource HorizontalDividerBorder}" />
+                            <Expander
+                              HorizontalAlignment="Stretch"
+                              Header="总览">
+                        </Expander>
+                    </StackPanel>
+                </materialDesign:Card>
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+
+    </materialDesign:DialogHost>
 
 </Window>

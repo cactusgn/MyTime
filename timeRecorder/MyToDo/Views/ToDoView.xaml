@@ -4,9 +4,74 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MyToDo.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
+             FontFamily="微软雅黑"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="ToDo" FontSize="80"/>
-    </Grid>
+    <md:DialogHost>
+        <md:DrawerHost IsRightDrawerOpen="{Binding IsRightDrawerOpen}">
+            <md:DrawerHost.RightDrawerContent>
+                <StackPanel Width="300">
+                    <TextBlock Text="添加待办" FontSize="20" FontWeight="Bold" Margin="20"/>
+                    <StackPanel Orientation="Horizontal" Margin="20">
+                        <TextBlock Text="状态：" VerticalAlignment="Center"/>
+                        <ComboBox SelectedIndex="0">
+                            <ComboBoxItem>代办</ComboBoxItem>
+                            <ComboBoxItem>已完成</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBox md:HintAssist.Hint="请输入待办概要" VerticalAlignment="Center" Margin="20"/>
+                    <TextBox md:HintAssist.Hint="请输入待办内容" Margin="20"/>
+                    <Button Margin="20">添加</Button>
+                </StackPanel>
+            </md:DrawerHost.RightDrawerContent>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Margin="15,0,0,0" Orientation="Horizontal">
+                    <TextBox Width="250" VerticalAlignment="Center" md:HintAssist.Hint="查找待办事项……" md:TextFieldAssist.HasClearButton="True"/>
+                    <TextBlock Text="筛选" Margin="10,0" VerticalAlignment="Center"/>
+                    <ComboBox SelectedIndex="0">
+                        <ComboBoxItem>全部</ComboBoxItem>
+                        <ComboBoxItem>待办</ComboBoxItem>
+                        <ComboBoxItem>已完成</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" Content="+ 添加待办" Margin="10,5" Command="{Binding AddCommand}"/>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding ToDoDtos}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="15,10,10,10" Background="pink" CornerRadius="10">
+
+                                <DockPanel Width="180" Height="150" LastChildFill="False">
+                                    <md:PopupBox Margin="5" VerticalAlignment="Top" DockPanel.Dock="Right">
+                                        <Button Content="删除">
+                                        </Button>
+                                    </md:PopupBox>
+                                    <StackPanel>
+                                        <TextBlock Margin="10" FontSize="18" FontWeight="Bold" Text="{Binding Title}"/>
+                                        <TextBlock Margin="10" Text="{Binding Content}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+        </md:DrawerHost>
+        
+    </md:DialogHost>
+    
 </UserControl>

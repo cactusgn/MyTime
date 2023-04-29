@@ -1,5 +1,8 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using Summary.Data;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +23,17 @@ namespace Summary
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
+            this.DataContext = mainModel;
+        }
+        private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ((MainModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;
+        }
+        private void ClickTimeObj(object sender, SizeChangedEventArgs e){
+           
         }
     }
 }

@@ -49,6 +49,7 @@
                 <RowDefinition x:Name="Filter" Height="70"/>
                 <RowDefinition x:Name="Result" Height="*"/>
             </Grid.RowDefinitions>
+            <!--查询界面-->
             <Border Padding="0,0,0,4">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" ShadowDepth="4" BlurRadius="5" Opacity="0.3" Direction="286"/>
@@ -72,6 +73,7 @@
 
             </StackPanel>
             </Border>
+            <!--左边panel-->
             <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="7*"/>
@@ -79,10 +81,14 @@
                     <ColumnDefinition MinWidth="280"/>
                 </Grid.ColumnDefinitions>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                    <StackPanel   Grid.Row="1" Grid.Column="0" x:Name="leftPanel"  HorizontalAlignment="Center">
+                    <DockPanel>
+                        <Canvas>
+                            
+                        </Canvas>
+                        <StackPanel   Grid.Row="1" Grid.Column="0" x:Name="leftPanel"  HorizontalAlignment="Center">
                         <!--<DataGrid x:Name="DataList"/>-->
 
-                        <ItemsControl ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="10" VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ItemsControl ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel  IsVirtualizing="True"
@@ -129,18 +135,20 @@
                         </ItemsControl>
 
                     </StackPanel>
+                    </DockPanel>
                 </ScrollViewer>
                 <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   
                       Width="2" Background="Silver">
                 </GridSplitter>
+                <!--右边panel-->
                 <StackPanel Grid.Row="1" Grid.Column="2">
                 <materialDesign:Card  >
                     <StackPanel  x:Name="rightPanel"  >
                         <Expander
                               HorizontalAlignment="Stretch" FontWeight="Bold"
-                              Header="时间块">
+                              Header="时间块" IsExpanded="True">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>

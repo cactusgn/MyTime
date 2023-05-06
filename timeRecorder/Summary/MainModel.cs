@@ -123,11 +123,30 @@ namespace Summary
                     currentDateTemplate.Color = "#008080";
                 }
                  List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate).OrderBy(s=>s.startTime).ToList<MyTime>();
+                bool firstTimeObj = true;
 				foreach(MyTime TimeObj in currentDateData)
 				{
+                    
                     TimeViewObj timeViewObj = new TimeViewObj();
 					TimeSpan startTime = TimeSpan.Parse(TimeObj.startTime.ToString());
                     TimeSpan endTime = TimeSpan.Parse(TimeObj.endTime.ToString());
+                    if (firstTimeObj)
+                    {
+                        firstTimeObj = false;
+                        TimeSpan tempStart = new TimeSpan(6, 0, 0);
+                        if (startTime > tempStart)
+                        {
+                            TimeViewObj startTimeObj = new TimeViewObj();
+                            startTimeObj.CreatedDate = currentDate;
+                            startTimeObj.LastTime = TimeObj.startTime - tempStart;
+                            startTimeObj.Note = "nothing";
+                            startTimeObj.Height = CalculateHeight(startTimeObj.LastTime);
+                            startTimeObj.StartTime = tempStart;
+                            startTimeObj.EndTime = TimeObj.startTime;
+                            startTimeObj.Type = "none";
+                            currentDateTemplate.DailyObjs.Add(startTimeObj);
+                        }
+                    }
                     if (startTime>new TimeSpan(6, 0, 0))
 					{
 						timeViewObj.CreatedDate = currentDate;
@@ -147,6 +166,9 @@ namespace Summary
                                 break;
                             case "work": timeViewObj.Color = "#FFD700";
                                 break;
+                            case "none":
+                                timeViewObj.Color = "#F3F3F3";
+                                break;
                         }
                     }
 					currentDateTemplate.DailyObjs.Add(timeViewObj);
@@ -159,8 +181,8 @@ namespace Summary
 
         private double CalculateHeight(TimeSpan lastTime)
         {
-			TimeSpan allTimeSpan = new TimeSpan(12, 0, 0);
-			return lastTime/allTimeSpan*(leftPanelHeight-36);
+			TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
+			return lastTime/allTimeSpan*(leftPanelHeight-60);
         }
 		
     }

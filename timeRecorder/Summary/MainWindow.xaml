@@ -174,7 +174,7 @@
                                 <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
                                 <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" FontWeight="Normal" Width="100" Grid.Row="3"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
 
-                                    <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}">
+                                    <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" >
                                         <ComboBoxItem  Background="LightGreen">
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"

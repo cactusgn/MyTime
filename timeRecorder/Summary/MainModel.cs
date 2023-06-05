@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Summary.Domain;
 using System.Windows.Controls.Primitives;
 using System.Windows;
+using System.Threading;
 
 namespace Summary
 {
@@ -97,7 +98,7 @@ namespace Summary
             await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); }).ContinueWith(delegate { closeDialog(); });
            
         }
-        private  void showTimeView()
+        public  void showTimeView()
 		{
              List<MyTime> allTimeData =  SQLCommands.GetAllTimeObjs(startTime, endTime);
              AllTimeViewObjs = BuildTimeViewObj(allTimeData);
@@ -124,15 +125,17 @@ namespace Summary
                 }
                  List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate).OrderBy(s=>s.startTime).ToList<MyTime>();
                 bool firstTimeObj = true;
+                TimeSpan endTime = new TimeSpan(6,0,0);
 				foreach(MyTime TimeObj in currentDateData)
 				{
                     
                     TimeViewObj timeViewObj = new TimeViewObj();
 					TimeSpan startTime = TimeSpan.Parse(TimeObj.startTime.ToString());
-                    TimeSpan endTime = TimeSpan.Parse(TimeObj.endTime.ToString());
+                    endTime = TimeSpan.Parse(TimeObj.endTime.ToString());
                     if (firstTimeObj)
                     {
                         firstTimeObj = false;
+                        //Add first time object
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTime > tempStart)
                         {
@@ -173,7 +176,22 @@ namespace Summary
                     }
 					currentDateTemplate.DailyObjs.Add(timeViewObj);
 				}
-				currentDate = currentDate.AddDays(1);
+                //Add last obj
+                //Add first time object
+                TimeSpan tempEndTime = new TimeSpan(24, 0, 0);
+                if (endTime < tempEndTime)
+                {
+                    TimeViewObj startTimeObj = new TimeViewObj();
+                    startTimeObj.CreatedDate = currentDate;
+                    startTimeObj.LastTime = tempEndTime - endTime;
+                    startTimeObj.Note = "nothing";
+                    startTimeObj.Height = CalculateHeight(startTimeObj.LastTime);
+                    startTimeObj.StartTime = endTime;
+                    startTimeObj.EndTime = tempEndTime;
+                    startTimeObj.Type = "none";
+                    currentDateTemplate.DailyObjs.Add(startTimeObj);
+                }
+                currentDate = currentDate.AddDays(1);
 				AllTimeViewObjs.Add(currentDateTemplate);
             }
 			return AllTimeViewObjs;

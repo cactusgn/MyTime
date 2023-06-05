@@ -31,9 +31,8 @@ namespace Summary
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ((MainModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;
+            ((MainModel)this.DataContext).showTimeView();
         }
-        private void ClickTimeObj(object sender, SizeChangedEventArgs e){
-           
-        }
+       
     }
 }

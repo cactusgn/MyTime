@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.label3 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -44,9 +44,10 @@
             this.panel6 = new System.Windows.Forms.Panel();
             this.study_btn = new System.Windows.Forms.Button();
             this.large_btn = new System.Windows.Forms.Button();
+            this.summary_btn = new System.Windows.Forms.Button();
             this.return_btn = new System.Windows.Forms.Button();
-            this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.memo_label = new System.Windows.Forms.Label();
@@ -85,8 +86,8 @@
             this.panel1.SuspendLayout();
             this.chartPanel.SuspendLayout();
             this.panel6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel5.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -164,11 +165,12 @@
             // 
             // chartPanel
             // 
+            this.chartPanel.Controls.Add(this.chart2);
             this.chartPanel.Controls.Add(this.panel6);
             this.chartPanel.Controls.Add(this.panel1);
             this.chartPanel.Controls.Add(this.large_btn);
+            this.chartPanel.Controls.Add(this.summary_btn);
             this.chartPanel.Controls.Add(this.return_btn);
-            this.chartPanel.Controls.Add(this.chart2);
             this.chartPanel.Controls.Add(this.chart1);
             this.chartPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartPanel.Location = new System.Drawing.Point(0, 0);
@@ -223,6 +225,23 @@
             this.large_btn.UseVisualStyleBackColor = false;
             this.large_btn.Click += new System.EventHandler(this.Large_btn_Click);
             // 
+            // summary_btn
+            // 
+            this.summary_btn.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.summary_btn.BackColor = System.Drawing.Color.Transparent;
+            this.summary_btn.BackgroundImage = global::timeRecorder.Properties.Resources.放大;
+            this.summary_btn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.summary_btn.FlatAppearance.BorderSize = 0;
+            this.summary_btn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.summary_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.summary_btn.Location = new System.Drawing.Point(543, 476);
+            this.summary_btn.Margin = new System.Windows.Forms.Padding(4);
+            this.summary_btn.Name = "summary_btn";
+            this.summary_btn.Size = new System.Drawing.Size(41, 39);
+            this.summary_btn.TabIndex = 19;
+            this.summary_btn.UseVisualStyleBackColor = false;
+            this.summary_btn.Click += new System.EventHandler(this.summary_btn_Click);
+            // 
             // return_btn
             // 
             this.return_btn.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -239,6 +258,32 @@
             this.return_btn.TabIndex = 17;
             this.return_btn.UseVisualStyleBackColor = false;
             this.return_btn.Click += new System.EventHandler(this.return_btn_Click);
+            // 
+            // chart1
+            // 
+            this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.chart1.BackColor = System.Drawing.Color.Transparent;
+            this.chart1.BackSecondaryColor = System.Drawing.Color.LightBlue;
+            chartArea2.BackColor = System.Drawing.Color.Transparent;
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Enabled = false;
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
+            this.chart1.Location = new System.Drawing.Point(32, 32);
+            this.chart1.Margin = new System.Windows.Forms.Padding(4);
+            this.chart1.Name = "chart1";
+            this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.chart1.Series.Add(series2);
+            this.chart1.Size = new System.Drawing.Size(653, 381);
+            this.chart1.TabIndex = 15;
+            this.chart1.Text = "chart1";
             // 
             // chart2
             // 
@@ -272,31 +317,6 @@
             this.chart2.Size = new System.Drawing.Size(599, 463);
             this.chart2.TabIndex = 16;
             this.chart2.Text = "chart2";
-            // 
-            // chart1
-            // 
-            this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chart1.BackColor = System.Drawing.Color.Transparent;
-            this.chart1.BackSecondaryColor = System.Drawing.Color.LightBlue;
-            chartArea2.BackColor = System.Drawing.Color.Transparent;
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            legend2.Enabled = false;
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
-            this.chart1.Location = new System.Drawing.Point(32, 36);
-            this.chart1.Margin = new System.Windows.Forms.Padding(4);
-            this.chart1.Name = "chart1";
-            this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.chart1.Series.Add(series2);
-            this.chart1.Size = new System.Drawing.Size(661, 377);
-            this.chart1.TabIndex = 15;
-            this.chart1.Text = "chart1";
             // 
             // label1
             // 
@@ -690,6 +710,7 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(495, 1091);
             this.panel4.TabIndex = 18;
+            this.panel4.SizeChanged += new System.EventHandler(this.panel4_SizeChanged);
             // 
             // label10
             // 
@@ -805,8 +826,8 @@
             this.panel1.PerformLayout();
             this.chartPanel.ResumeLayout(false);
             this.panel6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
@@ -868,6 +889,7 @@
         private System.Windows.Forms.Button study_btn;
         private System.Windows.Forms.Button setupBtn;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Button summary_btn;
     }
 }
 

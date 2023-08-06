@@ -14,6 +14,12 @@ using Summary.Domain;
 using System.Windows.Controls.Primitives;
 using System.Windows;
 using System.Threading;
+using System.Windows.Controls;
+using ScottPlot;
+using static ScottPlot.Plottable.PopulationPlot;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using ScottPlot.MarkerShapes;
 
 namespace Summary
 {
@@ -39,6 +45,7 @@ namespace Summary
 			get { return leftPanelHeight; }
 			set { leftPanelHeight = value;  OnPropertyChanged(); }
 		}
+        private double height;
         private bool _IsDialogOpen;
         public bool IsDialogOpen
         {
@@ -55,31 +62,151 @@ namespace Summary
 		}
 		
 		public MyCommand ClickOkButtonCommand { get; set; }
-        public MyCommand SelectedTest { get; set; }
+        public MyCommand TimeObjType_SelectionChangedCommand { get; set; }
+        public MyCommand TimeObjType_NoteChangedCommand { get; set; }
+        public MyCommand SummaryRBChangedCommand { get; set; }
+        public MyCommand ResizeCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
+        public WpfPlot SingleDayPlot { get; set; }
+        public WpfPlot SummaryPlot { get; set; }
+        public RadioButton WasteRB { get; set; }
+        public RadioButton WorkRB { get; set; }
+        public RadioButton StudyRB { get; set; }
+        public RadioButton RestRB { get; set; }
+        public RadioButton AllRB { get; set; }
+        
+        private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
+
+        private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
         public MainModel(ISQLCommands SqlCommands)
         {
+            InitVariables();
             ClickOkButtonCommand = new MyCommand(clickOkButton);
-			EndTime = DateTime.Today;
-            StartTime = DateTime.Today.AddDays(-7);
+            SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
+            TimeObjType_SelectionChangedCommand = new MyCommand(TimeObjType_SelectionChanged);
+            TimeObjType_NoteChangedCommand = new MyCommand(TimeObjType_NoteChanged);
+            EndTime = DateTime.Today;
+            StartTime = DateTime.Today.AddDays(-6);
 			SQLCommands = SqlCommands;
             SelectedCommand = new MyCommand(Selected);
+            ResizeCommand = new MyCommand(resizeHeight);
         }
 
-       
+        private void InitVariables()
+        {
+            colorDic.Add(TimeType.None, "#F3F3F3");
+            colorDic.Add(TimeType.Study, "#FFB6C1");
+            colorDic.Add(TimeType.Waste, "#F08080");
+            colorDic.Add(TimeType.Rest, "#98FB98");
+            colorDic.Add(TimeType.Work, "#FFD700");
+            height = LeftPanelHeight;
+        }
 
         private TimeViewObj selectedTimeObj;
 
 		public TimeViewObj SelectedTimeObj
 		{
 			get { return selectedTimeObj; }
-			set { selectedTimeObj = value;OnPropertyChanged(); }
+			set { selectedTimeObj = value;
+                OnPropertyChanged();
+            }
 		}
-
+        private void SummaryRBChanged(object obj)
+        {
+            refreshSummaryPlot(obj.ToString());
+        }
         private void Selected(object obj)
         {
             TimeViewObj myTimeView = (TimeViewObj)obj;
             SelectedTimeObj = myTimeView;
+            if (myTimeView.CreatedDate!=CurrentDate) {
+                CurrentDate = myTimeView.CreatedDate;
+                refreshSingleDayPlot();
+            }
+        }
+        private void refreshPlot(ObservableCollection<TimeViewObj> AllObj, WpfPlot plot)
+        {
+            var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note=x.Key.Note, Type=x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            var studyItems = items.Where(x => x.Type=="study").ToArray();
+            var wasteItems = items.Where(x => x.Type=="waste").ToArray();
+            var workItems = items.Where(x => x.Type=="work").ToArray();
+            var restItems = items.Where(x => x.Type=="rest").ToArray();
+            var index = 0;
+            plot.Plot.Clear();
+            var plt = plot.Plot;
+            var allItemCount = studyItems.Length + wasteItems.Length+ workItems.Length+restItems.Length;
+            string[] TimeLabels = new string[allItemCount];
+            string[] YLabels = new string[allItemCount];
+            double[] position = new double[allItemCount];
+            addChartData(studyItems, TimeType.Study, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(workItems, TimeType.Work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(wasteItems, TimeType.Waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(restItems, TimeType.Rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+
+            plt.YTicks(position, YLabels);
+            plt.Legend(location: Alignment.UpperRight);
+            Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+            plt.XAxis.TickLabelFormat(customFormatter);
+            // adjust axis limits so there is no padding to the left of the bar graph
+            plt.SetAxisLimits(xMin: 0);
+            plot.Refresh();
+        }
+        private void refreshSingleDayPlot()
+        {
+            var AllObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
+            refreshPlot(AllObj, SingleDayPlot);
+        }
+        private void refreshSummaryPlot(string type)
+        {
+            var AllObjs = new ObservableCollection<TimeViewObj>();
+            foreach(var GridTemplate in allTimeViewObjs)
+            {
+                var dailyObjs = GridTemplate.DailyObjs;
+                if (type.ToLower() != "all"&&dailyObjs!=null)
+                {
+                    var filteredObjs = dailyObjs.Where(x =>(x.Type!=null && x.Type.ToLower()==type.ToLower())).OrderBy(e => e.LastTime);
+                    if (filteredObjs!=null)
+                    {
+                        foreach (var item in filteredObjs)
+                        {
+                            AllObjs.Add(item);
+                        }
+                    }
+                }
+                else {
+                    foreach (var item in dailyObjs)
+                    {
+                        AllObjs.Add(item);
+                    }
+                }
+            }
+            SummaryPlot.Dispatcher.Invoke(new Action(delegate
+            {
+                refreshPlot(AllObjs, SummaryPlot);
+            }));
+        }
+        private void addChartData(ChartBar[] Items, TimeType type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
+        {
+            if (Items.Count()>0)
+            {
+                double[] itemPostion = new double[Items.Count()];
+                double[] itemValues = new double[Items.Count()];
+
+                for (int i = 0; i<Items.Count(); i++)
+                {
+                    itemPostion[i] = index + i+1;
+                    position[i+index] = index +i+1;
+                    YLabels[i+index] = Items[i].Note;
+                    itemValues[i] = Items[i].Time.TotalSeconds;
+                    TimeLabels.Append(Items[i].Time.ToString());
+                }
+                var bar = plt.AddBar(itemValues, itemPostion, System.Drawing.ColorTranslator.FromHtml(colorDic[type]));
+                bar.Orientation = ScottPlot.Orientation.Horizontal;
+                bar.ShowValuesAboveBars = true;
+                Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+                bar.ValueFormatter = customFormatter;
+                index = index + Items.Count();
+            }
         }
         public MyCommand SelectedCommand { get; set; }
 
@@ -93,17 +220,111 @@ namespace Summary
             IsDialogOpen=true;
            
         }
-        private async void clickOkButton(object a) 
+        private async void clickOkButton(object a = null)
         {
-            await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); }).ContinueWith(delegate { closeDialog(); });
+            var tempDate = EndTime;
+            if (a!=null && a.ToString() == "LastWeek")
+            {
+                StartTime = StartTime.AddDays(-7);
+                EndTime = StartTime.AddDays(6);
+            }
+            if (a!=null &&a.ToString() == "NextWeek")
+            {
+                StartTime = StartTime.AddDays(7);
+                EndTime = StartTime.AddDays(6);
+            }
+            if (a!=null &&a.ToString() == "LastMonth")
+            {
+                StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(-1);
+                EndTime = StartTime.AddMonths(1).AddDays(-1);
+            }
+            if (a!=null &&a.ToString() == "NextMonth")
+            {
+                StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
+                EndTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
+            }
+            await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView();  }).ContinueWith(delegate { closeDialog(); });
            
         }
-        public  void showTimeView()
-		{
-             List<MyTime> allTimeData =  SQLCommands.GetAllTimeObjs(startTime, endTime);
-             AllTimeViewObjs = BuildTimeViewObj(allTimeData);
+
+        private async void TimeObjType_SelectionChanged(object a)
+        {
+            if (SelectedTimeObj.Type!=a.ToString())
+            {
+                var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x=>x.Note==selectedTimeObj.Note);
+                foreach(var obj in TodayAllObjectWithSameNote)
+                {
+                    obj.Type = a.ToString();
+                    UpdateColor(obj, a.ToString());
+                    await SQLCommands.UpdateObj(obj);
+                }
+                refreshSingleDayPlot();
+            }
         }
-       
+        private async void TimeObjType_NoteChanged(object a)
+        {
+            var currObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.First(x => x.Id==selectedTimeObj.Id);
+            currObj.Note = a.ToString();
+            currObj.TimeNote = currObj.LastTime + "\n" + currObj.Note;
+            await SQLCommands.UpdateObj(SelectedTimeObj);
+            refreshSingleDayPlot();
+        }
+        public async void showTimeView()
+		{
+             List<MyTime> allTimeData =  await SQLCommands.GetAllTimeObjs(startTime, endTime);
+             AllTimeViewObjs = BuildTimeViewObj(allTimeData);
+             AllRB.Dispatcher.Invoke(new Action(delegate
+             {
+                 if (AllRB.IsChecked==true) refreshSummaryPlot("all");
+             }));
+            WorkRB.Dispatcher.Invoke(new Action(delegate
+            {
+                if (WorkRB.IsChecked==true) refreshSummaryPlot("work");
+            }));
+            StudyRB.Dispatcher.Invoke(new Action(delegate
+            {
+                if (StudyRB.IsChecked==true) refreshSummaryPlot("study");
+            }));
+            WasteRB.Dispatcher.Invoke(new Action(delegate
+            {
+                if (WasteRB.IsChecked==true) refreshSummaryPlot("waste");
+            }));
+            RestRB.Dispatcher.Invoke(new Action(delegate
+            {
+                if (RestRB.IsChecked==true) refreshSummaryPlot("rest");
+            }));
+        }
+        public void resizeHeight(object a = null)
+        {
+            if(AllTimeViewObjs != null)
+            {
+                if (a!=null)
+                {
+                    if (a.ToString()=="amplify")
+                    {
+                        height = height*1.5;
+                    }
+                    else
+                    {
+                        height = height/1.5;
+                    }
+                }
+                else {
+                    height = LeftPanelHeight;
+                }
+                foreach (var gridSource in AllTimeViewObjs)
+                {
+                    foreach (var obj in gridSource.DailyObjs)
+                    {
+                        obj.Height = CalculateHeight(obj.LastTime);
+                    }
+                }
+                SummaryPlot.Height = LeftPanelHeight-250;
+                SingleDayPlot.Height = LeftPanelHeight-250;
+                SummaryPlot.Refresh();
+                SingleDayPlot.Refresh();
+            }
+        }
         private ObservableCollection<GridSourceTemplate> BuildTimeViewObj(List<MyTime> allTimeData)
         {
 			DateTime currentDate = startTime;
@@ -111,8 +332,9 @@ namespace Summary
 
             while (currentDate<=endTime)
 			{
-				var currentDateTemplate = new GridSourceTemplate();
-				currentDateTemplate.Title = currentDate.ToShortDateString();
+				var currentDateTemplate = new GridSourceTemplate(currentDate);
+
+                currentDateTemplate.Title = currentDate.ToShortDateString();
 				currentDateTemplate.Week = currentDate.DayOfWeek.ToString();
 
                 if (currentDateTemplate.Week.Equals("Saturday")||currentDateTemplate.Week.Equals("Sunday"))
@@ -123,12 +345,11 @@ namespace Summary
 				{
                     currentDateTemplate.Color = "#008080";
                 }
-                 List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate).OrderBy(s=>s.startTime).ToList<MyTime>();
+                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate).OrderBy(s=>s.startTime).ToList<MyTime>();
                 bool firstTimeObj = true;
                 TimeSpan endTime = new TimeSpan(6,0,0);
 				foreach(MyTime TimeObj in currentDateData)
 				{
-                    
                     TimeViewObj timeViewObj = new TimeViewObj();
 					TimeSpan startTime = TimeSpan.Parse(TimeObj.startTime.ToString());
                     endTime = TimeSpan.Parse(TimeObj.endTime.ToString());
@@ -147,6 +368,7 @@ namespace Summary
                             startTimeObj.StartTime = tempStart;
                             startTimeObj.EndTime = TimeObj.startTime;
                             startTimeObj.Type = "none";
+                            startTimeObj.Id = TimeObj.currentIndex;
                             currentDateTemplate.DailyObjs.Add(startTimeObj);
                         }
                     }
@@ -159,20 +381,9 @@ namespace Summary
                         timeViewObj.StartTime = TimeObj.startTime;
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type;
-                        switch (TimeObj.type.Trim())
-						{
-							case "study": timeViewObj.Color = "#FFB6C1";
-								break;
-							case "waste": timeViewObj.Color = "#F08080";
-                                break;
-                            case "rest": timeViewObj.Color = "#98FB98";
-                                break;
-                            case "work": timeViewObj.Color = "#FFD700";
-                                break;
-                            case "none":
-                                timeViewObj.Color = "#F3F3F3";
-                                break;
-                        }
+                        timeViewObj.Id = TimeObj.currentIndex;
+                        UpdateColor(timeViewObj, TimeObj.type.Trim());
+                        
                     }
 					currentDateTemplate.DailyObjs.Add(timeViewObj);
 				}
@@ -189,6 +400,7 @@ namespace Summary
                     startTimeObj.StartTime = endTime;
                     startTimeObj.EndTime = tempEndTime;
                     startTimeObj.Type = "none";
+                    startTimeObj.Id = 0;
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
                 }
                 currentDate = currentDate.AddDays(1);
@@ -196,18 +408,40 @@ namespace Summary
             }
 			return AllTimeViewObjs;
         }
-
+        private void UpdateColor(TimeViewObj timeViewObj,string type)
+        {
+            
+            switch (type)
+            {
+                case "study":
+                    timeViewObj.Color = "#FFB6C1";
+                    break;
+                case "waste":
+                    timeViewObj.Color = "#F08080";
+                    break;
+                case "rest":
+                    timeViewObj.Color = "#98FB98";
+                    break;
+                case "work":
+                    timeViewObj.Color = "#FFD700";
+                    break;
+                case "none":
+                    timeViewObj.Color = "#F3F3F3";
+                    break;
+            }
+        }
         private double CalculateHeight(TimeSpan lastTime)
         {
 			TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
-			return lastTime/allTimeSpan*(leftPanelHeight-60);
+			return lastTime/allTimeSpan*(height-100);
         }
 		
     }
+    //表格视图的单天Template
     public class GridSourceTemplate : ViewModelBase
     {
         private ObservableCollection<TimeViewObj> dailyObjs;
-
+        public DateTime createdDate { get; set; }
         public ObservableCollection<TimeViewObj> DailyObjs
         {
             get { return dailyObjs; }
@@ -232,25 +466,33 @@ namespace Summary
             get { return color; }
             set { color = value; OnPropertyChanged(); }
         }
-        public GridSourceTemplate()
+        public GridSourceTemplate(DateTime createdDate)
         {
             DailyObjs = new ObservableCollection<TimeViewObj>();
+            this.createdDate = createdDate;
         }
        
     }
-
-    public class GridViewList : ViewModelBase
+    public class ChartBar
     {
-        private GridSourceTemplate _gridSourceTemplate;
-        public GridSourceTemplate gridSourceTemplate
-        {
-            get { return _gridSourceTemplate; }
-            set { _gridSourceTemplate = value; OnPropertyChanged(); }
-        }
-        public GridViewList()
-        {
-            gridSourceTemplate = new GridSourceTemplate();
-        }
-
+        public string Note { get; set; }
+        public string Type { get; set; }
+        public TimeSpan Time { get; set; }
+        
     }
+    
+    //public class GridViewList : ViewModelBase
+    //{
+    //    private GridSourceTemplate _gridSourceTemplate;
+    //    public GridSourceTemplate gridSourceTemplate
+    //    {
+    //        get { return _gridSourceTemplate; }
+    //        set { _gridSourceTemplate = value; OnPropertyChanged(); }
+    //    }
+    //    public GridViewList()
+    //    {
+    //        gridSourceTemplate = new GridSourceTemplate();
+    //    }
+
+    //}
 }

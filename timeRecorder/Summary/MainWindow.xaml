@@ -8,6 +8,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:uc="clr-namespace:Summary.Domain"
         xmlns:cv="clr-namespace:Summary.Common.Converter"
+        xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF"
         mc:Ignorable="d"
         FontFamily="微软雅黑"
         FontSize="16"
@@ -69,9 +70,24 @@
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
                 </DatePicker>
-                <Button Content="确定" Margin="10" Command="{Binding ClickOkButtonCommand}"></Button>
-
-            </StackPanel>
+                    <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}"></Button>
+                    <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek"></Button>
+                    <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek"></Button>
+                    <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth"></Button>
+                    <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth"></Button>
+                <Button Width="25" Height="25" Margin="10" Command="{Binding ResizeCommand}" CommandParameter="amplify"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                    <!--<materialDesign:PackIcon Kind="Alarm" />--> +
+                </Button>
+                    <Button Width="25" Height="25" Margin="10"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                        <!--<materialDesign:PackIcon Kind="Alarm" />--> -
+                    </Button>
+                </StackPanel>
             </Border>
             <!--左边panel-->
             <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" >
@@ -116,15 +132,16 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border >
-                                                        <i:Interaction.Triggers>
-                                                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                                <i:InvokeCommandAction 
-                                                                    CommandParameter="{Binding }"
-                                                                    Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
-                                                            </i:EventTrigger>
-                                                        </i:Interaction.Triggers>
-                                                            <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0">
-                                                        </TextBox>
+                                                        
+                                                         <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0">
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                                        <i:InvokeCommandAction 
+                                                                        CommandParameter="{Binding }"
+                                                                        Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </TextBox>
                                                     </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -175,27 +192,70 @@
                                 <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" FontWeight="Normal" Width="100" Grid.Row="3"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
 
                                     <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" >
-                                        <ComboBoxItem  Background="LightGreen">
+                                        <!--<i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <i:InvokeCommandAction 
+                                                                    CommandParameter="{Binding }"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>-->
+                                        <ComboBoxItem  Background="LightGreen" Tag="rest">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction 
+                                                                    CommandParameter="rest"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="rest"/>
                                         </ComboBoxItem>
-                                        <ComboBoxItem Background="pink" >
+                                        <ComboBoxItem Background="pink"  Tag="study">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction 
+                                                                    CommandParameter="study"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="study"/>
                                         </ComboBoxItem>
-                                        <ComboBoxItem Background="yellow" >
+                                        <ComboBoxItem Background="yellow"  Tag="work">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction 
+                                                                    CommandParameter="work"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="work"/>
                                         </ComboBoxItem>
-                                        <ComboBoxItem  Background="OrangeRed" >
+                                        <ComboBoxItem  Background="OrangeRed"  Tag="waste">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction 
+                                                                    CommandParameter="waste"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="waste"/>
                                         </ComboBoxItem>
-                                        <ComboBoxItem >
+                                        <ComboBoxItem  Tag="none"   >
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction 
+                                                                    CommandParameter="none"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
                                             <TextBlock HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="none"/>
@@ -203,27 +263,48 @@
                                     </ComboBox>
 
 
-                                    <TextBox FontWeight="Normal" 
+                                    <TextBox FontWeight="Normal" Name="SelectedNote"
                                          HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5" 
                                         VerticalAlignment="Top"
                                         AcceptsReturn="True"
                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                         TextWrapping="Wrap"
-                                        VerticalScrollBarVisibility="Auto" Text="{Binding SelectedTimeObj.Note}" />
-                            </Grid>
+                                        VerticalScrollBarVisibility="Auto" Text="{Binding SelectedTimeObj.Note}" >
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="LostFocus">
+                                                <i:InvokeCommandAction 
+                                                                    CommandParameter="{Binding ElementName=SelectedNote,Path=Text}"
+                                                                    Command="{Binding DataContext.TimeObjType_NoteChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TextBox},AncestorLevel=1}}"></i:InvokeCommandAction>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </TextBox>
+                                </Grid>
                         </Expander>
-                            <Border
+                        <Border
       Style="{StaticResource HorizontalDividerBorder}" />
-                            <Expander
+                        <Expander
                               HorizontalAlignment="Stretch"
-                              Header="单日"> 
-                        </Expander>
-                            <Border
+                              Header="单日">
+                                <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
+                            </Expander>
+                        <Border
       Style="{StaticResource HorizontalDividerBorder}" />
-                            <Expander
+                        <Expander
                               HorizontalAlignment="Stretch"
                               Header="总览">
-                        </Expander>
+                                <StackPanel >
+                                    <WrapPanel Margin="10" Orientation="Horizontal" >
+                                        <Label FontSize="14">Type:</Label>
+                                        <RadioButton FontSize="14" x:Name="AllRB" GroupName="Type" Margin="5,0" IsChecked="True" Command="{Binding SummaryRBChangedCommand}" CommandParameter="All">All</RadioButton>
+                                        <RadioButton FontSize="14" x:Name="StudyRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Study">Study</RadioButton>
+                                        <RadioButton FontSize="14" x:Name="WorkRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Work">Work</RadioButton>
+                                        <RadioButton FontSize="14" x:Name="WasteRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Waste">Waste</RadioButton>
+                                        <RadioButton FontSize="14" x:Name="RestRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Rest">Rest</RadioButton>
+                                    </WrapPanel>
+                                    <ScottPlot:WpfPlot x:Name="SummaryPlot" Height="500"/>
+                                </StackPanel>
+                                
+                            </Expander>
                     </StackPanel>
                 </materialDesign:Card>
                 </StackPanel>

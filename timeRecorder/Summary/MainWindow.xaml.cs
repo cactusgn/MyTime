@@ -26,12 +26,20 @@ namespace Summary
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
+            mainModel.SingleDayPlot = SingleDayPlot;
+            mainModel.SummaryPlot = SummaryPlot;
+            mainModel.WorkRB = WorkRB;
+            mainModel.StudyRB = StudyRB;
+            mainModel.WasteRB = WasteRB;
+            mainModel.RestRB = RestRB;
+            mainModel.AllRB = AllRB;
             this.DataContext = mainModel;
+            mainModel.showTimeView();
         }
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ((MainModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;
-            ((MainModel)this.DataContext).showTimeView();
+            ((MainModel)this.DataContext).resizeHeight();
         }
        
     }

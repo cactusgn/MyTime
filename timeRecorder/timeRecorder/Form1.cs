@@ -78,6 +78,7 @@ namespace timeRecorder
         bool copiedFromList = false;
         public Form1()
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
             form2 = new Form2(this);
         }

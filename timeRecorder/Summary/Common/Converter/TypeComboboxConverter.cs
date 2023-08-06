@@ -16,7 +16,6 @@ namespace Summary.Common.Converter
             {
                 throw new ArgumentNullException("Type is null");
             }
-            int i = 0;
             string type = value.ToString().Trim();
             switch(type)
             {
@@ -32,7 +31,21 @@ namespace Summary.Common.Converter
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return null;
+            if (value == null)
+            {
+                throw new ArgumentNullException("Type is null");
+            }
+            int i =  int.Parse(value.ToString().Trim());
+            switch (i)
+            {
+                case 0: return "rest";
+                case 1: return "study";
+                case 2: return "work";
+                case 3: return "waste";
+                case 4: return "none";
+            }
+
+            return "none";
         }
     }
 }

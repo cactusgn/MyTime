@@ -15,6 +15,7 @@ namespace timeRecorder
     {
         public InputDialog()
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
             //this.AcceptButton = this.button1;
             this.CancelButton = this.button2;

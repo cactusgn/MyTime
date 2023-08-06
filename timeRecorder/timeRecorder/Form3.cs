@@ -21,6 +21,7 @@ namespace timeRecorder
         DateTime currentDate;
         public Form3(List<TimeRecordObj> timelistForChart)
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
             foreach(TimeRecordObj a in timelistForChart){
                 this.timelistForChart.Add(a);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Summary.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Summary.Data
 {
     public interface ISQLCommands
     {
-        public List<MyTime> GetAllTimeObjs(DateTime startTime, DateTime endTime);
+        public Task<List<MyTime>> GetAllTimeObjs(DateTime startTime, DateTime endTime);
+        public  Task<int> UpdateObj(TimeViewObj obj);
     }
 }

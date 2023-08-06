@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Summary.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,25 @@ namespace Summary
     {
         public SummaryUserControl()
         {
+        }
+
+        public SummaryUserControl(SummaryModel summaryModel)
+        {
             InitializeComponent();
+            summaryModel.SingleDayPlot = SingleDayPlot;
+            summaryModel.SummaryPlot = SummaryPlot;
+            summaryModel.WorkRB = WorkRB;
+            summaryModel.StudyRB = StudyRB;
+            summaryModel.WasteRB = WasteRB;
+            summaryModel.RestRB = RestRB;
+            summaryModel.AllRB = AllRB;
+            this.DataContext = summaryModel;
+            summaryModel.showTimeView();
+        }
+        private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ((SummaryModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;
+            ((SummaryModel)this.DataContext).resizeHeight();
         }
     }
 }

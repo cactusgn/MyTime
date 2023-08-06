@@ -12,7 +12,8 @@
         mc:Ignorable="d"
         FontFamily="微软雅黑"
         FontSize="16"
-        Title="总览" Height="660" Width="1200">
+        Title="My Recorder" Height="660" Width="1200">
+    
     <Window.Resources>
         <cv:TimeConverter x:Key="timeConverter"/>
         <cv:DateConverter x:Key="dateConverter"/>
@@ -30,288 +31,66 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="UseLayoutRounding" Value="True" />
         </Style>
-
+        <Style x:Key="LeftButton1" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="80"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <StackPanel >
+                            <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="Gray" />
+                            <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="Gray"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
+                                <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="LeftButton2" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="80"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <StackPanel>
+                            <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="40" Height="40" Foreground="Gray" />
+                            <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="Gray"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
+                                <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
-    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
-                             Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
-
-        <materialDesign:DialogHost.DialogContent>
-            <!-- 这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字-->
-            <!-- 不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写-->
-            <!-- 也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
-
-            <uc:SampleProgressDialog ></uc:SampleProgressDialog>
-        </materialDesign:DialogHost.DialogContent>
-
-        <!-- 这里放原本页面的内容，比如我的是<Grid>需要被遮罩层包住的页面</Grid>-->
-
-        <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
-            <Grid.RowDefinitions>
-                <RowDefinition x:Name="Filter" Height="70"/>
-                <RowDefinition x:Name="Result" Height="*"/>
-            </Grid.RowDefinitions>
-            <!--查询界面-->
-            <Border Padding="0,0,0,4">
-                <Border.Effect>
-                    <DropShadowEffect Color="Gray" ShadowDepth="4" BlurRadius="5" Opacity="0.3" Direction="286"/>
-                </Border.Effect>
-                <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="LightYellow" Grid.ColumnSpan="2" Orientation="Horizontal" >
-               
-                <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10"></TextBlock>
-                <DatePicker
-                  Width="150" Margin="10"
-                  materialDesign:CalendarAssist.IsHeaderVisible="False"
-                  materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
-                </DatePicker>
-                <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
-
-                <DatePicker
-                  Width="150" Margin="10"
-                  materialDesign:CalendarAssist.IsHeaderVisible="False"
-                  materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
-                </DatePicker>
-                    <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}"></Button>
-                    <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek"></Button>
-                    <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek"></Button>
-                    <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth"></Button>
-                    <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth"></Button>
-                <Button Width="25" Height="25" Margin="10" Command="{Binding ResizeCommand}" CommandParameter="amplify"
-                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
-                    <!--<materialDesign:PackIcon Kind="Alarm" />--> +
-                </Button>
-                    <Button Width="25" Height="25" Margin="10"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
-                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
-                        <!--<materialDesign:PackIcon Kind="Alarm" />--> -
-                    </Button>
-                </StackPanel>
-            </Border>
-            <!--左边panel-->
-            <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition MinWidth="280"/>
-                </Grid.ColumnDefinitions>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                    <DockPanel>
-                        <Canvas>
-                            
-                        </Canvas>
-                        <StackPanel   Grid.Row="1" Grid.Column="0" x:Name="leftPanel"  HorizontalAlignment="Center">
-                        <!--<DataGrid x:Name="DataList"/>-->
-
-                        <ItemsControl ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel  IsVirtualizing="True"
-                              VirtualizationMode="Recycling" Orientation="Horizontal"/>
-                                    <!--<StackPanel Orientation="Horizontal"/>-->
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    
-                                    <StackPanel Orientation="Vertical" Width="100">
-                                       
-                                        <Border  Margin="0,5,0,1"  CornerRadius="6" >
-                                            <Button Content="{Binding Title}" Background="LightSalmon" Padding="2" BorderBrush="LightSalmon" Foreground="White"></Button>
-                                        </Border>
-                                        <Border  Margin="0,0,0,1"    CornerRadius="6" >
-                                            <Button Content="{Binding Week}" Padding="2" Background="{Binding Color}" FontSize="12" BorderBrush="{Binding Color}" Foreground="White"></Button>
-                                        </Border>
-                                        <ItemsControl ItemsSource="{Binding DailyObjs}" >
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Vertical"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border >
-                                                        
-                                                         <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0">
-                                                                <i:Interaction.Triggers>
-                                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                                        <i:InvokeCommandAction 
-                                                                        CommandParameter="{Binding }"
-                                                                        Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
-                                                                    </i:EventTrigger>
-                                                                </i:Interaction.Triggers>
-                                                            </TextBox>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                    </StackPanel>
-                    </DockPanel>
-                </ScrollViewer>
-                <GridSplitter HorizontalAlignment="Center"   
-                      VerticalAlignment="Stretch"   
-                      Grid.Column="1"   
-                      Width="2" Background="Silver">
-                </GridSplitter>
-                <!--右边panel-->
-                <StackPanel Grid.Row="1" Grid.Column="2">
-                <materialDesign:Card  >
-                    <StackPanel  x:Name="rightPanel"  >
-                        <Expander
-                              HorizontalAlignment="Stretch" FontWeight="Bold"
-                              Header="时间块" IsExpanded="True">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*" x:Name="secondColumn"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Margin="5" Style="{StaticResource HorizontalExpanderContentTextBlock}">日期</TextBlock>
-                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}" Margin="5" Grid.Row="1">开始时间</TextBlock>
-                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="2">结束时间</TextBlock>
-                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="3">持续时间</TextBlock>
-                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="4">类型</TextBlock>
-                                <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">记录</TextBlock>
-
-                                <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Text="{Binding SelectedTimeObj.CreatedDate,Converter={StaticResource dateConverter}}" FontWeight="Normal"></TextBox>
-                                <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
-                                <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
-                                <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" FontWeight="Normal" Width="100" Grid.Row="3"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
-
-                                    <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" >
-                                        <!--<i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <i:InvokeCommandAction 
-                                                                    CommandParameter="{Binding }"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>-->
-                                        <ComboBoxItem  Background="LightGreen" Tag="rest">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                    <i:InvokeCommandAction 
-                                                                    CommandParameter="rest"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                            <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="rest"/>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem Background="pink"  Tag="study">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                    <i:InvokeCommandAction 
-                                                                    CommandParameter="study"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-
-                                            <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="study"/>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem Background="yellow"  Tag="work">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                    <i:InvokeCommandAction 
-                                                                    CommandParameter="work"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                            <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="work"/>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem  Background="OrangeRed"  Tag="waste">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                    <i:InvokeCommandAction 
-                                                                    CommandParameter="waste"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                            <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="waste"/>
-                                        </ComboBoxItem>
-                                        <ComboBoxItem  Tag="none"   >
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                    <i:InvokeCommandAction 
-                                                                    CommandParameter="none"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                            <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="none"/>
-                                        </ComboBoxItem>
-                                    </ComboBox>
-
-
-                                    <TextBox FontWeight="Normal" Name="SelectedNote"
-                                         HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5" 
-                                        VerticalAlignment="Top"
-                                        AcceptsReturn="True"
-                                        Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                        TextWrapping="Wrap"
-                                        VerticalScrollBarVisibility="Auto" Text="{Binding SelectedTimeObj.Note}" >
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="LostFocus">
-                                                <i:InvokeCommandAction 
-                                                                    CommandParameter="{Binding ElementName=SelectedNote,Path=Text}"
-                                                                    Command="{Binding DataContext.TimeObjType_NoteChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TextBox},AncestorLevel=1}}"></i:InvokeCommandAction>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </TextBox>
-                                </Grid>
-                        </Expander>
-                        <Border
-      Style="{StaticResource HorizontalDividerBorder}" />
-                        <Expander
-                              HorizontalAlignment="Stretch"
-                              Header="单日">
-                                <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
-                            </Expander>
-                        <Border
-      Style="{StaticResource HorizontalDividerBorder}" />
-                        <Expander
-                              HorizontalAlignment="Stretch"
-                              Header="总览">
-                                <StackPanel >
-                                    <WrapPanel Margin="10" Orientation="Horizontal" >
-                                        <Label FontSize="14">Type:</Label>
-                                        <RadioButton FontSize="14" x:Name="AllRB" GroupName="Type" Margin="5,0" IsChecked="True" Command="{Binding SummaryRBChangedCommand}" CommandParameter="All">All</RadioButton>
-                                        <RadioButton FontSize="14" x:Name="StudyRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Study">Study</RadioButton>
-                                        <RadioButton FontSize="14" x:Name="WorkRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Work">Work</RadioButton>
-                                        <RadioButton FontSize="14" x:Name="WasteRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Waste">Waste</RadioButton>
-                                        <RadioButton FontSize="14" x:Name="RestRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Rest">Rest</RadioButton>
-                                    </WrapPanel>
-                                    <ScottPlot:WpfPlot x:Name="SummaryPlot" Height="500"/>
-                                </StackPanel>
-                                
-                            </Expander>
-                    </StackPanel>
-                </materialDesign:Card>
-                </StackPanel>
-            </Grid>
-
-        </Grid>
-
-    </materialDesign:DialogHost>
-
+    <Grid x:Name="MainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Background="AliceBlue">
+            <Button  Margin="10,10" Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="RecordPageUserControl" Style="{StaticResource LeftButton1}">
+            </Button>
+            <Button  Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl" Style="{StaticResource LeftButton2}">
+            </Button>
+        </StackPanel>
+        <ContentPresenter Grid.Column="1"  Content="{Binding MainContent}" ></ContentPresenter>
+    </Grid>
+   
+    
 </Window>

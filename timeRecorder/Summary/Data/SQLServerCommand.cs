@@ -47,6 +47,26 @@ namespace Summary.Data
             }
             return 1;
         }
+        public async Task<int> AddObj(TimeViewObj obj)
+        {
+            using (var context = new MytimeContext())
+            {
+                MyTime newObj = new MyTime() {
+                    currentIndex = obj.Id,
+                    startTime = obj.StartTime,
+                    endTime = obj.EndTime,
+                    lastTime = obj.LastTime,
+                    createDate = obj.CreatedDate,
+                    note = obj.Note,
+                    type = obj.Type
+                };
+                
+                await context.MyTime.AddAsync(newObj);
+                await context.SaveChangesAsync();
+
+            }
+            return 1;
+        }
     }
     
 }

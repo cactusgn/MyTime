@@ -11,5 +11,6 @@ namespace Summary.Data
     {
         public Task<List<MyTime>> GetAllTimeObjs(DateTime startTime, DateTime endTime);
         public  Task<int> UpdateObj(TimeViewObj obj);
+        public Task<int> AddObj(TimeViewObj obj);
     }
 }

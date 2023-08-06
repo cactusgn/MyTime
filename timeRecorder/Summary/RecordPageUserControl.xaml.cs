@@ -1,11 +1,6 @@
-﻿using MaterialDesignThemes.Wpf;
-using Summary.Data;
-using Summary.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,15 +16,13 @@ using System.Windows.Shapes;
 namespace Summary
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// RecordPageUserControl.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class RecordPageUserControl : UserControl
     {
-        public MainWindow(MainModel mainModel)
+        public RecordPageUserControl()
         {
             InitializeComponent();
-            this.DataContext = mainModel;
         }
-
     }
 }

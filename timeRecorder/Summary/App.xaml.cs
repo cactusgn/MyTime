@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Summary.Data;
+using Summary.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,7 +48,8 @@ namespace Summary
         {
             //这个根据自己需要注入
             services.AddSingleton<ISQLCommands, SQLServerCommand>();
-            services.AddTransient<MainModel>();
+            services.AddSingleton<MainModel>();
+            services.AddSingleton<SummaryModel>();
             services.AddSingleton<MainWindow>();
         }
         protected override void OnStartup(StartupEventArgs e)
@@ -57,7 +59,7 @@ namespace Summary
             window?.Show();
             base.OnStartup(e);
         }
-
+        
         protected override async void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);

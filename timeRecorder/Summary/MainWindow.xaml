@@ -40,12 +40,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <StackPanel >
+                        <StackPanel x:Name="panel">
                             <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="Gray" />
                             <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="Gray"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#2884D5" />
                                 <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
                                 <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
                             </Trigger>
@@ -69,6 +70,7 @@
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#2884D5" />
                                 <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
                                 <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
                             </Trigger>
@@ -84,9 +86,51 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Background="AliceBlue">
-            <Button  Margin="10,10" Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="RecordPageUserControl" Style="{StaticResource LeftButton1}">
+            <Button Foreground="{Binding RecordBtnForegroundColor}" HorizontalAlignment="Center"   Margin="10,10" Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="RecordPageUserControl" >
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <StackPanel>
+                                        <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="{Binding RecordBtnForegroundColor}" />
+                                        <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding RecordBtnForegroundColor}"/>
+                                    </StackPanel>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#2884D5" />
+                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
+                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
             </Button>
-            <Button  Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl" Style="{StaticResource LeftButton2}">
+            <Button  Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <StackPanel>
+                                        <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="40" Height="40" Foreground="{Binding SummaryBtnForegroundColor}" />
+                                        <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding SummaryBtnForegroundColor}"/>
+                                    </StackPanel>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#2884D5" />
+                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
+                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
             </Button>
         </StackPanel>
         <ContentPresenter Grid.Column="1"  Content="{Binding MainContent}" ></ContentPresenter>

@@ -374,7 +374,7 @@ namespace Summary.Models
                         timeViewObj.Height = CalculateHeight(endTime - startTime);
                         timeViewObj.StartTime = TimeObj.startTime;
                         timeViewObj.EndTime = TimeObj.endTime;
-                        timeViewObj.Type = TimeObj.type;
+                        timeViewObj.Type = TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
                         lastIndex = TimeObj.currentIndex;
                         UpdateColor(timeViewObj, TimeObj.type.Trim());

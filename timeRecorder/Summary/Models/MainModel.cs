@@ -23,24 +23,36 @@ using ScottPlot.MarkerShapes;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.ComponentModel;
 using System.Reflection;
-using Summary.Models;
 
-namespace Summary
+namespace Summary.Models
 {
-    public class MainModel:ViewModelBase
+    public class MainModel : ViewModelBase
     {
-        
-		public MyCommand OpenPageCommand { get; set; }
-       
+
+        public MyCommand OpenPageCommand { get; set; }
+
         private UIElement mainContent;
-        public UIElement MainContent {
+        public UIElement MainContent
+        {
             get { return mainContent; }
             set { mainContent = value; OnPropertyChanged(); }
         }
-        
-        public RecordPageUserControl RecordPageUserControl { get; set; }
+
+        public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
         public SummaryModel SummaryModel { get; set; }
+        public string summaryBtnForegroundColor = Colors.Gray.ToString();
+        public string recordBtnForegroundColor = Colors.Gray.ToString();
+        public string SummaryBtnForegroundColor
+        {
+            get { return summaryBtnForegroundColor; }
+            set { summaryBtnForegroundColor = value; OnPropertyChanged(); }
+        }
+        public string RecordBtnForegroundColor
+        {
+            get { return recordBtnForegroundColor; }
+            set { recordBtnForegroundColor = value; OnPropertyChanged(); }
+        }
         public MainModel(SummaryModel summaryModel)
         {
             OpenPageCommand = new MyCommand(OpenPage);
@@ -51,17 +63,21 @@ namespace Summary
 
         private void OpenPage(object o)
         {
-            if (o.ToString()=="RecordPageUserControl")
+            if (o.ToString() == "RecordPageUserControl")
             {
                 MainContent = RecordPageUserControl;
+                RecordBtnForegroundColor = "#2884D5";
+                SummaryBtnForegroundColor = Colors.Gray.ToString();
             }
             else
             {
                 MainContent = SummaryUserControl;
+                RecordBtnForegroundColor = Colors.Gray.ToString();
+                SummaryBtnForegroundColor = "#2884D5";
             }
         }
-       
+
     }
-    
-    
+
+
 }

@@ -53,12 +53,13 @@ namespace Summary.Models
             get { return recordBtnForegroundColor; }
             set { recordBtnForegroundColor = value; OnPropertyChanged(); }
         }
-        public MainModel(SummaryModel summaryModel)
+        public MainModel(SummaryModel summaryModel,RecordModel recordModel)
         {
             OpenPageCommand = new MyCommand(OpenPage);
-            RecordPageUserControl = new RecordPageUserControl();
+            RecordPageUserControl = new RecordPageUserControl(recordModel);
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
+            OpenPage("RecordPageUserControl");
         }
 
         private void OpenPage(object o)

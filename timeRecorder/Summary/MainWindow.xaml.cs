@@ -25,10 +25,16 @@ namespace Summary
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
             this.DataContext = mainModel;
+            
+
+            ITheme theme = _paletteHelper.GetTheme();
+            theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
+            _paletteHelper.SetTheme(theme);
         }
 
     }

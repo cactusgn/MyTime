@@ -51,6 +51,7 @@ namespace Summary
             services.AddSingleton<MainModel>();
             services.AddSingleton<SummaryModel>();
             services.AddSingleton<MainWindow>();
+            services.AddSingleton<RecordModel>();
         }
         protected override void OnStartup(StartupEventArgs e)
         {

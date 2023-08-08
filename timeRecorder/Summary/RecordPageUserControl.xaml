@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Summary"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="white">
@@ -17,20 +17,26 @@
         <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
             <TextBlock Margin="10,10">Today:</TextBlock>
             <TextBox Margin="10,5" Padding="10"
-          materialDesign:HintAssist.Hint="添加今天要做的事" 
-          Style="{StaticResource MaterialDesignOutlinedTextBox}">
+          materialDesign:HintAssist.Hint="添加今天要做的事"  materialDesign:HintAssist.Foreground="{DynamicResource PrimaryHueDarkBrush}"
+          Style="{StaticResource MaterialDesignOutlinedTextBox}" >
+                <TextBox.InputBindings>
+                    <!--键盘事件绑定-->
+                    <KeyBinding Command="{Binding Enter_ClickCommand}" Key="Enter"/>
+                    <!--鼠标事件绑定-->
+                    <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
+                </TextBox.InputBindings>
                 <TextBox.Text>
                     <Binding
-      Path="Text2"
-      UpdateSourceTrigger="PropertyChanged">
+                    Path="Text2"
+                    UpdateSourceTrigger="PropertyChanged">
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <ListBox  ItemsSource="{Binding TodayList}">
+            <ListBox Margin="5" ItemsSource="{Binding TodayList}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding Finished}"></CheckBox>
+                            <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="{DynamicResource PrimaryHueDarkBrush}"></CheckBox>
                             <TextBlock Text="{Binding Note}"></TextBlock>
                         </StackPanel>
                     </DataTemplate>

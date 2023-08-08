@@ -21,9 +21,6 @@ namespace Summary
     /// </summary>
     public partial class SummaryUserControl : UserControl
     {
-        public SummaryUserControl()
-        {
-        }
 
         public SummaryUserControl(SummaryModel summaryModel)
         {
@@ -35,6 +32,8 @@ namespace Summary
             summaryModel.WasteRB = WasteRB;
             summaryModel.RestRB = RestRB;
             summaryModel.AllRB = AllRB;
+            summaryModel.ThirdLevelRB = ThirdLevelRB;
+            summaryModel.FirstLevelRB = FirstLevelRB;
             this.DataContext = summaryModel;
             summaryModel.showTimeView();
         }

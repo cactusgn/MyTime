@@ -58,7 +58,7 @@ namespace Summary.Models
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
-            theme.SetPrimaryColor(Colors.Orange);
+            theme.SetPrimaryColor(Colors.LightGreen);
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
@@ -69,7 +69,7 @@ namespace Summary.Models
        
         private void OpenPage(object o)
         {
-            var palette = _paletteHelper.GetTheme().PrimaryMid;
+            var palette = _paletteHelper.GetTheme().PrimaryDark;
             if (o.ToString() == "RecordPageUserControl")
             {
                 MainContent = RecordPageUserControl;

@@ -17,7 +17,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
 namespace Summary
 {
     /// <summary>
@@ -25,20 +24,26 @@ namespace Summary
     /// </summary>
     public partial class MainWindow : Window
     {
-        
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
-            this.DataContext = mainModel;
-
             
+            this.DataContext = mainModel;
+            //this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+            //this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
 
             btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
             btnMax.Click += (s, e) => {
                 if (this.WindowState == WindowState.Maximized)
+                {
                     this.WindowState = WindowState.Normal;
+                    btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowMaximize;
+                }
                 else
+                {
                     this.WindowState = WindowState.Maximized;
+                    btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowRestore;
+                }
             };
             btnClose.Click += (s, e) => { this.Close(); };
             ColorZone.MouseMove += (s, e) => {
@@ -50,11 +55,18 @@ namespace Summary
             ColorZone.MouseDoubleClick += (s, e) =>
             {
                 if (this.WindowState == WindowState.Normal)
+                {
                     this.WindowState = WindowState.Maximized;
+                }
                 else
+                {
                     this.WindowState = WindowState.Normal;
+                }
+                    
             };
+            
         }
-
+     
+        
     }
 }

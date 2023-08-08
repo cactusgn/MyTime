@@ -14,10 +14,11 @@
         FontSize="16"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
         Style="{StaticResource MaterialDesignWindow}"
         AllowsTransparency="True"
         Background="Transparent"
-        Title="My Recorder" Height="660" Width="1200">
+        Title="My Recorder"  Height="660" Width="1200">
     
     <Window.Resources>
         <cv:TimeConverter x:Key="timeConverter"/>
@@ -36,54 +37,6 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="UseLayoutRounding" Value="True" />
         </Style>
-        <Style x:Key="LeftButton1" TargetType="{x:Type Button}">
-            <Setter Property="Height" Value="80"></Setter>
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
-            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
-            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
-            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <StackPanel x:Name="panel">
-                            <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="Gray" />
-                            <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="Gray"/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="#2884D5" />
-                                <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
-                                <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="LeftButton2" TargetType="{x:Type Button}">
-            <Setter Property="Height" Value="80"></Setter>
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
-            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
-            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
-            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <StackPanel>
-                            <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="40" Height="40" Foreground="Gray" />
-                            <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="Gray"/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="#2884D5" />
-                                <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
-                                <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
@@ -97,9 +50,16 @@
                     materialDesign:ElevationAssist.Elevation="Dp2"
                     Mode="PrimaryDark">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="5"  VerticalAlignment="Center">
-                    <Button x:Name="btnMin" Foreground="{DynamicResource MaterialDesignDarkForeground}" Content="—" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
-                <Button x:Name="btnMax" Content="☐" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
-                <Button x:Name="btnClose" Content="✕" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
+                <Button  x:Name="btnMin" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
+                    <materialDesign:PackIcon VerticalAlignment="Center" Kind="WindowMinimize" Width="20" Height="20" />
+                </Button>
+                <Button  x:Name="btnMax" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
+                    <materialDesign:PackIcon x:Name="btnMaxIcon" VerticalAlignment="Center" Kind="WindowMaximize"  Width="20" Height="20" />
+                </Button>
+                <Button  x:Name="btnClose" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
+                    <materialDesign:PackIcon VerticalAlignment="Center" Kind="WindowClose" Width="20" Height="20"  />
+                </Button>
+                
                 </StackPanel>
         </materialDesign:ColorZone>
         <Border Grid.Row="1" CornerRadius="10">
@@ -129,9 +89,8 @@
                                                                 <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#DDD"/>
                                                             </Setter.Value>
                                                         </Setter>
-                                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -154,8 +113,8 @@
                                             </TextBlock>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                                         <Setter Property="Effect">
                                                             <Setter.Value>
                                                                 <DropShadowEffect BlurRadius="10"  ShadowDepth="1" Color="#DDD"/>

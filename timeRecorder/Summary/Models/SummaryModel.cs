@@ -53,6 +53,7 @@ namespace Summary.Models
         public MyCommand TimeObjType_SelectionChangedCommand { get; set; }
         public MyCommand TimeObjType_NoteChangedCommand { get; set; }
         public MyCommand SummaryRBChangedCommand { get; set; }
+        public MyCommand SingleDayRBChangedCommand { get; set; }
         public MyCommand ResizeCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
@@ -62,7 +63,8 @@ namespace Summary.Models
         public RadioButton StudyRB { get; set; }
         public RadioButton RestRB { get; set; }
         public RadioButton AllRB { get; set; }
-
+        public RadioButton ThirdLevelRB { get; set; }
+        public RadioButton FirstLevelRB { get; set; }
         private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
 
         private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
@@ -71,6 +73,7 @@ namespace Summary.Models
             InitVariables();
             ClickOkButtonCommand = new MyCommand(clickOkButton);
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
+            SingleDayRBChangedCommand = new MyCommand(SingleDayRBChanged);
             TimeObjType_SelectionChangedCommand = new MyCommand(TimeObjType_SelectionChanged);
             TimeObjType_NoteChangedCommand = new MyCommand(TimeObjType_NoteChanged);
             EndTime = DateTime.Today;
@@ -101,6 +104,10 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        private void SingleDayRBChanged(object obj)
+        {
+            refreshSingleDayPlot();
+        }
         private void SummaryRBChanged(object obj)
         {
             refreshSummaryPlot(obj.ToString());
@@ -115,7 +122,7 @@ namespace Summary.Models
                 refreshSingleDayPlot();
             }
         }
-        private void refreshPlot(ObservableCollection<TimeViewObj> AllObj, WpfPlot plot)
+        private void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
         {
             var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note=x.Key.Note, Type=x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
             var studyItems = items.Where(x => x.Type=="study").ToArray();
@@ -145,7 +152,22 @@ namespace Summary.Models
         private void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
-            refreshPlot(AllObj, SingleDayPlot);
+            if (FirstLevelRB.IsChecked==true)
+            {
+                var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime=new TimeSpan(x.Sum(x => x.LastTime.Ticks)),Type =x.Key,CreatedDate=SelectedTimeObj.CreatedDate, Note=x.Key }));
+                FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+                {
+                    refreshPlot(AllObj2, SingleDayPlot);
+                }));
+            }
+            if (ThirdLevelRB.IsChecked==true)
+            {
+                ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
+                {
+                    refreshPlot(AllObj, SingleDayPlot);
+                }));
+            }
+
         }
         private void refreshSummaryPlot(string type)
         {
@@ -322,7 +344,7 @@ namespace Summary.Models
         {
             DateTime currentDate = startTime;
             ObservableCollection<GridSourceTemplate> AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
-            int lastIndex = 0;
+            int lastIndex = 1;
             while (currentDate<=endTime)
             {
                 var currentDateTemplate = new GridSourceTemplate(currentDate);
@@ -339,8 +361,12 @@ namespace Summary.Models
                     currentDateTemplate.Color = "#008080";
                 }
                 TimeSpan endTime = new TimeSpan(6, 0, 0);
-                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.startTime>endTime).OrderBy(s => s.startTime).ToList<MyTime>();
+                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.startTime>=endTime).OrderBy(s => s.startTime).ToList<MyTime>();
                 bool firstTimeObj = true;
+                if(currentDateData.Count>0)
+                {
+                    lastIndex = currentDateData.Max(x => x.currentIndex)+1;
+                }
                 foreach (MyTime TimeObj in currentDateData)
                 {
                     TimeViewObj timeViewObj = new TimeViewObj();
@@ -361,12 +387,14 @@ namespace Summary.Models
                             startTimeObj.StartTime = tempStart;
                             startTimeObj.EndTime = TimeObj.startTime;
                             startTimeObj.Type = "none";
-                            startTimeObj.Id = -1;
-                            //await SQLCommands.AddObj(startTimeObj);
+                            startTimeObj.Id = lastIndex;
+                            lastIndex++;
+                            await SQLCommands.AddObj(startTimeObj);
+                            UpdateColor(startTimeObj, "none");
                             currentDateTemplate.DailyObjs.Add(startTimeObj);
                         }
                     }
-                    if (startTime>new TimeSpan(6, 0, 0))
+                    if (startTime>=new TimeSpan(6, 0, 0))
                     {
                         timeViewObj.CreatedDate = currentDate;
                         timeViewObj.LastTime = TimeObj.lastTime;
@@ -376,7 +404,6 @@ namespace Summary.Models
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
-                        lastIndex = TimeObj.currentIndex;
                         UpdateColor(timeViewObj, TimeObj.type.Trim());
 
                     }
@@ -384,8 +411,8 @@ namespace Summary.Models
                 }
                 //Add last obj
                 //Add first time object
-                TimeSpan tempEndTime = new TimeSpan(24, 0, 0);
-                if (endTime < tempEndTime)
+                TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
+                if (endTime < tempEndTime && currentDate!=DateTime.Today)
                 {
                     TimeViewObj startTimeObj = new TimeViewObj();
                     startTimeObj.CreatedDate = currentDate;
@@ -395,8 +422,9 @@ namespace Summary.Models
                     startTimeObj.StartTime = endTime;
                     startTimeObj.EndTime = tempEndTime;
                     startTimeObj.Type = "none";
-                    startTimeObj.Id = lastIndex+1;
-                    //await SQLCommands.AddObj(startTimeObj);
+                    startTimeObj.Id = lastIndex;
+                    UpdateColor(startTimeObj, "none");
+                    await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
                 }
                 currentDate = currentDate.AddDays(1);

@@ -70,5 +70,7 @@ namespace Summary
             }
             _host?.Dispose();
         }
+
+
     }
 }

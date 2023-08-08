@@ -14,7 +14,7 @@
             <ColumnDefinition Width="3*"></ColumnDefinition>
             <ColumnDefinition Width="4*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Background="#7AF0F8FF">
+        <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
             <TextBlock Margin="10,10">Today:</TextBlock>
             <TextBox Margin="10,5" Padding="10"
           materialDesign:HintAssist.Hint="添加今天要做的事" 
@@ -26,11 +26,16 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <ListBoxItem>
-                <ItemsControl ItemsSource="{Binding TodayList}" >
-                    <TextBlock>AAAA</TextBlock>
-                </ItemsControl>
-            </ListBoxItem>
+            <ListBox  ItemsSource="{Binding TodayList}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Finished}"></CheckBox>
+                            <TextBlock Text="{Binding Note}"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -12,6 +12,11 @@
         mc:Ignorable="d"
         FontFamily="微软雅黑"
         FontSize="16"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        Style="{StaticResource MaterialDesignWindow}"
+        AllowsTransparency="True"
+        Background="Transparent"
         Title="My Recorder" Height="660" Width="1200">
     
     <Window.Resources>
@@ -81,59 +86,95 @@
         </Style>
     </Window.Resources>
     <Grid x:Name="MainGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Background="AliceBlue">
-            <Button Foreground="{Binding RecordBtnForegroundColor}" HorizontalAlignment="Center"   Margin="10,10" Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="RecordPageUserControl" >
-                <Button.Style>
-                    <Style TargetType="{x:Type Button}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <StackPanel>
-                                        <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="{Binding RecordBtnForegroundColor}" />
-                                        <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding RecordBtnForegroundColor}"/>
-                                    </StackPanel>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Foreground" Value="#2884D5" />
-                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
-                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button  Height="60" BorderBrush="AliceBlue" Background="AliceBlue" Width="60" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl">
-                <Button.Style>
-                    <Style TargetType="{x:Type Button}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <StackPanel>
-                                        <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="40" Height="40" Foreground="{Binding SummaryBtnForegroundColor}" />
-                                        <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding SummaryBtnForegroundColor}"/>
-                                    </StackPanel>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Foreground" Value="#2884D5" />
-                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="#2884D5" />
-                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="#2884D5" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
-        <ContentPresenter Grid.Column="1"  Content="{Binding MainContent}" ></ContentPresenter>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <materialDesign:ColorZone
+                    x:Name="ColorZone"
+                    Height="50"
+                     CornerRadius="10,10,0,0"
+                    materialDesign:ElevationAssist.Elevation="Dp2"
+                    Mode="PrimaryDark">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="5"  VerticalAlignment="Center">
+                    <Button x:Name="btnMin" Foreground="{DynamicResource MaterialDesignDarkForeground}" Content="—" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
+                <Button x:Name="btnMax" Content="☐" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
+                <Button x:Name="btnClose" Content="✕" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent"/>
+                </StackPanel>
+        </materialDesign:ColorZone>
+        <Border Grid.Row="1" CornerRadius="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="60">
+                    <StackPanel Background="{StaticResource MaterialDesignLightBackground}" HorizontalAlignment="Left">
+                        <Button Foreground="{Binding RecordBtnForegroundColor}" HorizontalAlignment="Center"   Margin="10,10" Height="60"  Width="60" Command="{Binding OpenPageCommand}" CommandParameter="RecordPageUserControl" >
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <TextBlock  Height="60" HorizontalAlignment="Center">
+                                            <StackPanel>
+                                                <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="RecordRec" Width="40" Height="40" Foreground="{Binding RecordBtnForegroundColor}" />
+                                                <TextBlock Text="记录" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding RecordBtnForegroundColor}"/>
+                                            </StackPanel>
+                                            </TextBlock>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#DDD"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button  Height="60"  Width="60" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <TextBlock  Height="60" HorizontalAlignment="Center">
+                                                <StackPanel>
+                                                    <materialDesign:PackIcon x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="40" Height="40" Foreground="{Binding SummaryBtnForegroundColor}" />
+                                                    <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding SummaryBtnForegroundColor}"/>
+                                                </StackPanel>
+                                            </TextBlock>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect BlurRadius="10"  ShadowDepth="1" Color="#DDD"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Border>
+                <ContentPresenter Grid.Column="1" Grid.Row="0" Content="{Binding MainContent}" ></ContentPresenter>
+            </Grid>
+        </Border>
+        
     </Grid>
    
     

@@ -6,7 +6,22 @@ using System.Threading.Tasks;
 
 namespace Summary.Common
 {
-    public class ToDoObj
+    public class ToDoObj : ViewModelBase
     {
-    }
+		private bool finished;
+
+		public bool Finished
+		{
+			get { return finished; }
+			set { finished = value; OnPropertyChanged(); }
+		}
+		private string note;
+
+		public string Note
+		{
+			get { return note; }
+			set { note = value; OnPropertyChanged(); }
+		}
+
+	}
 }

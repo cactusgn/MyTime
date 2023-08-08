@@ -25,16 +25,35 @@ namespace Summary
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
+        
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
             this.DataContext = mainModel;
+
             
 
-            ITheme theme = _paletteHelper.GetTheme();
-            theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
-            _paletteHelper.SetTheme(theme);
+            btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
+            btnMax.Click += (s, e) => {
+                if (this.WindowState == WindowState.Maximized)
+                    this.WindowState = WindowState.Normal;
+                else
+                    this.WindowState = WindowState.Maximized;
+            };
+            btnClose.Click += (s, e) => { this.Close(); };
+            ColorZone.MouseMove += (s, e) => {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    this.DragMove();
+                }
+            };
+            ColorZone.MouseDoubleClick += (s, e) =>
+            {
+                if (this.WindowState == WindowState.Normal)
+                    this.WindowState = WindowState.Maximized;
+                else
+                    this.WindowState = WindowState.Normal;
+            };
         }
 
     }

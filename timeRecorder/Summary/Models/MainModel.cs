@@ -23,6 +23,7 @@ using ScottPlot.MarkerShapes;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.ComponentModel;
 using System.Reflection;
+using MaterialDesignColors;
 
 namespace Summary.Models
 {
@@ -37,7 +38,7 @@ namespace Summary.Models
             get { return mainContent; }
             set { mainContent = value; OnPropertyChanged(); }
         }
-
+        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
         public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
         public SummaryModel SummaryModel { get; set; }
@@ -55,26 +56,32 @@ namespace Summary.Models
         }
         public MainModel(SummaryModel summaryModel,RecordModel recordModel)
         {
+            ITheme theme = _paletteHelper.GetTheme();
+            //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
+            theme.SetPrimaryColor(Colors.Orange);
+            _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
             OpenPage("RecordPageUserControl");
         }
-
+       
         private void OpenPage(object o)
         {
+            var palette = _paletteHelper.GetTheme().PrimaryMid;
             if (o.ToString() == "RecordPageUserControl")
             {
                 MainContent = RecordPageUserControl;
-                RecordBtnForegroundColor = "#2884D5";
+                RecordBtnForegroundColor = palette.Color.ToString();
                 SummaryBtnForegroundColor = Colors.Gray.ToString();
             }
             else
             {
                 MainContent = SummaryUserControl;
                 RecordBtnForegroundColor = Colors.Gray.ToString();
-                SummaryBtnForegroundColor = "#2884D5";
+                //SummaryBtnForegroundColor = "#2884D5";
+                SummaryBtnForegroundColor = palette.Color.ToString();
             }
         }
 

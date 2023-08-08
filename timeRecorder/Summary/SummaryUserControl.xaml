@@ -54,9 +54,9 @@
                 <!--查询界面-->
                 <Border Padding="0,0,0,4">
                     <Border.Effect>
-                        <DropShadowEffect Color="Gray" ShadowDepth="4" BlurRadius="5" Opacity="0.3" Direction="286"/>
+                        <DropShadowEffect Color="Gray" ShadowDepth="3" BlurRadius="8" Opacity="0.3" Direction="356"/>
                     </Border.Effect>
-                    <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="AliceBlue" Grid.ColumnSpan="2" Orientation="Horizontal" >
+                    <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="{StaticResource MaterialDesignLightBackground}" Grid.ColumnSpan="2" Orientation="Horizontal" >
 
                         <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10"></TextBlock>
                         <DatePicker

@@ -44,7 +44,9 @@ namespace Summary.Common
                 OnPropertyChanged();
             }
         }
-        public TimeSpan LastTime { get; set; }
+        public TimeSpan LastTime {
+            get;set;
+        }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
         public DateTime CreatedDate { get; set; }

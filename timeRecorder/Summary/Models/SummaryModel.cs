@@ -397,7 +397,7 @@ namespace Summary.Models
                     if (startTime>=new TimeSpan(6, 0, 0))
                     {
                         timeViewObj.CreatedDate = currentDate;
-                        timeViewObj.LastTime = TimeObj.lastTime;
+                        timeViewObj.LastTime = TimeObj.endTime-TimeObj.startTime;
                         timeViewObj.Note = TimeObj.note;
                         timeViewObj.Height = CalculateHeight(endTime - startTime);
                         timeViewObj.StartTime = TimeObj.startTime;

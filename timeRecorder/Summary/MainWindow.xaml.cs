@@ -29,8 +29,8 @@ namespace Summary
             InitializeComponent();
             
             this.DataContext = mainModel;
-            //this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            //this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
+            this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+            this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
 
             btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
             btnMax.Click += (s, e) => {
@@ -57,10 +57,12 @@ namespace Summary
                 if (this.WindowState == WindowState.Normal)
                 {
                     this.WindowState = WindowState.Maximized;
+                    btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowRestore;
                 }
                 else
                 {
                     this.WindowState = WindowState.Normal;
+                    btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowMaximize;
                 }
                     
             };

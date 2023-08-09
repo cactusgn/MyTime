@@ -89,6 +89,7 @@
                                                                 <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#DDD"/>
                                                             </Setter.Value>
                                                         </Setter>
+                                                        <Setter Property="Cursor" Value="Hand"/>
                                                         <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                                         <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                                     </Trigger>
@@ -115,6 +116,7 @@
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                                         <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                        <Setter Property="Cursor" Value="Hand"/>
                                                         <Setter Property="Effect">
                                                             <Setter.Value>
                                                                 <DropShadowEffect BlurRadius="10"  ShadowDepth="1" Color="#DDD"/>

@@ -58,7 +58,7 @@ namespace Summary.Models
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
-            theme.SetPrimaryColor(Colors.LightGreen);
+            theme.SetPrimaryColor(Colors.LightPink);
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);

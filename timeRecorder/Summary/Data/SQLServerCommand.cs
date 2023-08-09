@@ -55,7 +55,6 @@ namespace Summary.Data
                     currentIndex = obj.Id,
                     startTime = obj.StartTime,
                     endTime = obj.EndTime,
-                    lastTime = obj.LastTime,
                     createDate = obj.CreatedDate,
                     note = obj.Note,
                     type = obj.Type

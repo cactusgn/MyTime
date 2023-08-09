@@ -412,7 +412,7 @@ namespace Summary.Models
                 //Add last obj
                 //Add first time object
                 TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
-                if (endTime < tempEndTime && currentDate!=DateTime.Today)
+                if (endTime < tempEndTime && currentDate<DateTime.Today)
                 {
                     TimeViewObj startTimeObj = new TimeViewObj();
                     startTimeObj.CreatedDate = currentDate;

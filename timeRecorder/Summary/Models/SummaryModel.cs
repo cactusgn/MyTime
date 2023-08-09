@@ -1,4 +1,5 @@
 ﻿using MaterialDesignThemes.Wpf;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
 using Summary.Common;
 using Summary.Data;
@@ -33,7 +34,7 @@ namespace Summary.Models
         public double LeftPanelHeight
         {
             get { return leftPanelHeight; }
-            set { leftPanelHeight = value; OnPropertyChanged();resizeHeight(); }
+            set { leftPanelHeight = value; OnPropertyChanged(); resizeHeight(); }
         }
         private double height;
         private bool _IsDialogOpen;
@@ -68,10 +69,16 @@ namespace Summary.Models
         public RadioButton AllRB { get; set; }
         public RadioButton ThirdLevelRB { get; set; }
         public RadioButton FirstLevelRB { get; set; }
+       
         private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
 
         private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
-        private SampleDialogViewModel sampleDialogViewModel{ get; set; }
+        public SampleDialogViewModel sampleDialogViewModel { get; set; }
+        public bool RadioButtonEnabled{ 
+            get {
+                return AllTimeViewObjs!=null && AllTimeViewObjs.Count()>0;
+            }
+        }
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
             InitVariables();
@@ -89,6 +96,7 @@ namespace Summary.Models
             ResizeCommand = new MyCommand(resizeHeight);
         }
 
+       
         private void InitVariables()
         {
             colorDic.Add(TimeType.None, "#F3F3F3");
@@ -238,11 +246,10 @@ namespace Summary.Models
         private void openDialog()
         {
             IsDialogOpen=true;
-            
         }
         private async void openSplitDialog(){
             var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
-            await DialogHost.Show(view, "RootDialog");
+            await DialogHost.Show(view, "SubRootDialog");
         }
         private void SplitButtonClick(object a = null){
             openSplitDialog();
@@ -270,8 +277,9 @@ namespace Summary.Models
                 StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
                 EndTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
             }
-            
-            await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); }).ContinueWith(delegate { closeDialog(); });
+
+            await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); });
+            //await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); }).ContinueWith(delegate { closeDialog(); });
         }
 
         private async void TimeObjType_SelectionChanged(object a)
@@ -300,7 +308,7 @@ namespace Summary.Models
         {
             List<MyTime> allTimeData = await SQLCommands.GetAllTimeObjs(startTime, endTime);
             AllTimeViewObjs = await BuildTimeViewObj(allTimeData);
-            SelectedTimeObj = new TimeViewObj(){ Type=""};
+            SelectedTimeObj = new TimeViewObj() { Type="" };
             AllRB.Dispatcher.Invoke(new Action(delegate
             {
                 if (AllRB.IsChecked==true) refreshSummaryPlot("all");
@@ -358,9 +366,10 @@ namespace Summary.Models
         {
             DateTime currentDate = startTime;
             ObservableCollection<GridSourceTemplate> AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
-            int lastIndex = 1;
+            
             while (currentDate<=endTime)
             {
+                int lastIndex = 1;
                 var currentDateTemplate = new GridSourceTemplate(currentDate);
 
                 currentDateTemplate.Title = currentDate.ToShortDateString();
@@ -416,7 +425,7 @@ namespace Summary.Models
                         timeViewObj.Height = CalculateHeight(endTime - startTime);
                         timeViewObj.StartTime = TimeObj.startTime;
                         timeViewObj.EndTime = TimeObj.endTime;
-                        timeViewObj.Type = TimeObj.type.Trim();
+                        timeViewObj.Type = TimeObj.type.Trim()==""? "none": TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
                         UpdateColor(timeViewObj, TimeObj.type.Trim());
 

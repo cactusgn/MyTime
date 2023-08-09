@@ -39,9 +39,17 @@ namespace Summary.Domain
             get { return content2; }
             set { content2 = value; OnPropertyChanged(); }
         }
+        private string showTip = "Hidden";
+
+        public string ShowTip
+        {
+            get { return showTip; }
+            set { showTip = value; OnPropertyChanged(); }
+        }
+
 
         public SampleDialogViewModel(){
-
+            
         }
     }
 }

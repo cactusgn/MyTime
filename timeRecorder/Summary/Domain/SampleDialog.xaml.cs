@@ -13,6 +13,7 @@ namespace Summary.Domain
             InitializeComponent();
             SDVM.StartTime = timeObj.StartTime;
             SDVM.EndTime = timeObj.EndTime;
+            SDVM.SplitTime = timeObj.StartTime;
             this.DataContext = SDVM;
         }
     }

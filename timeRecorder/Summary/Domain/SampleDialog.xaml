@@ -6,6 +6,7 @@
              xmlns:cv="clr-namespace:Summary.Common.Converter"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
              d:DesignHeight="300"
              d:DesignWidth="400"
@@ -19,28 +20,19 @@
     <Grid Margin="16,0,16,16">
 
     <Grid.RowDefinitions>
-      <RowDefinition  />
+      <RowDefinition Height="40" />
       <RowDefinition />
       <RowDefinition />
       <RowDefinition />
       <RowDefinition />
     </Grid.RowDefinitions>
-        <Border Grid.Row="0" CornerRadius="4" Padding="5" >
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" >切分时间块</TextBlock>
+        <Border Grid.Row="0" CornerRadius="4" >
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">切分时间块</TextBlock>
         </Border>
-        <StackPanel  Grid.Row="1" Orientation="Horizontal">
+        <Border Grid.Row="0" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
+        <StackPanel Margin="0,8,0,0" Grid.Row="1" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center">开始时间：</TextBlock>
             <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
-        </StackPanel>
-        <StackPanel  Grid.Row="2" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center">分割时间：</TextBlock>
-            <wpf:TimePickerTextBox VerticalAlignment="Center" x:Name="splitTime"  wpf:HintAssist.Hint="在两者之间" TextAlignment="Center" Margin ="5" Width="100"  FontWeight="Normal">
-                <Binding Path="SplitTime" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-                    </Binding.ValidationRules>
-                </Binding>
-            </wpf:TimePickerTextBox>
             <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块1内容" FontWeight="Normal">
                 <Binding Path="Content1" UpdateSourceTrigger="PropertyChanged">
                     <Binding.ValidationRules>
@@ -48,20 +40,36 @@
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
+            
         </StackPanel>
-        <StackPanel  Grid.Row="3" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center">结束时间：</TextBlock>
-            <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
-            <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块2内容" FontWeight="Normal">
-                <Binding Path="Content2" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox>
+        <StackPanel  Grid.Row="2" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center">分割时间：</TextBlock>
+            <materialDesign:TimePicker  Is24Hours="True"   Margin ="5" Width="100" VerticalAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Normal">
+                <materialDesign:TimePicker.Text>
+                    <Binding Path="SplitTime"  UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <!--<domain:BetweenDateValidationRule ValidatesOnTargetUpdated="True" >
+                            </domain:BetweenDateValidationRule>-->
+                        </Binding.ValidationRules>
+                    </Binding>
+                </materialDesign:TimePicker.Text>
+            </materialDesign:TimePicker>
+            <TextBlock VerticalAlignment="Center" FontSize="14" Margin="10" Foreground="DarkRed" Visibility="{Binding ShowTip}">分割时间需要在两者之间</TextBlock>
         </StackPanel>
- 
-    <Grid Grid.Row="4"
+        <StackPanel  Grid.Row="3">
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center">结束时间：</TextBlock>
+                <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+                <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块2内容" FontWeight="Normal">
+                    <Binding Path="Content2" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox>
+            </StackPanel>
+        </StackPanel>
+        <Grid Grid.Row="4"
                 Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>

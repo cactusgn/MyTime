@@ -42,5 +42,36 @@ namespace Summary
             ((SummaryModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;
             ((SummaryModel)this.DataContext).resizeHeight();
         }
+
+        private void DialogHost2_DialogClosing(object sender, MaterialDesignThemes.Wpf.DialogClosingEventArgs eventArgs)
+        {
+            if (!Equals(eventArgs.Parameter, true))
+                return;
+            var dialogRes = ((SummaryModel)this.DataContext).sampleDialogViewModel;
+
+            if (!(dialogRes.SplitTime<dialogRes.EndTime&&dialogRes.SplitTime>dialogRes.StartTime)) {
+                dialogRes.ShowTip = "Visible";
+                eventArgs.Cancel();
+                return;
+            }
+            else
+            {
+                dialogRes.ShowTip = "Hidden";
+            }
+            if (dialogRes.Content1==""||dialogRes.Content2=="")
+            {
+                eventArgs.Cancel();
+            }
+        }
+
+        private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)
+        {
+            var dialogRes = ((SummaryModel)this.DataContext).sampleDialogViewModel;
+            dialogRes.ShowTip = "Hidden";
+            ((SummaryModel)this.DataContext).sampleDialogViewModel.Content1 = "";
+            ((SummaryModel)this.DataContext).sampleDialogViewModel.Content2 = "";
+            if (!Equals(eventArgs.Parameter, true))
+                return;
+        }
     }
 }

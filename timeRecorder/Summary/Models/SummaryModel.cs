@@ -287,6 +287,7 @@ namespace Summary.Models
         {
             List<MyTime> allTimeData = await SQLCommands.GetAllTimeObjs(startTime, endTime);
             AllTimeViewObjs = await BuildTimeViewObj(allTimeData);
+            SelectedTimeObj = new TimeViewObj(){ Type=""};
             AllRB.Dispatcher.Invoke(new Action(delegate
             {
                 if (AllRB.IsChecked==true) refreshSummaryPlot("all");

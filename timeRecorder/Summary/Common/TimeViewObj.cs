@@ -22,6 +22,11 @@ namespace Summary.Common
         private string note;
         private string type;
         private string timeNote;
+        public bool IsEnabled{
+            get{
+                return type!="";
+            }
+        }
         public string Note
         {
             get

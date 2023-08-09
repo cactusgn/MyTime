@@ -190,20 +190,20 @@
                                         <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">记录</TextBlock>
 
                                         <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Text="{Binding SelectedTimeObj.CreatedDate,Converter={StaticResource dateConverter}}" FontWeight="Normal"></TextBox>
-                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
-                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"  IsEnabled="False"></TextBox>
+                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal" IsEnabled="False"></TextBox>
                                         <WrapPanel Grid.Column="1" Grid.Row="3" >
                                             <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" FontWeight="Normal" Width="100"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
                                             <Button Margin="10,0" VerticalAlignment="Center" Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
-                                BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="切分时间块">
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="切分时间块" IsEnabled="{Binding SelectedTimeObj.IsEnabled}">
                                                 <materialDesign:PackIcon
                                                     Width="30"
                                                     Height="20"
                                                     Kind="CallSplit" />
                                             </Button>
                                         </WrapPanel>
-                                        
-                                        <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" >
+
+                                        <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" >
                                             <!--<i:Interaction.Triggers>
                                             <i:EventTrigger EventName="SelectionChanged">
                                                 <i:InvokeCommandAction 
@@ -277,7 +277,7 @@
 
                                         <TextBox FontWeight="Normal" Name="SelectedNote"
                                          HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5" 
-                                        VerticalAlignment="Top"
+                                        VerticalAlignment="Top" IsEnabled="{Binding SelectedTimeObj.IsEnabled}"
                                         AcceptsReturn="True"
                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                         TextWrapping="Wrap"
@@ -300,8 +300,8 @@
                                     <StackPanel>
                                         <WrapPanel Margin="10" Orientation="Horizontal" >
                                             <Label FontSize="14" Margin="10,0">Type:</Label>
-                                            <RadioButton FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
-                                            <RadioButton FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>
                                         </WrapPanel>
                                         <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
                                     </StackPanel>
@@ -314,11 +314,11 @@
                                     <StackPanel >
                                         <WrapPanel Margin="10" Orientation="Horizontal" >
                                             <Label FontSize="14" Margin="10,0">Type:</Label>
-                                            <RadioButton FontSize="14" x:Name="AllRB" GroupName="Type" Margin="5,0" IsChecked="True" Command="{Binding SummaryRBChangedCommand}" CommandParameter="All">All</RadioButton>
-                                            <RadioButton FontSize="14" x:Name="StudyRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Study">Study</RadioButton>
-                                            <RadioButton FontSize="14" x:Name="WorkRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Work">Work</RadioButton>
-                                            <RadioButton FontSize="14" x:Name="WasteRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Waste">Waste</RadioButton>
-                                            <RadioButton FontSize="14" x:Name="RestRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Rest">Rest</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="AllRB" GroupName="Type" Margin="5,0" IsChecked="True" Command="{Binding SummaryRBChangedCommand}" CommandParameter="All">All</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="StudyRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Study">Study</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="WorkRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Work">Work</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="WasteRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Waste">Waste</RadioButton>
+                                            <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="RestRB" GroupName="Type" Margin="5,0" Command="{Binding SummaryRBChangedCommand}" CommandParameter="Rest">Rest</RadioButton>
                                         </WrapPanel>
                                         <ScottPlot:WpfPlot x:Name="SummaryPlot" Height="500"/>
                                     </StackPanel>

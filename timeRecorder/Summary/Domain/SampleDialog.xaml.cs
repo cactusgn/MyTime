@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using Summary.Common;
+using System.Windows.Controls;
 
 namespace Summary.Domain
 {
@@ -7,9 +8,12 @@ namespace Summary.Domain
     /// </summary>
     public partial class SampleDialog : UserControl
     {
-        public SampleDialog()
+        public SampleDialog(TimeViewObj timeObj, SampleDialogViewModel SDVM)
         {
             InitializeComponent();
+            SDVM.StartTime = timeObj.StartTime;
+            SDVM.EndTime = timeObj.EndTime;
+            this.DataContext = SDVM;
         }
     }
 }

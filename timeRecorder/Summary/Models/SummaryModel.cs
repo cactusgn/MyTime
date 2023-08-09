@@ -1,6 +1,8 @@
-﻿using ScottPlot;
+﻿using MaterialDesignThemes.Wpf;
+using ScottPlot;
 using Summary.Common;
 using Summary.Data;
+using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -55,6 +57,7 @@ namespace Summary.Models
         public MyCommand SummaryRBChangedCommand { get; set; }
         public MyCommand SingleDayRBChangedCommand { get; set; }
         public MyCommand ResizeCommand { get; set; }
+        public MyCommand SplitButtonClickCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
         public WpfPlot SummaryPlot { get; set; }
@@ -68,7 +71,8 @@ namespace Summary.Models
         private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
 
         private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
-        public SummaryModel(ISQLCommands SqlCommands)
+        private SampleDialogViewModel sampleDialogViewModel{ get; set; }
+        public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
             InitVariables();
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -76,9 +80,11 @@ namespace Summary.Models
             SingleDayRBChangedCommand = new MyCommand(SingleDayRBChanged);
             TimeObjType_SelectionChangedCommand = new MyCommand(TimeObjType_SelectionChanged);
             TimeObjType_NoteChangedCommand = new MyCommand(TimeObjType_NoteChanged);
+            SplitButtonClickCommand = new MyCommand(SplitButtonClick);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
             SQLCommands = SqlCommands;
+            sampleDialogViewModel = SVM;
             SelectedCommand = new MyCommand(Selected);
             ResizeCommand = new MyCommand(resizeHeight);
         }
@@ -224,7 +230,7 @@ namespace Summary.Models
         }
         public MyCommand SelectedCommand { get; set; }
 
-        private void closeDialog()
+        private  void closeDialog()
         {
             IsDialogOpen=false;
 
@@ -232,7 +238,14 @@ namespace Summary.Models
         private void openDialog()
         {
             IsDialogOpen=true;
-
+            
+        }
+        private async void openSplitDialog(){
+            var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
+            await DialogHost.Show(view, "RootDialog");
+        }
+        private void SplitButtonClick(object a = null){
+            openSplitDialog();
         }
         private async void clickOkButton(object a = null)
         {
@@ -257,8 +270,8 @@ namespace Summary.Models
                 StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
                 EndTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
             }
+            
             await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); }).ContinueWith(delegate { closeDialog(); });
-
         }
 
         private async void TimeObjType_SelectionChanged(object a)

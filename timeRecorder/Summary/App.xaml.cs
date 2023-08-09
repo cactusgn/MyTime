@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Summary.Data;
+using Summary.Domain;
 using Summary.Models;
 using System;
 using System.Collections;
@@ -52,6 +53,7 @@ namespace Summary
             services.AddSingleton<SummaryModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<RecordModel>();
+            services.AddSingleton<SampleDialogViewModel>();
         }
         protected override void OnStartup(StartupEventArgs e)
         {

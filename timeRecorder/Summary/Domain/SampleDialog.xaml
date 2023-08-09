@@ -3,59 +3,86 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:domain="clr-namespace:Summary.Domain"
+             xmlns:cv="clr-namespace:Summary.Common.Converter"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
              d:DesignHeight="300"
-             d:DesignWidth="300"
+             d:DesignWidth="400"
+             FontSize="16"
              mc:Ignorable="d">
-  <Grid Margin="16">
+    <UserControl.Resources>
+        <cv:TimeConverter x:Key="timeConverter"/>
+        <cv:DateConverter x:Key="dateConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Margin="16,0,16,16">
 
     <Grid.RowDefinitions>
+      <RowDefinition  />
       <RowDefinition />
       <RowDefinition />
       <RowDefinition />
       <RowDefinition />
     </Grid.RowDefinitions>
-    <TextBlock>New contact:</TextBlock>
-    <TextBox Grid.Row="1"
-             Margin="0,6,0,0"
-             wpf:HintAssist.Hint="Name"
-             FontSize="18"
-             Style="{StaticResource MaterialDesignFloatingHintTextBox}">
-      <TextBox.Text>
-        <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
-          <Binding.ValidationRules>
-            <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-          </Binding.ValidationRules>
-        </Binding>
-      </TextBox.Text>
-    </TextBox>
-    <TextBox Grid.Row="2"
-             Margin="0,8,0,0"
-             wpf:HintAssist.Hint="Number"
-             FontSize="16"
-             Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
-    <StackPanel Grid.Row="3"
-                Margin="0,16,0,0"
-                Orientation="Horizontal">
+        <Border Grid.Row="0" CornerRadius="4" Padding="5" >
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" >切分时间块</TextBlock>
+        </Border>
+        <StackPanel  Grid.Row="1" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center">开始时间：</TextBlock>
+            <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+        </StackPanel>
+        <StackPanel  Grid.Row="2" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center">分割时间：</TextBlock>
+            <wpf:TimePickerTextBox VerticalAlignment="Center" x:Name="splitTime"  wpf:HintAssist.Hint="在两者之间" TextAlignment="Center" Margin ="5" Width="100"  FontWeight="Normal">
+                <Binding Path="SplitTime" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </wpf:TimePickerTextBox>
+            <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块1内容" FontWeight="Normal">
+                <Binding Path="Content1" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox>
+        </StackPanel>
+        <StackPanel  Grid.Row="3" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center">结束时间：</TextBlock>
+            <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
+            <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块2内容" FontWeight="Normal">
+                <Binding Path="Content2" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox>
+        </StackPanel>
+ 
+    <Grid Grid.Row="4"
+                Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
       <Button Command="{x:Static wpf:DialogHost.CloseDialogCommand}"
-              IsDefault="True"
+              IsDefault="True" Grid.Column="0" Width="100" Foreground="{StaticResource MaterialDesignLightForeground}" Margin="60,0,0,0"
               Style="{StaticResource MaterialDesignFlatButton}">
         <Button.CommandParameter>
           <system:Boolean>True</system:Boolean>
         </Button.CommandParameter>
         ACCEPT
       </Button>
-      <Button Margin="8,0,0,0"
+            <Button Grid.Column="1"
               Command="{x:Static wpf:DialogHost.CloseDialogCommand}"
-              IsCancel="True"
-              Style="{StaticResource MaterialDesignFlatButton}">
-        <Button.CommandParameter>
-          <system:Boolean>False</system:Boolean>
-        </Button.CommandParameter>
-        CANCEL
-      </Button>
-    </StackPanel>
+              IsCancel="True" Width="100" Foreground="{StaticResource MaterialDesignLightForeground}" Margin="0,0,60,0"
+              Style="{StaticResource MaterialDesignFlatButton}" Content="CANCEL">
+                <Button.CommandParameter>
+                    <system:Boolean>False</system:Boolean>
+                </Button.CommandParameter>
+            </Button>
+        </Grid>
   </Grid>
 </UserControl>

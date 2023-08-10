@@ -55,22 +55,22 @@
                     <RowDefinition x:Name="Result" Height="*"/>
                 </Grid.RowDefinitions>
                 <!--查询界面-->
-                <Border Padding="0,0,0,4">
+                <Border Padding="0,0,0,1">
                     <Border.Effect>
                         <DropShadowEffect Color="Gray" ShadowDepth="3" BlurRadius="8" Opacity="0.3" Direction="356"/>
                     </Border.Effect>
-                    <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="{StaticResource MaterialDesignLightBackground}" Grid.ColumnSpan="2" Orientation="Horizontal" >
+                        <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Grid.ColumnSpan="2" Orientation="Horizontal" >
 
-                        <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10"></TextBlock>
+                        <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" ></TextBlock>
                         <DatePicker
-                  Width="150" Margin="10"
+                  Width="150" Margin="10" HorizontalContentAlignment="Center"
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
                         </DatePicker>
                         <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
 
                         <DatePicker
-                  Width="150" Margin="10"
+                  Width="150" Margin="10"  HorizontalContentAlignment="Center"
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
                         </DatePicker>
@@ -96,7 +96,7 @@
                     </StackPanel>
                 </Border>
                 <!--左边panel-->
-                <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" >
+                    <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" Background="{DynamicResource MaterialDesignCardBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="7*"/>
                         <ColumnDefinition Width="auto"/>
@@ -139,7 +139,7 @@
                                                         <DataTemplate>
                                                             <Border >
 
-                                                                <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0">
+                                                                    <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}">
                                                                     <i:Interaction.Triggers>
                                                                         <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                                             <i:InvokeCommandAction 
@@ -166,12 +166,12 @@
                       Width="2" Background="Silver">
                     </GridSplitter>
                     <!--右边panel-->
-                    <StackPanel Grid.Row="1" Grid.Column="2">
-                        <materialDesign:Card  >
+                        <StackPanel Grid.Row="1" Grid.Column="2" >
+                            <materialDesign:Card  >
                             <StackPanel  x:Name="rightPanel"  >
                                 <Expander
                               HorizontalAlignment="Stretch" FontWeight="Bold"
-                              Header="时间块" IsExpanded="True">
+                              Header="时间块" IsExpanded="True"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
@@ -299,7 +299,7 @@
       Style="{StaticResource HorizontalDividerBorder}" />
                                 <Expander
                               HorizontalAlignment="Stretch"
-                              Header="单日">
+                              Header="单日"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <StackPanel>
                                         <WrapPanel Margin="10" Orientation="Horizontal" >
                                             <Label FontSize="14" Margin="10,0">Type:</Label>
@@ -313,7 +313,7 @@
       Style="{StaticResource HorizontalDividerBorder}" />
                                 <Expander
                               HorizontalAlignment="Stretch"
-                              Header="总览">
+                              Header="总览"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <StackPanel >
                                         <WrapPanel Margin="10" Orientation="Horizontal" >
                                             <Label FontSize="14" Margin="10,0">Type:</Label>

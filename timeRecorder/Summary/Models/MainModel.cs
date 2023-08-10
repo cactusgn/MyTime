@@ -41,9 +41,11 @@ namespace Summary.Models
         private readonly PaletteHelper _paletteHelper = new PaletteHelper();
         public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
+        public ColorTool ColorTool { get; set; }
         public SummaryModel SummaryModel { get; set; }
         public string summaryBtnForegroundColor = Colors.Gray.ToString();
         public string recordBtnForegroundColor = Colors.Gray.ToString();
+        public string colorBtnForegroundColor = Colors.Gray.ToString();
         public string SummaryBtnForegroundColor
         {
             get { return summaryBtnForegroundColor; }
@@ -53,6 +55,11 @@ namespace Summary.Models
         {
             get { return recordBtnForegroundColor; }
             set { recordBtnForegroundColor = value; OnPropertyChanged(); }
+        }
+        public string ColorBtnForegroundColor
+        {
+            get { return colorBtnForegroundColor; }
+            set { colorBtnForegroundColor = value; OnPropertyChanged(); }
         }
         public MainModel(SummaryModel summaryModel,RecordModel recordModel)
         {
@@ -64,6 +71,7 @@ namespace Summary.Models
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
+            ColorTool = new ColorTool();
             OpenPage("RecordPageUserControl");
         }
        
@@ -73,18 +81,27 @@ namespace Summary.Models
             if (o.ToString() == "RecordPageUserControl")
             {
                 MainContent = RecordPageUserControl;
+                ResetColor();
                 RecordBtnForegroundColor = palette.Color.ToString();
-                SummaryBtnForegroundColor = Colors.Gray.ToString();
             }
-            else
+            else if(o.ToString() == "SummaryUserControl")
             {
                 MainContent = SummaryUserControl;
-                RecordBtnForegroundColor = Colors.Gray.ToString();
-                //SummaryBtnForegroundColor = "#2884D5";
+                ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();
+            }else if(o.ToString() == "ColorTool")
+            {
+                MainContent = ColorTool;
+                ResetColor();
+                ColorBtnForegroundColor = palette.Color.ToString();
             }
         }
-
+        private void ResetColor()
+        {
+            ColorBtnForegroundColor = Colors.Gray.ToString();
+            SummaryBtnForegroundColor = Colors.Gray.ToString();
+            RecordBtnForegroundColor = Colors.Gray.ToString();
+        }
     }
 
 

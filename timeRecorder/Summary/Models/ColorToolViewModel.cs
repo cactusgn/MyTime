@@ -7,14 +7,14 @@ using MaterialDesignThemes.Wpf;
 using Summary.Common;
 
 namespace Summary.Models;
-enum ColorScheme
+public enum ColorScheme
 {
     Primary,
     Secondary,
     PrimaryForeground,
     SecondaryForeground
 }
-internal class ColorToolViewModel : ViewModelBase
+public class ColorToolViewModel : ViewModelBase
 {
    
     private readonly PaletteHelper _paletteHelper = new();
@@ -85,13 +85,14 @@ internal class ColorToolViewModel : ViewModelBase
 
     public ColorToolViewModel()
     {
+        ChangeScheme(ColorScheme.Primary);
         ToggleBaseCommand = new AnotherCommandImplementation(o => ApplyBase((bool)o!));
         ChangeHueCommand = new AnotherCommandImplementation(ChangeHue);
         ChangeCustomHueCommand = new AnotherCommandImplementation(ChangeCustomColor);
-        ChangeToPrimaryCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.Primary));
-        ChangeToSecondaryCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.Secondary));
-        ChangeToPrimaryForegroundCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.PrimaryForeground));
-        ChangeToSecondaryForegroundCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.SecondaryForeground));
+        //ChangeToPrimaryCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.Primary));
+        //ChangeToSecondaryCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.Secondary));
+        //ChangeToPrimaryForegroundCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.PrimaryForeground));
+        //ChangeToSecondaryForegroundCommand = new AnotherCommandImplementation(o => ChangeScheme(ColorScheme.SecondaryForeground));
 
 
         ITheme theme = _paletteHelper.GetTheme();
@@ -164,9 +165,14 @@ internal class ColorToolViewModel : ViewModelBase
         SelectedColor = hue;
         if (ActiveScheme == ColorScheme.Primary)
         {
-            _paletteHelper.GetTheme().SetPrimaryColor(hue);
+            ITheme theme = _paletteHelper.GetTheme();
+            theme.SetPrimaryColor(hue);
             _primaryColor = hue;
-            _primaryForegroundColor = _paletteHelper.GetTheme().PrimaryMid.GetForegroundColor();
+            _primaryForegroundColor = theme.PrimaryMid.GetForegroundColor();
+
+            bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
+            ApplyBase(IsDarkTheme);
+
         }
         else if (ActiveScheme == ColorScheme.Secondary)
         {

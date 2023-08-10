@@ -69,16 +69,19 @@ namespace Summary.Models
         public RadioButton AllRB { get; set; }
         public RadioButton ThirdLevelRB { get; set; }
         public RadioButton FirstLevelRB { get; set; }
-       
+        public SampleDialogViewModel sampleDialogViewModel { get; set; }
+        public bool RadioButtonEnabled
+        {
+            get
+            {
+                return AllTimeViewObjs != null && AllTimeViewObjs.Count() > 0;
+            }
+        }
         private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
 
         private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
-        public SampleDialogViewModel sampleDialogViewModel { get; set; }
-        public bool RadioButtonEnabled{ 
-            get {
-                return AllTimeViewObjs!=null && AllTimeViewObjs.Count()>0;
-            }
-        }
+        private string currentSummaryRBType = "all";
+        
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
             InitVariables();
@@ -183,9 +186,10 @@ namespace Summary.Models
             }
 
         }
-        private void refreshSummaryPlot(string type)
+        private void refreshSummaryPlot(string type="all")
         {
             var AllObjs = new ObservableCollection<TimeViewObj>();
+            currentSummaryRBType = type;
             foreach (var GridTemplate in allTimeViewObjs)
             {
                 var dailyObjs = GridTemplate.DailyObjs;
@@ -294,6 +298,7 @@ namespace Summary.Models
                     await SQLCommands.UpdateObj(obj);
                 }
                 refreshSingleDayPlot();
+                refreshSummaryPlot(currentSummaryRBType);
             }
         }
         private async void TimeObjType_NoteChanged(object a)
@@ -402,15 +407,7 @@ namespace Summary.Models
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTime > tempStart)
                         {
-                            TimeViewObj startTimeObj = new TimeViewObj();
-                            startTimeObj.CreatedDate = currentDate;
-                            startTimeObj.LastTime = TimeObj.startTime - tempStart;
-                            startTimeObj.Note = "nothing";
-                            startTimeObj.Height = CalculateHeight(startTimeObj.LastTime);
-                            startTimeObj.StartTime = tempStart;
-                            startTimeObj.EndTime = TimeObj.startTime;
-                            startTimeObj.Type = "none";
-                            startTimeObj.Id = lastIndex;
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.None, lastIndex);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, "none");
@@ -437,15 +434,7 @@ namespace Summary.Models
                 TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
                 if (endTime < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = new TimeViewObj();
-                    startTimeObj.CreatedDate = currentDate;
-                    startTimeObj.LastTime = tempEndTime - endTime;
-                    startTimeObj.Note = "nothing";
-                    startTimeObj.Height = CalculateHeight(startTimeObj.LastTime);
-                    startTimeObj.StartTime = endTime;
-                    startTimeObj.EndTime = tempEndTime;
-                    startTimeObj.Type = "none";
-                    startTimeObj.Id = lastIndex;
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex);
                     UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
@@ -457,7 +446,6 @@ namespace Summary.Models
         }
         private void UpdateColor(TimeViewObj timeViewObj, string type)
         {
-
             switch (type)
             {
                 case "study":
@@ -482,7 +470,37 @@ namespace Summary.Models
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
             return lastTime/allTimeSpan*(height-100);
         }
+        public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2){
+            if(selectedTimeObj!=null){
+                var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
+                var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
+                var newTimeObj1 = CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
+                lastIndex++;
+                var newTimeObj2 = CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
 
+                await SQLCommands.DeleteObj(selectedTimeObj);
+                await SQLCommands.AddObj(newTimeObj1);
+                await SQLCommands.AddObj(newTimeObj2);
+                currentDailyObj.Add(newTimeObj1);
+                currentDailyObj.Add(newTimeObj2);
+                showTimeView();
+                SelectedTimeObj = newTimeObj1;
+                refreshSingleDayPlot();
+                refreshSummaryPlot();
+            }
+        }
+        private TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index){
+            TimeViewObj TimeObj = new TimeViewObj();
+            TimeObj.CreatedDate = createDate;
+            TimeObj.LastTime = endTime - endTime;
+            TimeObj.Note = note;
+            TimeObj.Height = CalculateHeight(TimeObj.LastTime);
+            TimeObj.StartTime = startTime;
+            TimeObj.EndTime = endTime;
+            TimeObj.Type = type.ToString().ToLower();
+            TimeObj.Id = index;
+            return TimeObj;
+        }
     }
     //表格视图的单天Template
     public class GridSourceTemplate : ViewModelBase

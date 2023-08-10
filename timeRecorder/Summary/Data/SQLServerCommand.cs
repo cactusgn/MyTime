@@ -1,4 +1,5 @@
-﻿using Summary.Common;
+﻿using Microsoft.EntityFrameworkCore;
+using Summary.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,6 +66,13 @@ namespace Summary.Data
 
             }
             return 1;
+        }
+        public async Task<int> DeleteObj(TimeViewObj obj){
+            using(var context = new MytimeContext()) {
+                var item = context.MyTime.Where(x => x.currentIndex == obj.Id && x.createDate == obj.CreatedDate);
+                await item.ExecuteDeleteAsync();
+                return 1;
+            }
         }
     }
     

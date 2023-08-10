@@ -58,10 +58,12 @@ namespace Summary
             {
                 dialogRes.ShowTip = "Hidden";
             }
-            if (dialogRes.Content1==""||dialogRes.Content2=="")
+            if (dialogRes.Content1=="")
             {
                 eventArgs.Cancel();
+                return;
             }
+            ((SummaryModel)this.DataContext).SplitTimeBlock(dialogRes.SplitTime, dialogRes.Content1, dialogRes.Content2);
         }
 
         private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)

@@ -62,9 +62,6 @@
                 <TextBox VerticalAlignment="Center" IsEnabled="False"  TextAlignment="Center" Margin ="5" Width="100" Text="{Binding EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"></TextBox>
                 <TextBox  VerticalAlignment="Center"  TextAlignment="Center" Margin ="5" Width="160" wpf:HintAssist.Hint="时间块2内容" FontWeight="Normal">
                     <Binding Path="Content2" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
-                        </Binding.ValidationRules>
                     </Binding>
                 </TextBox>
             </StackPanel>

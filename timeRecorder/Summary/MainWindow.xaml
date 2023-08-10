@@ -91,8 +91,8 @@
                                                             </Setter.Value>
                                                         </Setter>
                                                         <Setter Property="Cursor" Value="Hand"/>
-                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
-                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -115,8 +115,8 @@
                                             </TextBlock>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
-                                                        <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
                                                         <Setter Property="Cursor" Value="Hand"/>
                                                         <Setter Property="Effect">
                                                             <Setter.Value>
@@ -147,8 +147,8 @@
                                             </TextBlock>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueDarkBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
                                                             <Setter Property="Cursor" Value="Hand"/>
                                                             <Setter Property="Effect">
                                                                 <Setter.Value>

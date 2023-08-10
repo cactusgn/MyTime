@@ -77,7 +77,9 @@ namespace Summary.Models
        
         private void OpenPage(object o)
         {
-            var palette = _paletteHelper.GetTheme().PrimaryDark;
+            ITheme theme = _paletteHelper.GetTheme();
+            bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
+            var palette = IsDarkTheme? _paletteHelper.GetTheme().PrimaryLight: _paletteHelper.GetTheme().PrimaryDark;
             if (o.ToString() == "RecordPageUserControl")
             {
                 MainContent = RecordPageUserControl;

@@ -74,11 +74,11 @@
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
                         </DatePicker>
-                        <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}"></Button>
-                        <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek"></Button>
-                        <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek"></Button>
-                        <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth"></Button>
-                        <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth"></Button>
+                            <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"></Button>
+                            <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek" Foreground="Black"></Button>
+                            <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek" Foreground="Black"></Button>
+                            <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"></Button>
+                            <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"></Button>
                         <Button Width="25" Height="25" Margin="10" Command="{Binding ResizeCommand}" CommandParameter="amplify"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
@@ -170,7 +170,7 @@
                             <materialDesign:Card  >
                             <StackPanel  x:Name="rightPanel"  >
                                 <Expander
-                              HorizontalAlignment="Stretch" FontWeight="Bold"
+                              HorizontalAlignment="Stretch" 
                               Header="时间块" IsExpanded="True"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <Grid>
                                         <Grid.RowDefinitions>

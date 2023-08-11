@@ -71,7 +71,7 @@ namespace Summary.Models
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
-            ColorTool = new ColorTool();
+            ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
        

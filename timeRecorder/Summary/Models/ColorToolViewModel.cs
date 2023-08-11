@@ -74,6 +74,7 @@ public class ColorToolViewModel : ViewModelBase
     public ICommand ChangeToSecondaryForegroundCommand { get; }
 
     public ICommand ToggleBaseCommand { get; }
+    public MainModel mainModel { get; set; }
 
     private void ApplyBase(bool isDark)
     {
@@ -81,11 +82,13 @@ public class ColorToolViewModel : ViewModelBase
         IBaseTheme baseTheme = isDark ? new MaterialDesignDarkTheme() : (IBaseTheme)new MaterialDesignLightTheme();
         theme.SetBaseTheme(baseTheme);
         _paletteHelper.SetTheme(theme);
+        mainModel.ColorBtnForegroundColor = isDark ? _paletteHelper.GetTheme().PrimaryLight.Color.ToString() : _paletteHelper.GetTheme().PrimaryDark.Color.ToString(); ;
     }
 
-    public ColorToolViewModel()
+    public ColorToolViewModel(MainModel mainModel)
     {
         ChangeScheme(ColorScheme.Primary);
+        this.mainModel = mainModel;
         ToggleBaseCommand = new AnotherCommandImplementation(o => ApplyBase((bool)o!));
         ChangeHueCommand = new AnotherCommandImplementation(ChangeHue);
         ChangeCustomHueCommand = new AnotherCommandImplementation(ChangeCustomColor);

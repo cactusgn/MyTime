@@ -21,10 +21,10 @@ namespace Summary
     /// </summary>
     public partial class ColorTool : UserControl
     {
-        public ColorTool()
+        public ColorTool(MainModel mainModel)
         {
             InitializeComponent();
-            DataContext = new ColorToolViewModel();
+            DataContext = new ColorToolViewModel(mainModel);
         }
     }
 }

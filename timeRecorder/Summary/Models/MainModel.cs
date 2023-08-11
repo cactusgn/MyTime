@@ -24,6 +24,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.ComponentModel;
 using System.Reflection;
 using MaterialDesignColors;
+using System.Configuration;
 
 namespace Summary.Models
 {
@@ -65,7 +66,15 @@ namespace Summary.Models
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
-            theme.SetPrimaryColor(Colors.LightPink);
+            var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+            string ThemeColor = cfg.AppSettings.Settings["ThemeColor"].Value;
+            bool isDark = bool.Parse(cfg.AppSettings.Settings["IsDark"].Value);
+            theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString(ThemeColor));
+            if(isDark){
+                theme.SetBaseTheme(new MaterialDesignDarkTheme());
+            }else{
+                theme.SetBaseTheme(new MaterialDesignLightTheme());
+            }
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);

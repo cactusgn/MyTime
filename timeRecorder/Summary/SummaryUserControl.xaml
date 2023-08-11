@@ -139,7 +139,7 @@
                                                         <DataTemplate>
                                                             <Border >
 
-                                                                    <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}">
+                                                                    <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
                                                                     <i:Interaction.Triggers>
                                                                         <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                                             <i:InvokeCommandAction 
@@ -214,7 +214,7 @@
                                                                     Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>-->
-                                            <ComboBoxItem  Background="LightGreen" Tag="rest">
+                                            <ComboBoxItem  Background="LightGreen" Tag="rest" Foreground="Black">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                         <i:InvokeCommandAction 
@@ -226,7 +226,7 @@
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="rest"/>
                                             </ComboBoxItem>
-                                            <ComboBoxItem Background="pink"  Tag="study">
+                                                <ComboBoxItem Background="pink"  Tag="study" Foreground="Black">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                         <i:InvokeCommandAction 
@@ -239,7 +239,7 @@
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="study"/>
                                             </ComboBoxItem>
-                                            <ComboBoxItem Background="yellow"  Tag="work">
+                                                <ComboBoxItem Background="yellow"  Tag="work" Foreground="Black">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                         <i:InvokeCommandAction 
@@ -251,7 +251,7 @@
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="work"/>
                                             </ComboBoxItem>
-                                            <ComboBoxItem  Background="OrangeRed"  Tag="waste">
+                                                <ComboBoxItem  Background="OrangeRed"  Tag="waste" Foreground="Black">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                         <i:InvokeCommandAction 
@@ -263,7 +263,7 @@
                                                        VerticalAlignment="Center"
                                                        TextAlignment="Center" Text="waste"/>
                                             </ComboBoxItem>
-                                            <ComboBoxItem  Tag="none"   >
+                                                <ComboBoxItem  Tag="none"   >
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                         <i:InvokeCommandAction 

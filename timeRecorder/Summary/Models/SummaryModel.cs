@@ -424,7 +424,7 @@ namespace Summary.Models
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim()==""? "none": TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
-                        UpdateColor(timeViewObj, TimeObj.type.Trim());
+                        UpdateColor(timeViewObj, TimeObj.type.Trim().ToLower());
 
                     }
                     currentDateTemplate.DailyObjs.Add(timeViewObj);

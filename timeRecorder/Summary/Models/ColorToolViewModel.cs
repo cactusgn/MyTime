@@ -5,6 +5,9 @@ using System.Windows.Media;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using Summary.Common;
+using System.Configuration;
+using ScottPlot;
+using System.Reflection;
 
 namespace Summary.Models;
 public enum ColorScheme
@@ -176,6 +179,10 @@ public class ColorToolViewModel : ViewModelBase
             bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
             ApplyBase(IsDarkTheme);
 
+            var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+            cfg.AppSettings.Settings["ThemeColor"].Value = hue.ToString();
+            cfg.Save();
+            
         }
         else if (ActiveScheme == ColorScheme.Secondary)
         {

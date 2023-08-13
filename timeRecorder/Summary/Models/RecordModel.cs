@@ -1,18 +1,20 @@
 ﻿using Summary.Common;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Summary.Models
 {
     public class RecordModel : ViewModelBase
     {
-        private List<ToDoObj> todayList = new List<ToDoObj>();
-        public List<ToDoObj> TodayList{
+        private ObservableCollection<ToDoObj> todayList = new ObservableCollection<ToDoObj>();
+        public ObservableCollection<ToDoObj> TodayList{
         get { 
                 return todayList; 
             }
@@ -21,18 +23,71 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
-
+        public ToDoObj selectedListItem { get; set; }
+        public ToDoObj SelectedListItem
+        {
+            get { return selectedListItem; }
+            set
+            {
+                selectedListItem = value;
+                OnPropertyChanged();
+            }
+        }
+                    
         public MyCommand Enter_ClickCommand { get; set; }
-        public RecordModel() {
-            todayList.Add(new ToDoObj(){ Note="test1", Finished=false });
-            todayList.Add(new ToDoObj() { Note = "test2", Finished = false });
-            Enter_ClickCommand = new MyCommand(Enter_Click);
+        public MyCommand DeleteContextMenu_ClickCommand { get; set; }
+        public MyCommand TodayListBoxSelectionChangeCommand { get; set; }
+
+        public int interval { get; set; }
+        public string Interval
+        {
+            get
+            {
+                return interval.ToString();
+            }
+            set
+            {
+                interval = int.Parse(value);
+                OnPropertyChanged();
+            }
+        }
+        private string todayText;
+
+        public string TodayText
+        {
+            get { return todayText; }
+            set { todayText = value; OnPropertyChanged(); }
+        }
+        private string workContent;
+
+        public string WorkContent
+        {
+            get { return workContent; }
+            set { workContent = value; OnPropertyChanged(); }
         }
 
+        public RecordModel() {
+            Enter_ClickCommand = new MyCommand(Enter_Click);
+            DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
+            TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
+        }
+       
         private void Enter_Click(object obj)
         {
-            MessageBox.Show("test");
-                
+            TodayList.Add(new ToDoObj() { Note=obj.ToString(), Finished=false });
+            TodayText = "";
+        }
+        private void DeleteContextMenu(object obj)
+        {
+            if(SelectedListItem != null)
+            {
+                TodayList.Remove(SelectedListItem);
+            }
+            
+        }
+        private void TodayListBoxSelectionChange(object obj)
+        {
+            WorkContent = SelectedListItem.Note;
         }
     }
 }

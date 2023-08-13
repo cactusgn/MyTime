@@ -4,35 +4,51 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Summary"
+             xmlns:domain="clr-namespace:Summary.Domain"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF" xmlns:models="clr-namespace:Summary.Models" d:DataContext="{d:DesignInstance Type=models:RecordModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="TypeButton" TargetType="{x:Type ButtonBase}"  BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+    </UserControl.Resources>
     <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
-            <ColumnDefinition Width="3*"></ColumnDefinition>
-            <ColumnDefinition Width="4*"></ColumnDefinition>
+            <ColumnDefinition Width="1*" MinWidth="280"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="3*" MinWidth="420"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="2*" MinWidth="280"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
             <TextBlock Margin="10,10">Today:</TextBlock>
-            <TextBox Margin="10,5" Padding="10"
-          materialDesign:HintAssist.Hint="添加今天要做的事"  materialDesign:HintAssist.Foreground="{DynamicResource PrimaryHueDarkBrush}"
-          Style="{StaticResource MaterialDesignOutlinedTextBox}" >
+            <TextBox Margin="10,5" Padding="10" x:Name="TodoToday"
+          materialDesign:HintAssist.Hint="添加今天要做的事" materialDesign:HintAssist.IsFloating="False" Text="{Binding TodayText}"
+          Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.HasClearButton="True">
                 <TextBox.InputBindings>
                     <!--键盘事件绑定-->
-                    <KeyBinding Command="{Binding Enter_ClickCommand}" Key="Enter"/>
+                    <KeyBinding Command="{Binding Enter_ClickCommand}" CommandParameter="{Binding ElementName=TodoToday,Path=Text}" Key="Enter"/>
                     <!--鼠标事件绑定-->
                     <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
                 </TextBox.InputBindings>
-                <TextBox.Text>
-                    <Binding
-                    Path="Text2"
-                    UpdateSourceTrigger="PropertyChanged">
-                    </Binding>
-                </TextBox.Text>
             </TextBox>
-            <ListBox Margin="5" ItemsSource="{Binding TodayList}">
+            <ListBox Margin="5" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}" >
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete" Command="{Binding DeleteContextMenu_ClickCommand}" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -43,5 +59,123 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
+        <GridSplitter HorizontalAlignment="Center"   
+                      VerticalAlignment="Stretch"   
+                      Grid.Column="1"   
+                      Width="1" Background="Silver">
+        </GridSplitter>
+        <StackPanel x:Name="MiddlePanel" Grid.Column="2" Margin="40,10" >
+            <StackPanel x:Name="MiddleUpPanel">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>间隔时间：</TextBlock>
+                    <TextBlock>22:22:22</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <Button
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      ToolTip="开始" Margin="10,0"  Width="50" Height="50">
+                                            <materialDesign:PackIcon
+                        Kind="Play" Foreground="Green" Width="45" Height="45"/>
+                    </Button>
+                    <Button
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      ToolTip="停止" Margin="10,0"  Width="50" Height="50">
+                        <materialDesign:PackIcon
+                        Kind="StopCircleOutline" Foreground="IndianRed"  Width="40" Height="40"/>
+                    </Button>
+                    <Button
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      ToolTip="导入" Margin="10,0"  Width="50" Height="50">
+                        <materialDesign:PackIcon
+                        Kind="DownloadOutline"  Foreground="LightBlue"  Width="40" Height="40"/>
+                    </Button>
+                    <Button
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      ToolTip="导出" Margin="10,0"  Width="50" Height="50">
+                        <materialDesign:PackIcon
+                        Kind="UploadOutline" Foreground="LightBlue"  Width="40" Height="40"/>
+                    </Button>
+                    <Button
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      ToolTip="小窗口" Margin="10,0"  Width="50" Height="50">
+                        <materialDesign:PackIcon
+                        Kind="StickerMinusOutline" Foreground="LightPink"  Width="35" Height="35"/>
+                    </Button>
+                </StackPanel>
+                <StackPanel>
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"></RowDefinition>
+                            <RowDefinition Height="35"></RowDefinition>
+                            <RowDefinition Height="35"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock  VerticalAlignment="Center">工作内容：</TextBlock>
+                        <TextBox Grid.Column="1"  VerticalAlignment="Center" Width="300" Text="{Binding WorkContent}"></TextBox>
+                        <TextBlock Grid.Row="1"  VerticalAlignment="Center">间隔提醒：</TextBlock>
+                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1"  VerticalAlignment="Center">
+                            <TextBox Width="50" TextAlignment="Center"  VerticalAlignment="Center">
+                                <Binding Path="Interval" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox>
+                            <TextBlock Margin="10,0,20,0" VerticalAlignment="Center">分钟</TextBlock>
+                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center">累计模式</CheckBox>
+                        </StackPanel>
+
+                        
+                        <TextBlock  Grid.Row="2" VerticalAlignment="Center">slogan:</TextBlock>
+
+                        <TextBox Grid.Row="2" Grid.Column="1" Width="300"   HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
+                        
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+            
+            <StackPanel x:Name="MiddleBottomPanel">
+                <StackPanel VerticalAlignment="Center">
+                    <WrapPanel Margin="0,30,0,20" Orientation="Horizontal" >
+                        <Label FontSize="14" Margin="0,0,40,0">Type:</Label>
+                        <RadioButton  FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
+                        <RadioButton  FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>
+                    </WrapPanel>
+                    <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+        <GridSplitter HorizontalAlignment="Center"   
+                      VerticalAlignment="Stretch"   
+                      Grid.Column="3"   
+                      Width="1" Background="Silver">
+        </GridSplitter>
+        <DockPanel x:Name="RightPanel"  Grid.Column="4" >
+            
+            <StackPanel DockPanel.Dock="Right" Width="100" Margin="20,-20,20,20" VerticalAlignment="Center" >
+                <Button Margin="10" VerticalAlignment="Center"  Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="切分时间块" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" Command="{Binding SplitButtonClickCommand}">
+                    <materialDesign:PackIcon
+                                                    Width="30"
+                                                    Height="20"
+                                                    Kind="CallSplit" />
+                </Button>
+                <Button Background="#FFB6C1" Style="{StaticResource TypeButton}">study</Button>
+                <Button Background="#F08080"  Style="{StaticResource TypeButton}">waste</Button>
+                <Button Background="#98FB98" Style="{StaticResource TypeButton}">rest</Button>
+                <Button Background="#FFD700" Style="{StaticResource TypeButton}">work</Button>
+                <Button Background="LightBlue" Style="{StaticResource TypeButton}">play</Button>
+
+                
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Width="200">
+                <ItemsControl>
+
+                </ItemsControl>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </UserControl>

@@ -7,9 +7,11 @@ using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Summary.Models
@@ -64,6 +66,7 @@ namespace Summary.Models
         public WpfPlot SummaryPlot { get; set; }
         public RadioButton WasteRB { get; set; }
         public RadioButton WorkRB { get; set; }
+        public RadioButton PlayRB { get; set; }
         public RadioButton StudyRB { get; set; }
         public RadioButton RestRB { get; set; }
         public RadioButton AllRB { get; set; }
@@ -107,6 +110,7 @@ namespace Summary.Models
             colorDic.Add(TimeType.Waste, "#F08080");
             colorDic.Add(TimeType.Rest, "#98FB98");
             colorDic.Add(TimeType.Work, "#FFD700");
+            colorDic.Add(TimeType.Play, "#ADD8E6");
             height = LeftPanelHeight;
         }
 
@@ -146,10 +150,11 @@ namespace Summary.Models
             var wasteItems = items.Where(x => x.Type=="waste").ToArray();
             var workItems = items.Where(x => x.Type=="work").ToArray();
             var restItems = items.Where(x => x.Type=="rest").ToArray();
+            var playItems = items.Where(x => x.Type=="play").ToArray();
             var index = 0;
             plot.Plot.Clear();
             var plt = plot.Plot;
-            var allItemCount = studyItems.Length + wasteItems.Length+ workItems.Length+restItems.Length;
+            var allItemCount = studyItems.Length + wasteItems.Length+ workItems.Length+restItems.Length + playItems.Length;
             string[] TimeLabels = new string[allItemCount];
             string[] YLabels = new string[allItemCount];
             double[] position = new double[allItemCount];
@@ -157,6 +162,7 @@ namespace Summary.Models
             addChartData(workItems, TimeType.Work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(wasteItems, TimeType.Waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(restItems, TimeType.Rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(playItems, TimeType.Play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
 
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
@@ -334,6 +340,10 @@ namespace Summary.Models
             {
                 if (RestRB.IsChecked==true) refreshSummaryPlot("rest");
             }));
+            PlayRB.Dispatcher.Invoke(new Action(delegate
+            {
+                if (PlayRB.IsChecked==true) refreshSummaryPlot("play");
+            }));
         }
         public void resizeHeight(object a = null)
         {
@@ -345,7 +355,7 @@ namespace Summary.Models
                     {
                         height = height*1.5;
                     }
-                    else
+                    else if(height>LeftPanelHeight)
                     {
                         height = height/1.5;
                     }
@@ -446,7 +456,7 @@ namespace Summary.Models
         }
         private void UpdateColor(TimeViewObj timeViewObj, string type)
         {
-            switch (type)
+            switch (type.ToLower())
             {
                 case "study":
                     timeViewObj.Color = "#FFB6C1";
@@ -463,6 +473,9 @@ namespace Summary.Models
                 case "none":
                     timeViewObj.Color = "#F3F3F3";
                     break;
+                case "play":
+                    timeViewObj.Color = "#ADD8E6";
+                    break;
             }
         }
         private double CalculateHeight(TimeSpan lastTime)
@@ -477,13 +490,16 @@ namespace Summary.Models
                 var newTimeObj1 = CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
                 lastIndex++;
                 var newTimeObj2 = CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
-
+                UpdateColor(newTimeObj1, TimeType.None.ToString());
+                UpdateColor(newTimeObj2, TimeType.None.ToString());
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);
+                
                 currentDailyObj.Add(newTimeObj1);
                 currentDailyObj.Add(newTimeObj2);
-                showTimeView();
+                currentDailyObj.Remove(selectedTimeObj);
+                AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
                 SelectedTimeObj = newTimeObj1;
                 refreshSingleDayPlot();
                 refreshSummaryPlot();
@@ -492,7 +508,7 @@ namespace Summary.Models
         private TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index){
             TimeViewObj TimeObj = new TimeViewObj();
             TimeObj.CreatedDate = createDate;
-            TimeObj.LastTime = endTime - endTime;
+            TimeObj.LastTime = endTime - startTime;
             TimeObj.Note = note;
             TimeObj.Height = CalculateHeight(TimeObj.LastTime);
             TimeObj.StartTime = startTime;
@@ -534,8 +550,11 @@ namespace Summary.Models
         public GridSourceTemplate(DateTime createdDate)
         {
             DailyObjs = new ObservableCollection<TimeViewObj>();
+            //DailyObjs.CollectionChanged += DailyObjs_OnCollectionChanged;
             this.createdDate = createdDate;
         }
+
+      
     }
     public class ChartBar
     {

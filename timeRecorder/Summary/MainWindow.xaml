@@ -18,7 +18,7 @@
         Style="{StaticResource MaterialDesignWindow}"
         AllowsTransparency="True"
         Background="Transparent"
-        Title="My Recorder"  Height="660" Width="1200">
+        Title="My Recorder"  Height="700" Width="1250">
     
     <Window.Resources>
         <cv:TimeConverter x:Key="timeConverter"/>

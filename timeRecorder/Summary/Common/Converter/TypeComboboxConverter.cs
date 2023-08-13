@@ -23,7 +23,8 @@ namespace Summary.Common.Converter
                 case "study": return 1;
                 case "work": return 2;
                 case "waste": return 3;
-                case "none": return 4;
+                case "play": return 4;
+                case "none": return 5;
             }
 
             return 0;
@@ -42,7 +43,8 @@ namespace Summary.Common.Converter
                 case 1: return "study";
                 case 2: return "work";
                 case 3: return "waste";
-                case 4: return "none";
+                case 4: return "play";
+                case 5: return "none";
             }
 
             return "none";

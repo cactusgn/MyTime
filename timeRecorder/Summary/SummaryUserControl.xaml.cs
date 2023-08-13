@@ -28,6 +28,7 @@ namespace Summary
             summaryModel.SingleDayPlot = SingleDayPlot;
             summaryModel.SummaryPlot = SummaryPlot;
             summaryModel.WorkRB = WorkRB;
+            summaryModel.PlayRB = PlayRB;
             summaryModel.StudyRB = StudyRB;
             summaryModel.WasteRB = WasteRB;
             summaryModel.RestRB = RestRB;

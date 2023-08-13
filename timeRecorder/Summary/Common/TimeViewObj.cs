@@ -86,7 +86,8 @@ namespace Summary.Common
         Study,
         Waste,
         Rest,
-        Work
+        Work,
+        Play
     }
     
 }

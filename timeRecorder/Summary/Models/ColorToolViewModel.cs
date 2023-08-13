@@ -85,7 +85,7 @@ public class ColorToolViewModel : ViewModelBase
         IBaseTheme baseTheme = isDark ? new MaterialDesignDarkTheme() : (IBaseTheme)new MaterialDesignLightTheme();
         theme.SetBaseTheme(baseTheme);
         _paletteHelper.SetTheme(theme);
-        mainModel.ColorBtnForegroundColor = isDark ? _paletteHelper.GetTheme().PrimaryLight.Color.ToString() : _paletteHelper.GetTheme().PrimaryDark.Color.ToString(); ;
+        mainModel.ColorBtnForegroundColor =  _paletteHelper.GetTheme().PrimaryMid.Color.ToString();
     }
 
     public ColorToolViewModel(MainModel mainModel)

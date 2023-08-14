@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
 using Summary.Common;
+using Summary.Common.Utils;
 using Summary.Data;
 using Summary.Domain;
 using System;
@@ -300,7 +301,7 @@ namespace Summary.Models
                 foreach (var obj in TodayAllObjectWithSameNote)
                 {
                     obj.Type = a.ToString();
-                    UpdateColor(obj, a.ToString());
+                    Helper.UpdateColor(obj, a.ToString());
                     await SQLCommands.UpdateObj(obj);
                 }
                 refreshSingleDayPlot();
@@ -317,8 +318,7 @@ namespace Summary.Models
         }
         public async void showTimeView()
         {
-            List<MyTime> allTimeData = await SQLCommands.GetAllTimeObjs(startTime, endTime);
-            AllTimeViewObjs = await BuildTimeViewObj(allTimeData);
+            AllTimeViewObjs = await Helper.BuildTimeViewObj(startTime, endTime,SQLCommands,height);
             SelectedTimeObj = new TimeViewObj() { Type="" };
             AllRB.Dispatcher.Invoke(new Action(delegate
             {
@@ -368,7 +368,7 @@ namespace Summary.Models
                 {
                     foreach (var obj in gridSource.DailyObjs)
                     {
-                        obj.Height = CalculateHeight(obj.LastTime);
+                        obj.Height = Helper.CalculateHeight(obj.LastTime,height);
                     }
                 }
                 SummaryPlot.Height = LeftPanelHeight-250;
@@ -417,10 +417,10 @@ namespace Summary.Models
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTime > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.None, lastIndex);
+                            TimeViewObj startTimeObj = Helper.CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.None, lastIndex,height);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
-                            UpdateColor(startTimeObj, "none");
+                            Helper.UpdateColor(startTimeObj, "none");
                             currentDateTemplate.DailyObjs.Add(startTimeObj);
                         }
                     }
@@ -434,7 +434,7 @@ namespace Summary.Models
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim()==""? "none": TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
-                        UpdateColor(timeViewObj, TimeObj.type.Trim().ToLower());
+                        Helper.UpdateColor(timeViewObj, TimeObj.type.Trim().ToLower());
 
                     }
                     currentDateTemplate.DailyObjs.Add(timeViewObj);
@@ -444,8 +444,8 @@ namespace Summary.Models
                 TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
                 if (endTime < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex);
-                    UpdateColor(startTimeObj, "none");
+                    TimeViewObj startTimeObj = Helper.CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex, height);
+                    Helper.UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
                 }
@@ -454,30 +454,7 @@ namespace Summary.Models
             }
             return AllTimeViewObjs;
         }
-        private void UpdateColor(TimeViewObj timeViewObj, string type)
-        {
-            switch (type.ToLower())
-            {
-                case "study":
-                    timeViewObj.Color = "#FFB6C1";
-                    break;
-                case "waste":
-                    timeViewObj.Color = "#F08080";
-                    break;
-                case "rest":
-                    timeViewObj.Color = "#98FB98";
-                    break;
-                case "work":
-                    timeViewObj.Color = "#FFD700";
-                    break;
-                case "none":
-                    timeViewObj.Color = "#F3F3F3";
-                    break;
-                case "play":
-                    timeViewObj.Color = "#ADD8E6";
-                    break;
-            }
-        }
+        
         private double CalculateHeight(TimeSpan lastTime)
         {
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
@@ -487,11 +464,11 @@ namespace Summary.Models
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
-                var newTimeObj1 = CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
                 lastIndex++;
-                var newTimeObj2 = CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex);
-                UpdateColor(newTimeObj1, TimeType.None.ToString());
-                UpdateColor(newTimeObj2, TimeType.None.ToString());
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex,height);
+                Helper.UpdateColor(newTimeObj1, TimeType.None.ToString());
+                Helper.UpdateColor(newTimeObj2, TimeType.None.ToString());
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);
@@ -505,18 +482,7 @@ namespace Summary.Models
                 refreshSummaryPlot();
             }
         }
-        private TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index){
-            TimeViewObj TimeObj = new TimeViewObj();
-            TimeObj.CreatedDate = createDate;
-            TimeObj.LastTime = endTime - startTime;
-            TimeObj.Note = note;
-            TimeObj.Height = CalculateHeight(TimeObj.LastTime);
-            TimeObj.StartTime = startTime;
-            TimeObj.EndTime = endTime;
-            TimeObj.Type = type.ToString().ToLower();
-            TimeObj.Id = index;
-            return TimeObj;
-        }
+       
     }
     //表格视图的单天Template
     public class GridSourceTemplate : ViewModelBase

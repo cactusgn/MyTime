@@ -15,6 +15,7 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Margin" Value="10"/>
         </Style>
+       
     </UserControl.Resources>
     <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.ColumnDefinitions>
@@ -36,7 +37,8 @@
                     <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
                 </TextBox.InputBindings>
             </TextBox>
-            <ListBox Margin="5" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}" >
+            <ListBox Margin="5" Name="TodayListbox" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationSecondaryListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
+                
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <i:InvokeCommandAction 
@@ -44,27 +46,38 @@
                             Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
+                
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Delete" Command="{Binding DeleteContextMenu_ClickCommand}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
+             
                 <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="{DynamicResource PrimaryHueDarkBrush}" >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Checked">
-                                        <i:InvokeCommandAction 
+                    <ItemContainerTemplate>
+                        <Border x:Name="todayborder" >
+                            <StackPanel Orientation="Horizontal" >
+                                <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="DimGray" >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Checked">
+                                            <i:InvokeCommandAction 
                                 CommandParameter="{Binding }"
-                                Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=3}}"></i:InvokeCommandAction>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </CheckBox>
-                            <TextBlock Text="{Binding Note}" TextDecorations="{Binding TextDecorations}">
-                            </TextBlock>
-                        </StackPanel>
-                    </DataTemplate>
+                                Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Unchecked">
+                                            <i:InvokeCommandAction 
+                                CommandParameter="{Binding }"
+                                Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </CheckBox>
+                                <TextBlock Text="{Binding Note}" TextDecorations="{Binding TextDecorations}">
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        
+                    </ItemContainerTemplate>
+                    
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
@@ -160,7 +173,7 @@
                       Grid.Column="3"   
                       Width="1" Background="Silver">
         </GridSplitter>
-        <DockPanel x:Name="RightPanel"  Grid.Column="4" >
+        <DockPanel x:Name="RightPanel"  Grid.Column="4" SizeChanged="RightPanel_SizeChanged">
             
             <StackPanel DockPanel.Dock="Right" Width="100" Margin="20,-20,20,20" VerticalAlignment="Center" >
                 <Button Margin="10" VerticalAlignment="Center"  Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
@@ -179,9 +192,56 @@
                 
             </StackPanel>
             <StackPanel DockPanel.Dock="Right" Width="200">
-                <ItemsControl>
+                <StackPanel   HorizontalAlignment="Center" Orientation="Horizontal">
+                    <!--<DataGrid x:Name="DataList"/>-->
+                    <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel  IsVirtualizing="True"
+                              VirtualizationMode="Recycling" Orientation="Horizontal"/>
+                                <!--<StackPanel Orientation="Horizontal"/>-->
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
 
-                </ItemsControl>
+                                <StackPanel Orientation="Vertical" Width="170">
+
+                                    <Border  Margin="0,5,0,1"  CornerRadius="6" >
+                                        <Button Content="{Binding Title}" Background="LightSalmon" Padding="2" BorderBrush="LightSalmon" Foreground="White"></Button>
+                                    </Border>
+                                    <Border  Margin="0,0,0,1"    CornerRadius="6" >
+                                        <Button Content="{Binding Week}" Padding="2" Background="{Binding Color}" FontSize="12" BorderBrush="{Binding Color}" Foreground="White"></Button>
+                                    </Border>
+                                    <ItemsControl ItemsSource="{Binding DailyObjs}" >
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border >
+
+                                                    <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                                <i:InvokeCommandAction 
+                                                                        CommandParameter="{Binding }"
+                                                                        Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </TextBox>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <!--<Border Width="1" Background="{DynamicResource MaterialDesignBody}" Margin="1,75,1,5"></Border>-->
+                </StackPanel>
             </StackPanel>
         </DockPanel>
     </Grid>

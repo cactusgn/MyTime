@@ -34,6 +34,6 @@ namespace Summary.Common
               }
              set { textDecorations = value; OnPropertyChanged(); }
         }
-
+		
     }
 }

@@ -26,5 +26,11 @@ namespace Summary
             InitializeComponent();
             this.DataContext = RecordModel;
         }
+
+        private void RightPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ((RecordModel)this.DataContext).RightPanelHeight = RightPanel.ActualHeight;
+            ((RecordModel)this.DataContext).resizeHeight();
+        }
     }
 }

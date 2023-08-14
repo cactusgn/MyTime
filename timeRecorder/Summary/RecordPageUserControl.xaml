@@ -52,8 +52,17 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="{DynamicResource PrimaryHueDarkBrush}"></CheckBox>
-                            <TextBlock Text="{Binding Note}"></TextBlock>
+                            <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="{DynamicResource PrimaryHueDarkBrush}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <i:InvokeCommandAction 
+                                CommandParameter="{Binding }"
+                                Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=3}}"></i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </CheckBox>
+                            <TextBlock Text="{Binding Note}" TextDecorations="{Binding TextDecorations}">
+                            </TextBlock>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -125,10 +134,8 @@
                                 </Binding>
                             </TextBox>
                             <TextBlock Margin="10,0,20,0" VerticalAlignment="Center">分钟</TextBlock>
-                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center">累计模式</CheckBox>
+                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center" VerticalContentAlignment="Bottom">累计模式</CheckBox>
                         </StackPanel>
-
-                        
                         <TextBlock  Grid.Row="2" VerticalAlignment="Center">slogan:</TextBlock>
 
                         <TextBox Grid.Row="2" Grid.Column="1" Width="300"   HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>

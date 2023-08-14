@@ -37,6 +37,7 @@ namespace Summary.Models
         public MyCommand Enter_ClickCommand { get; set; }
         public MyCommand DeleteContextMenu_ClickCommand { get; set; }
         public MyCommand TodayListBoxSelectionChangeCommand { get; set; }
+        public MyCommand CheckChangedCommand { get; set; }
 
         public int interval { get; set; }
         public string Interval
@@ -70,6 +71,7 @@ namespace Summary.Models
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
+            CheckChangedCommand = new MyCommand(CheckChanged);
         }
        
         private void Enter_Click(object obj)
@@ -87,7 +89,11 @@ namespace Summary.Models
         }
         private void TodayListBoxSelectionChange(object obj)
         {
-            WorkContent = SelectedListItem.Note;
+            if(SelectedListItem != null)
+                WorkContent = SelectedListItem.Note;
+        }
+        private void CheckChanged(object obj) {
+            TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
         }
     }
 }

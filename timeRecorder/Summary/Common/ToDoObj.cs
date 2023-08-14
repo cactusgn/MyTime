@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,10 @@ namespace Summary.Common
 		public bool Finished
 		{
 			get { return finished; }
-			set { finished = value; OnPropertyChanged(); }
+			set { finished = value;
+                if (finished) TextDecorations = "Strikethrough";
+                else TextDecorations = "None";
+                OnPropertyChanged(); }
 		}
 		private string note;
 
@@ -22,6 +26,14 @@ namespace Summary.Common
 			get { return note; }
 			set { note = value; OnPropertyChanged(); }
 		}
+		private string textDecorations;
 
-	}
+        public string TextDecorations{
+			  get{
+				return textDecorations; 
+              }
+             set { textDecorations = value; OnPropertyChanged(); }
+        }
+
+    }
 }

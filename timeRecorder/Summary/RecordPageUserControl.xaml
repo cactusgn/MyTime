@@ -17,7 +17,11 @@
         </Style>
        
     </UserControl.Resources>
-    <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
+    <materialDesign:DialogHost x:Name="DialogHost2" Identifier="SubRootDialog"  
+                                       DialogTheme="Inherit" 
+                                       DialogClosing="DialogHost2_DialogClosing"
+                                        DialogClosed="DialogHost2_DialogClosed">
+        <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" MinWidth="280"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -94,14 +98,14 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,10">
                     <Button
-                      Style="{StaticResource MaterialDesignIconForegroundButton}"
-                      ToolTip="开始" Margin="10,0"  Width="50" Height="50">
+                      Style="{StaticResource MaterialDesignIconForegroundButton}" IsEnabled="{Binding StartbtnEnabled}"
+                      ToolTip="开始" Margin="10,0"  Width="50" Height="50" Command="{Binding StartCommand}" Cursor="Hand">
                                             <materialDesign:PackIcon
                         Kind="Play" Foreground="Green" Width="45" Height="45"/>
                     </Button>
                     <Button
-                      Style="{StaticResource MaterialDesignIconForegroundButton}"
-                      ToolTip="停止" Margin="10,0"  Width="50" Height="50">
+                      Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding EndCommand}"
+                      ToolTip="停止" Margin="10,0"  Width="50" Height="50" IsEnabled="{Binding EndbtnEnabled}">
                         <materialDesign:PackIcon
                         Kind="StopCircleOutline" Foreground="IndianRed"  Width="40" Height="40"/>
                     </Button>
@@ -265,4 +269,5 @@
             </ScrollViewer>
         </DockPanel>
     </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

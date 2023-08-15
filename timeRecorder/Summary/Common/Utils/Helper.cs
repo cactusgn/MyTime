@@ -13,6 +13,9 @@ namespace Summary.Common.Utils
 {
     public static class Helper
     {
+        public const string RestContent = "休息";
+        public static TimeSpan GlobalStartTimeSpan = new TimeSpan(6, 0, 0);
+        public static TimeSpan GlobalEndTimeSpan = new TimeSpan(23, 59, 59);
         public static async Task<ObservableCollection<GridSourceTemplate>> BuildTimeViewObj(DateTime startTime,DateTime endTime,ISQLCommands SQLCommands,double height,string viewType = "summary")
         {
             DateTime currentDate = startTime;
@@ -34,7 +37,7 @@ namespace Summary.Common.Utils
                 {
                     currentDateTemplate.Color = "#008080";
                 }
-                TimeSpan endTimeSpan = new TimeSpan(6, 0, 0);
+                TimeSpan endTimeSpan = GlobalStartTimeSpan;
                 List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.startTime>=endTimeSpan).OrderBy(s => s.startTime).ToList<MyTime>();
                 bool firstTimeObj = true;
                 if (currentDateData.Count>0)
@@ -76,7 +79,7 @@ namespace Summary.Common.Utils
                 }
                 //Add last obj
                 //Add first time object
-                TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
+                TimeSpan tempEndTime = GlobalEndTimeSpan;
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
                     TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex, height);

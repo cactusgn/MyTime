@@ -4,26 +4,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="400"
+             d:DesignWidth="600"
              MaxWidth="400"
-             d:DesignHeight="300"
-             d:DesignWidth="300"
              mc:Ignorable="d">
   <Grid Margin="16">
     <Grid.RowDefinitions>
-      <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
       <RowDefinition />
     </Grid.RowDefinitions>
-    <TextBlock x:Name="Message"
-               Grid.Row="0"
+        <TextBlock  FontSize="14" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,10">提示</TextBlock>
+        <Border Grid.Row="1" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
+        <TextBlock x:Name="Message"
+               Grid.Row="2"
                Margin="0,6,0,0"
-               FontSize="18" />
-    <Button Grid.Row="1"
+               Padding="15"
+               FontSize="14" Cursor=""/>
+    <Button Grid.Row="3"
             Margin="16,16,16,0"
-            HorizontalAlignment="Right"
+            HorizontalAlignment="Center"
             Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
             IsDefault="True"
             Style="{StaticResource MaterialDesignFlatButton}">
-      ACCEPT
+      确定
     </Button>
   </Grid>
 </UserControl>

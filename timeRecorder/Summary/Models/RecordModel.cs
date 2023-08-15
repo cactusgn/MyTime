@@ -1,8 +1,12 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using MaterialDesignDemo.Domain;
+using MaterialDesignThemes.Wpf;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
+using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -56,6 +60,8 @@ namespace Summary.Models
         public MyCommand SelectedCommand { get; set; }
         public MyCommand UpdateTypeCommand { get; set; }
         public MyCommand ResizeCommand { get; set; }
+        public MyCommand StartCommand { get; set; }
+        public MyCommand EndCommand { get; set; }
 
         public int interval { get; set; }
         public string Interval
@@ -84,6 +90,21 @@ namespace Summary.Models
             get { return workContent; }
             set { workContent = value; OnPropertyChanged(); }
         }
+        private bool startbtnEnabled=true;
+
+        public bool StartbtnEnabled
+        {
+            get { return startbtnEnabled; }
+            set { startbtnEnabled = value; OnPropertyChanged(); }
+        }
+        private bool endbtnEnabled = false;
+
+        public bool EndbtnEnabled
+        {
+            get { return endbtnEnabled; }
+            set { endbtnEnabled = value; OnPropertyChanged(); }
+        }
+
         private ObservableCollection<GridSourceTemplate> allTimeViewObjs;
 
         public ObservableCollection<GridSourceTemplate> AllTimeViewObjs
@@ -98,6 +119,8 @@ namespace Summary.Models
         public RadioButton AllRB { get; set; }
         public RadioButton ThirdLevelRB { get; set; }
         public RadioButton FirstLevelRB { get; set; }
+        public SampleDialogViewModel sampleDialogViewModel { get; set; }
+        public MyCommand SplitButtonClickCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -107,7 +130,8 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
-        public RecordModel(ISQLCommands SqlCommands) {
+        private TimeSpan WorkStartTime;
+        public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
@@ -115,8 +139,127 @@ namespace Summary.Models
             SelectedCommand = new MyCommand(Selected);
             UpdateTypeCommand = new MyCommand(UpdateType);
             ResizeCommand = new MyCommand(resizeHeight);
+            SplitButtonClickCommand = new MyCommand(SplitButtonClick);
+            StartCommand = new MyCommand(StartClick);
+            EndCommand = new MyCommand(EndClick);
             SQLCommands = SqlCommands;
+            sampleDialogViewModel = SVM;
             InitTodayData();
+        }
+
+        private async void EndClick(object obj)
+        {
+            StartbtnEnabled = true;
+            EndbtnEnabled = false;
+            GridSourceTemplate currentDateTemplate;
+            if (AllTimeViewObjs==null)
+            {
+                currentDateTemplate = initAllTimeViewObjs();
+            }
+            else
+            {
+                currentDateTemplate = AllTimeViewObjs[0];
+            }
+            int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
+            var newObj = Helper.CreateNewTimeObj(DateTime.Now.TimeOfDay, WorkStartTime, WorkContent, DateTime.Today, TimeType.None, lastIndex, height, "record");
+            await SQLCommands.AddObj(newObj);
+            Helper.UpdateColor(newObj, "none");
+            currentDateTemplate.DailyObjs.Add(newObj);
+        }
+
+        private async void StartClick(object obj)
+        {
+            if (WorkContent==null)
+            {
+                await showMessageBox("请先填写工作内容");
+                return;
+            }
+            WorkStartTime = DateTime.Now.TimeOfDay;
+            StartbtnEnabled = false;
+            EndbtnEnabled = true;
+            if (AllTimeViewObjs!=null && AllTimeViewObjs.Count>0&&AllTimeViewObjs[0].DailyObjs!=null&&AllTimeViewObjs[0].DailyObjs.Count>0)
+            {
+                var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.StartTime).LastOrDefault();
+                int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
+                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.Rest, lastIndex, height, "record");
+                await SQLCommands.AddObj(newObj);
+                Helper.UpdateColor(newObj, "none");
+                AllTimeViewObjs[0].DailyObjs.Add(newObj);
+            }
+            else
+            {
+                var currentDateTemplate = initAllTimeViewObjs();
+                if (DateTime.Now.TimeOfDay > Helper.GlobalStartTimeSpan)
+                {
+                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.Rest, 1, height, "record");
+                    await SQLCommands.AddObj(newObj);
+                    Helper.UpdateColor(newObj, "none");
+                    currentDateTemplate.DailyObjs.Add(newObj);
+                }
+                else
+                {
+                    Helper.GlobalStartTimeSpan = DateTime.Now.TimeOfDay;
+                }
+            }
+        }
+        private GridSourceTemplate initAllTimeViewObjs()
+        {
+            AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
+            var currentDateTemplate = new GridSourceTemplate(DateTime.Today);
+            currentDateTemplate.Title = DateTime.Today.ToShortDateString();
+            currentDateTemplate.Week = DateTime.Today.DayOfWeek.ToString();
+            if (currentDateTemplate.Week.Equals("Saturday")||currentDateTemplate.Week.Equals("Sunday"))
+            {
+                currentDateTemplate.Color = "#32CD32";
+            }
+            else
+            {
+                currentDateTemplate.Color = "#008080";
+            }
+            AllTimeViewObjs.Add(currentDateTemplate);
+            return currentDateTemplate;
+        }
+        private async Task showMessageBox(string message)
+        {
+            var view = new SampleMessageDialog(message);
+            await DialogHost.Show(view, "SubRootDialog");
+        }
+        private void SplitButtonClick(object a = null)
+        {
+            openSplitDialog();
+        }
+        private async void openSplitDialog()
+        {
+            if(selectedTimeObj == null)
+            {
+                await showMessageBox("请先选中要分割的时间块");
+                return;
+            }
+            var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
+            await DialogHost.Show(view, "SubRootDialog");
+        }
+        public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2)
+        {
+            if (selectedTimeObj!=null)
+            {
+                var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
+                var lastIndex = currentDailyObj.Max(x => x.Id) +1;
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
+                lastIndex++;
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
+                Helper.UpdateColor(newTimeObj1, TimeType.None.ToString());
+                Helper.UpdateColor(newTimeObj2, TimeType.None.ToString());
+                await SQLCommands.DeleteObj(selectedTimeObj);
+                await SQLCommands.AddObj(newTimeObj1);
+                await SQLCommands.AddObj(newTimeObj2);
+
+                currentDailyObj.Add(newTimeObj1);
+                currentDailyObj.Add(newTimeObj2);
+                currentDailyObj.Remove(selectedTimeObj);
+                AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+                SelectedTimeObj = newTimeObj1;
+                refreshSingleDayPlot();
+            }
         }
         private async void UpdateType(object a){
     

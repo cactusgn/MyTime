@@ -7,9 +7,10 @@ namespace MaterialDesignDemo.Domain
     /// </summary>
     public partial class SampleMessageDialog : UserControl
     {
-        public SampleMessageDialog()
+        public SampleMessageDialog(string message)
         {
             InitializeComponent();
+            Message.Text = message;
         }
     }
 }

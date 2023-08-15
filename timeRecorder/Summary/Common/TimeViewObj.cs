@@ -41,7 +41,7 @@ namespace Summary.Common
         }
         public string TimeNote { 
             get{
-                timeNote = LastTime + "\n" + Note;
+                timeNote = LastTime.ToString().Substring(0,8) + "\n" + Note;
                 return timeNote;
             }
             set{

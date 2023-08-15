@@ -24,6 +24,9 @@ namespace Summary
         public RecordPageUserControl(RecordModel RecordModel)
         {
             InitializeComponent();
+            RecordModel.SingleDayPlot = SingleDayPlot;
+            RecordModel.ThirdLevelRB = ThirdLevelRB;
+            RecordModel.FirstLevelRB = FirstLevelRB;
             this.DataContext = RecordModel;
         }
 

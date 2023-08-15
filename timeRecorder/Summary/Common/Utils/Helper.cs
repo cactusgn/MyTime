@@ -12,12 +12,12 @@ namespace Summary.Common.Utils
 {
     public static class Helper
     {
-        public static async Task<ObservableCollection<GridSourceTemplate>> BuildTimeViewObj(DateTime startTime,DateTime endTime,ISQLCommands SQLCommands,double height)
+        public static async Task<ObservableCollection<GridSourceTemplate>> BuildTimeViewObj(DateTime startTime,DateTime endTime,ISQLCommands SQLCommands,double height,string viewType = "summary")
         {
             DateTime currentDate = startTime;
             ObservableCollection<GridSourceTemplate> AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
             List<MyTime> allTimeData = await SQLCommands.GetAllTimeObjs(startTime, endTime);
-            while (currentDate<=endTime)
+            while (allTimeData!=null && currentDate <= endTime)
             {
                 int lastIndex = 1;
                 var currentDateTemplate = new GridSourceTemplate(currentDate);
@@ -64,7 +64,7 @@ namespace Summary.Common.Utils
                         timeViewObj.CreatedDate = currentDate;
                         timeViewObj.LastTime = TimeObj.endTime-TimeObj.startTime;
                         timeViewObj.Note = TimeObj.note;
-                        timeViewObj.Height = CalculateHeight(endTimeSpan - startTimeSpan,height);
+                        timeViewObj.Height = CalculateHeight(endTimeSpan - startTimeSpan,height, viewType);
                         timeViewObj.StartTime = TimeObj.startTime;
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim()=="" ? "none" : TimeObj.type.Trim();
@@ -112,22 +112,25 @@ namespace Summary.Common.Utils
                     break;
             }
         }
-        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height)
+        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height,string viewType = "summary")
         {
             TimeViewObj TimeObj = new TimeViewObj();
             TimeObj.CreatedDate = createDate;
             TimeObj.LastTime = endTime - startTime;
             TimeObj.Note = note;
-            TimeObj.Height = CalculateHeight(TimeObj.LastTime,height);
+            TimeObj.Height = CalculateHeight(TimeObj.LastTime,height,viewType);
             TimeObj.StartTime = startTime;
             TimeObj.EndTime = endTime;
             TimeObj.Type = type.ToString().ToLower();
             TimeObj.Id = index;
             return TimeObj;
         }
-        public static double CalculateHeight(TimeSpan lastTime,double height)
+        public static double CalculateHeight(TimeSpan lastTime,double height,string viewType="summary")
         {
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
+            if (viewType == "record"){
+                allTimeSpan = DateTime.Now.TimeOfDay - new TimeSpan(6,0,0);
+            }
             return lastTime/allTimeSpan*(height-100);
         }
     }

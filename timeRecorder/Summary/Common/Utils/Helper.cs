@@ -1,4 +1,5 @@
-﻿using Summary.Data;
+﻿using ScottPlot;
+using Summary.Data;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
@@ -88,6 +89,7 @@ namespace Summary.Common.Utils
             }
             return AllTimeViewObjs;
         }
+        public static Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
         public static void UpdateColor(TimeViewObj timeViewObj, string type)
         {
             switch (type.ToLower())
@@ -132,6 +134,69 @@ namespace Summary.Common.Utils
                 allTimeSpan = DateTime.Now.TimeOfDay - new TimeSpan(6,0,0);
             }
             return lastTime/allTimeSpan*(height-100);
+        }
+        public static void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
+        {
+            var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note = x.Key.Note, Type = x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            var studyItems = items.Where(x => x.Type == "study").ToArray();
+            var wasteItems = items.Where(x => x.Type == "waste").ToArray();
+            var workItems = items.Where(x => x.Type == "work").ToArray();
+            var restItems = items.Where(x => x.Type == "rest").ToArray();
+            var playItems = items.Where(x => x.Type == "play").ToArray();
+            var index = 0;
+            plot.Plot.Clear();
+            var plt = plot.Plot;
+            var allItemCount = studyItems.Length + wasteItems.Length + workItems.Length + restItems.Length + playItems.Length;
+            string[] TimeLabels = new string[allItemCount];
+            string[] YLabels = new string[allItemCount];
+            double[] position = new double[allItemCount];
+            addChartData(studyItems, TimeType.Study, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(workItems, TimeType.Work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(wasteItems, TimeType.Waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(restItems, TimeType.Rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(playItems, TimeType.Play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+
+            plt.YTicks(position, YLabels);
+            plt.Legend(location: Alignment.UpperRight);
+            Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+            plt.XAxis.TickLabelFormat(customFormatter);
+            // adjust axis limits so there is no padding to the left of the bar graph
+            plt.SetAxisLimits(xMin: 0);
+            plot.Refresh();
+        }
+        private static void addChartData(ChartBar[] Items, TimeType type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
+        {
+            if (Items.Count() > 0)
+            {
+                double[] itemPostion = new double[Items.Count()];
+                double[] itemValues = new double[Items.Count()];
+                initColor();
+                for (int i = 0; i < Items.Count(); i++)
+                {
+                    itemPostion[i] = index + i + 1;
+                    position[i + index] = index + i + 1;
+                    YLabels[i + index] = Items[i].Note;
+                    itemValues[i] = Items[i].Time.TotalSeconds;
+                    TimeLabels.Append(Items[i].Time.ToString());
+                }
+                var bar = plt.AddBar(itemValues, itemPostion, System.Drawing.ColorTranslator.FromHtml(colorDic[type]));
+                bar.Orientation = ScottPlot.Orientation.Horizontal;
+                bar.ShowValuesAboveBars = true;
+                Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+                bar.ValueFormatter = customFormatter;
+                index = index + Items.Count();
+            }
+        }
+        public static void initColor(){
+            if (colorDic.Count == 0)
+            {
+                colorDic.Add(TimeType.None, "#F3F3F3");
+                colorDic.Add(TimeType.Study, "#FFB6C1");
+                colorDic.Add(TimeType.Waste, "#F08080");
+                colorDic.Add(TimeType.Rest, "#98FB98");
+                colorDic.Add(TimeType.Work, "#FFD700");
+                colorDic.Add(TimeType.Play, "#ADD8E6");
+            }
         }
     }
 }

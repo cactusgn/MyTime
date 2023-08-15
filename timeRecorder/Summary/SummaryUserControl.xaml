@@ -94,14 +94,14 @@
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                ToolTip="放大">
                             <!--<materialDesign:PackIcon Kind="Alarm" />--> +
                         </Button>
                         <Button Width="25" Height="25" Margin="10"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                ToolTip="缩小">
                             <!--<materialDesign:PackIcon Kind="Alarm" />--> -
                         </Button>
                     </StackPanel>

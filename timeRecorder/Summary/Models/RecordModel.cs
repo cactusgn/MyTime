@@ -136,8 +136,28 @@ namespace Summary.Models
         private async void InitTodayData()
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
+           
         }
-        
+        public void refreshSingleDayPlot()
+        {
+            var AllObj = AllTimeViewObjs.First(x => x.createdDate == DateTime.Today).DailyObjs;
+            if (FirstLevelRB.IsChecked == true)
+            {
+                var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
+                FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+                {
+                    Helper.refreshPlot(AllObj2, SingleDayPlot);
+                }));
+            }
+            if (ThirdLevelRB.IsChecked == true)
+            {
+                ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
+                {
+                    Helper.refreshPlot(AllObj, SingleDayPlot);
+                }));
+            }
+
+        }
         private void Enter_Click(object obj)
         {
             if(obj.ToString()!=""){

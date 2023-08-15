@@ -37,7 +37,7 @@
                     <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
                 </TextBox.InputBindings>
             </TextBox>
-            <ListBox Margin="5" Name="TodayListbox" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationSecondaryListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
+            <ListBox  Name="TodayListbox" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationSecondaryListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
                 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
@@ -57,7 +57,7 @@
                     <ItemContainerTemplate>
                         <Border x:Name="todayborder" >
                             <StackPanel Orientation="Horizontal" >
-                                <CheckBox Margin="3,0" IsChecked="{Binding Finished}" Background="DimGray" >
+                                <CheckBox Margin="0,0,8,0" IsChecked="{Binding Finished}" Background="DimGray" >
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Checked">
                                             <i:InvokeCommandAction 
@@ -181,14 +181,14 @@
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                ToolTip="放大">
                         <!--<materialDesign:PackIcon Kind="Alarm" />--> +
                     </Button>
                     <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
-                ToolTip="MaterialDesignFloatingActionMiniSecondaryButton">
+                ToolTip="缩小">
                         <!--<materialDesign:PackIcon Kind="Alarm" />--> -
                     </Button>
                 </DockPanel>

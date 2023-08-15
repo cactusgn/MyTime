@@ -28,6 +28,7 @@ namespace Summary
             RecordModel.ThirdLevelRB = ThirdLevelRB;
             RecordModel.FirstLevelRB = FirstLevelRB;
             this.DataContext = RecordModel;
+            RecordModel.refreshSingleDayPlot();
         }
 
         private void RightPanel_SizeChanged(object sender, SizeChangedEventArgs e)

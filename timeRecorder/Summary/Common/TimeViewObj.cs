@@ -52,7 +52,7 @@ namespace Summary.Common
         public TimeSpan LastTime {
             get;set;
         }
-        public TimeSpan StartTime { get; set; }
+        public TimeSpan StartTime { get;set;}
         public TimeSpan EndTime { get; set; }
         public DateTime CreatedDate { get; set; }
         public string Type{

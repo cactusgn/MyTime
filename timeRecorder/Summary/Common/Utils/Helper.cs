@@ -117,6 +117,10 @@ namespace Summary.Common.Utils
                     break;
             }
         }
+        public static TimeSpan getCurrentTime(){
+            DateTime now = DateTime.Now;
+            return new TimeSpan(now.Hour, now.Minute, now.Second);
+        }
         public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height,string viewType = "summary")
         {
             TimeViewObj TimeObj = new TimeViewObj();
@@ -134,7 +138,7 @@ namespace Summary.Common.Utils
         {
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
             if (viewType == "record"){
-                allTimeSpan = DateTime.Now.TimeOfDay - new TimeSpan(6,0,0);
+                allTimeSpan = Helper.getCurrentTime() - new TimeSpan(6,0,0);
             }
             return lastTime/allTimeSpan*(height-100);
         }

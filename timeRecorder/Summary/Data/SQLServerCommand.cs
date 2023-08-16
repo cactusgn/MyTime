@@ -52,10 +52,17 @@ namespace Summary.Data
         {
             using (var context = new MytimeContext())
             {
+                var todayItems = context.MyTime.Where(x => x.createDate == obj.CreatedDate);
+                var MaxIndex = 1;
+                if (todayItems.Count() > 0) {
+                    MaxIndex = todayItems.Max(x => x.currentIndex);
+                }
+                obj.Id = MaxIndex + 1;
                 MyTime newObj = new MyTime() {
                     currentIndex = obj.Id,
                     startTime = obj.StartTime,
                     endTime = obj.EndTime,
+                    lastTime = obj.LastTime,
                     createDate = obj.CreatedDate,
                     note = obj.Note,
                     type = obj.Type

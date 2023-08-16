@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 
 namespace Summary.Models
@@ -161,12 +162,12 @@ namespace Summary.Models
                 currentDateTemplate = AllTimeViewObjs[0];
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-            var newObj = Helper.CreateNewTimeObj(DateTime.Now.TimeOfDay, WorkStartTime, WorkContent, DateTime.Today, TimeType.None, lastIndex, height, "record");
+            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, TimeType.None, lastIndex, height, "record");
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, "none");
             currentDateTemplate.DailyObjs.Add(newObj);
         }
-
+        
         private async void StartClick(object obj)
         {
             if (WorkContent==null)
@@ -174,7 +175,7 @@ namespace Summary.Models
                 await showMessageBox("请先填写工作内容");
                 return;
             }
-            WorkStartTime = DateTime.Now.TimeOfDay;
+            WorkStartTime = Helper.getCurrentTime();
             StartbtnEnabled = false;
             EndbtnEnabled = true;
             if (AllTimeViewObjs!=null && AllTimeViewObjs.Count>0&&AllTimeViewObjs[0].DailyObjs!=null&&AllTimeViewObjs[0].DailyObjs.Count>0)
@@ -189,7 +190,7 @@ namespace Summary.Models
             else
             {
                 var currentDateTemplate = initAllTimeViewObjs();
-                if (DateTime.Now.TimeOfDay > Helper.GlobalStartTimeSpan)
+                if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.Rest, 1, height, "record");
                     await SQLCommands.AddObj(newObj);
@@ -198,10 +199,30 @@ namespace Summary.Models
                 }
                 else
                 {
-                    Helper.GlobalStartTimeSpan = DateTime.Now.TimeOfDay;
+                    Helper.GlobalStartTimeSpan = Helper.getCurrentTime();
                 }
             }
         }
+        //private void outputText(bool showMessage = true)
+        //{
+        //    deleteFile();
+        //    for (int i = 0; i < timelist.Count; i++)
+        //    {
+        //        addText("开始时间：" + format_date(timelist[i].mStartTime));
+        //        if (timelist[i].mEndTime == DateTime.Parse("1994-11-11"))
+        //        {
+        //            timelist[i].mEndTime = DateTime.Now;
+        //            timelist[i].interval = timelist[i].mEndTime - timelist[i].mStartTime;
+        //        }
+        //        addText("间隔时间：" + format_date(timelist[i].interval));
+        //        addText("结束时间：" + format_date(timelist[i].mEndTime));
+        //        addText("类型：" + timelist[i].timeType);
+        //        addText("备注：" + timelist[i].comment);
+        //        addText("");
+        //    }
+        //    if (showMessage)
+        //        MessageBox.Show("导出成功！");
+        //}
         private GridSourceTemplate initAllTimeViewObjs()
         {
             AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();

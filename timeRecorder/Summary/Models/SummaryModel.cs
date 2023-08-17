@@ -74,6 +74,7 @@ namespace Summary.Models
         public RadioButton ThirdLevelRB { get; set; }
         public RadioButton FirstLevelRB { get; set; }
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
+        public MyCommand TextBoxLostFocusCommand { get; set; }
         public bool RadioButtonEnabled
         {
             get
@@ -85,7 +86,17 @@ namespace Summary.Models
 
         private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
         private string currentSummaryRBType = "all";
-        
+        private TimeViewObj selectedTimeObj;
+
+        public TimeViewObj SelectedTimeObj
+        {
+            get { return selectedTimeObj; }
+            set
+            {
+                selectedTimeObj = value;
+                OnPropertyChanged();
+            }
+        }
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
             InitVariables();
@@ -95,6 +106,7 @@ namespace Summary.Models
             TimeObjType_SelectionChangedCommand = new MyCommand(TimeObjType_SelectionChanged);
             TimeObjType_NoteChangedCommand = new MyCommand(TimeObjType_NoteChanged);
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
+            TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
             SQLCommands = SqlCommands;
@@ -115,16 +127,12 @@ namespace Summary.Models
             height = LeftPanelHeight;
         }
 
-        private TimeViewObj selectedTimeObj;
-
-        public TimeViewObj SelectedTimeObj
+        
+        private async void TextBoxLostFocus(object obj)
         {
-            get { return selectedTimeObj; }
-            set
-            {
-                selectedTimeObj = value;
-                OnPropertyChanged();
-            }
+            var updateTimeViewObj = (TimeViewObj)obj;
+            await SQLCommands.UpdateObj(updateTimeViewObj);
+            refreshSingleDayPlot();
         }
         private void SingleDayRBChanged(object obj)
         {

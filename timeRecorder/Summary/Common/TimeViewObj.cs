@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Windows;
 
 namespace Summary.Common
 {
@@ -46,6 +46,11 @@ namespace Summary.Common
             }
             set{
                 timeNote = value;
+                if(timeNote.StartsWith(LastTime.ToString().Substring(0, 8) + "\n")){
+                    Note = timeNote.Substring(9);
+                }else{
+                    MessageBox.Show("请保留持续时间");
+                }
                 OnPropertyChanged();
             }
         }

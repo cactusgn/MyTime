@@ -122,6 +122,7 @@ namespace Summary.Models
         public RadioButton FirstLevelRB { get; set; }
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand SplitButtonClickCommand { get; set; }
+        public MyCommand TextBoxLostFocusCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -141,11 +142,19 @@ namespace Summary.Models
             UpdateTypeCommand = new MyCommand(UpdateType);
             ResizeCommand = new MyCommand(resizeHeight);
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
+            TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
             StartCommand = new MyCommand(StartClick);
             EndCommand = new MyCommand(EndClick);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
+        }
+
+        private async void TextBoxLostFocus(object obj)
+        {
+            var updateTimeViewObj = (TimeViewObj)obj;
+            await SQLCommands.UpdateObj(updateTimeViewObj);
+            refreshSingleDayPlot();
         }
 
         private async void EndClick(object obj)
@@ -202,6 +211,7 @@ namespace Summary.Models
                     Helper.GlobalStartTimeSpan = Helper.getCurrentTime();
                 }
             }
+            refreshSingleDayPlot();
         }
         //private void outputText(bool showMessage = true)
         //{
@@ -291,6 +301,7 @@ namespace Summary.Models
                 Helper.UpdateColor(obj, a.ToString());
                 await SQLCommands.UpdateObj(obj);
             }
+            refreshSingleDayPlot();
         }
         private void Selected(object obj)
         {

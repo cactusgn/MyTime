@@ -153,7 +153,12 @@
                                                                         CommandParameter="{Binding }"
                                                                         Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
                                                                         </i:EventTrigger>
-                                                                    </i:Interaction.Triggers>
+                                                                            <i:EventTrigger EventName="LostFocus">
+                                                                                <i:InvokeCommandAction 
+                                                                        CommandParameter="{Binding }"
+                                                                        Command="{Binding DataContext.TextBoxLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
+                                                                            </i:EventTrigger>
+                                                                        </i:Interaction.Triggers>
                                                                 </TextBox>
                                                             </Border>
                                                         </DataTemplate>

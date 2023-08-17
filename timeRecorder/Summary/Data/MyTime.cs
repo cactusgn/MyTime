@@ -35,9 +35,9 @@ namespace Summary.Data
        
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                //base.OnConfiguring(optionsBuilder);
-                optionsBuilder.UseSqlite("Filename=TimeTests.db");
-                //optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Trusted_Connection=True;Initial Catalog=MyTime;User ID=sa;Password=abcd-1234;integrated security=false;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True;");
+                base.OnConfiguring(optionsBuilder);
+                //optionsBuilder.UseSqlite("Filename=TimeTests.db");
+                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Trusted_Connection=True;Initial Catalog=MyTime;User ID=sa;Password=abcd-1234;integrated security=false;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True;");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

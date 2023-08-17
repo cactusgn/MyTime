@@ -13,7 +13,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -29,9 +31,19 @@ namespace Summary.Models
         public double RightPanelHeight
         {
             get { return rightPanelHeight; }
-            set { rightPanelHeight = value; }
+            set { rightPanelHeight = value; OnPropertyChanged(); }
         }
-
+        private double gridHeight;
+        public double GridHeight
+        {
+            get {
+                return gridHeight;
+            }
+            set
+            {
+                gridHeight = value; OnPropertyChanged();
+            }
+        }
         private ObservableCollection<ToDoObj> todayList = new ObservableCollection<ToDoObj>();
         public ObservableCollection<ToDoObj> TodayList{
         get { 
@@ -42,6 +54,14 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        private bool accumulateModeCheck;
+
+        public bool AccumulateModeCheck
+        {
+            get { return accumulateModeCheck; }
+            set { accumulateModeCheck = value; OnPropertyChanged(); }
+        }
+
         private ToDoObj currentObj { get; set; }
         public ToDoObj selectedListItem { get; set; }
         public ToDoObj SelectedListItem
@@ -63,6 +83,7 @@ namespace Summary.Models
         public MyCommand ResizeCommand { get; set; }
         public MyCommand StartCommand { get; set; }
         public MyCommand EndCommand { get; set; }
+        public MyCommand WorkContentChangeCommand { get; set; }
 
         public int interval { get; set; }
         public string Interval
@@ -141,8 +162,16 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
-       
+        private TimeSpan tickTime;
+
+        public TimeSpan TickTime
+        {
+            get { return tickTime; }
+            set { tickTime = value; OnPropertyChanged(); }
+        }
+        System.Timers.Timer showTextBoxTimer = new System.Timers.Timer(); //新建一个Timer对象
         private TimeSpan WorkStartTime;
+        private TimeSpan CurrentWorkAccuTime;
         public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "study",};
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
@@ -158,10 +187,17 @@ namespace Summary.Models
             StartCommand = new MyCommand(StartClick);
             EndCommand = new MyCommand(EndClick);
             CellEditEndingCommand = new MyCommand(CellEditEnding);
+            WorkContentChangeCommand = new MyCommand(WorkContentChange);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
         }
+
+        private void WorkContentChange(object obj)
+        {
+            calculateAccuTime();
+        }
+
         private void SingleDayRBChanged(object obj)
         {
             refreshSingleDayPlot();
@@ -171,6 +207,8 @@ namespace Summary.Models
             var plotblock = AllTimeViewObjs.First().DailyObjs.First(x=>x.Id == curr.Id);
             plotblock.Note = curr.Note;
             plotblock.Type = curr.Type;
+            plotblock.TimeNote = curr.TimeNote;
+            Helper.UpdateColor(plotblock, curr.Type);
             await SQLCommands.UpdateObj(curr);
             refreshSingleDayPlot();
         }
@@ -183,6 +221,7 @@ namespace Summary.Models
 
         private async void EndClick(object obj)
         {
+            WorkStartTime = Helper.getCurrentTime();
             StartbtnEnabled = true;
             EndbtnEnabled = false;
             GridSourceTemplate currentDateTemplate;
@@ -199,16 +238,24 @@ namespace Summary.Models
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, "none");
             currentDateTemplate.DailyObjs.Add(newObj);
+            resizeHeight();
         }
-        
+        private void calculateAccuTime()
+        {
+            CurrentWorkAccuTime = new TimeSpan(AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == workContent).Sum(x => x.LastTime.Ticks));
+        }
         private async void StartClick(object obj)
         {
+            showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
+            showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
+            showTextBoxTimer.Start();//启动计时
             if (WorkContent==null)
             {
                 await showMessageBox("请先填写工作内容");
                 return;
             }
             WorkStartTime = Helper.getCurrentTime();
+            calculateAccuTime();
             StartbtnEnabled = false;
             EndbtnEnabled = true;
             if (AllTimeViewObjs!=null && AllTimeViewObjs.Count>0&&AllTimeViewObjs[0].DailyObjs!=null&&AllTimeViewObjs[0].DailyObjs.Count>0)
@@ -237,7 +284,68 @@ namespace Summary.Models
             }
             InitGrid();
             refreshSingleDayPlot();
+            resizeHeight();
         }
+
+        private void showTextBoxTimer_Tick(object sender, EventArgs e)
+        {
+            TimeSpan now = Helper.getCurrentTime();
+            TimeSpan totalSpan = now - WorkStartTime;
+            bool continueTask = true;
+            if (AccumulateModeCheck&&endbtnEnabled)
+            {
+                totalSpan = new TimeSpan(totalSpan.Ticks+ CurrentWorkAccuTime.Ticks);
+            }
+            TickTime = totalSpan;
+            //label1.Text = "间隔时间：";
+            //form2.SetTime(format_date(timeSpan));
+            //int tempRemindTime = Convert.ToInt32(TimeReminder.Text);
+            //if (time3.AddSeconds(2).Date != startTime.Date && form2.Mode.Equals("start"))
+            //{
+            //    end_btn_Click(sender, e);
+            //    if (useDatabase)
+            //    {
+            //        connectToDb.Checked = false;
+            //        connectToDb.Checked = true;
+            //    }
+            //    Thread.Sleep(2000);
+            //    timelist.Clear();
+            //    btn_start_Click(sender, e);
+            //}
+            //if (TimeReminder.Text!= "" && !hasRemindCurrentTask)
+            //{
+            //    if ((int)(time3 - startTime).TotalMinutes % remindTime == 0 && (int)(time3 - startTime).TotalMinutes > 1)
+            //    {
+            //        hasRemindCurrentTask = true;
+            //        if (hideform1)
+            //        {
+            //            continueTask = form2.ShowTip();
+            //        }
+            //        else
+            //        {
+            //            DialogResult result = MessageBox.Show("可以喝杯水休息一下眼睛啦~是否继续呢？", "心态好最重要呀", MessageBoxButtons.YesNo, MessageBoxIcon.None, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+            //            if (result == DialogResult.No)
+            //            {
+            //                continueTask = false;
+            //            }
+            //            else
+            //            {
+            //                continueTask = true;
+            //            }
+            //        }
+            //        if (!continueTask)
+            //        {
+            //            end_btn_Click(sender, e);
+            //        }
+            //        else
+            //        {
+            //            remindTime = remindTime + tempRemindTime;
+            //            hasRemindCurrentTask = false;
+            //        }
+            //    }
+            //}
+        }
+
         //private void outputText(bool showMessage = true)
         //{
         //    deleteFile();
@@ -411,6 +519,7 @@ namespace Summary.Models
                 else
                 {
                     height = RightPanelHeight;
+                    GridHeight = RightPanelHeight -280;
                 }
                 
                 foreach (var gridSource in AllTimeViewObjs)

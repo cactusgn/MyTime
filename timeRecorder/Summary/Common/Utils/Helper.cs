@@ -139,6 +139,7 @@ namespace Summary.Common.Utils
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
             if (viewType == "record"){
                 allTimeSpan = Helper.getCurrentTime() - new TimeSpan(6,0,0);
+                return lastTime/allTimeSpan*(height-90);
             }
             return lastTime/allTimeSpan*(height-100);
         }

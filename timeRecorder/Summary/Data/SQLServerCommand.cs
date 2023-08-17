@@ -58,6 +58,11 @@ namespace Summary.Data
                     MaxIndex = todayItems.Max(x => x.currentIndex);
                 }
                 obj.Id = MaxIndex + 1;
+                if(obj.Type == "rest")
+                {
+                    var oldTimeObj = todayItems.First(x=>x.note== obj.Note&&x.type!="none");
+                    obj.Type = oldTimeObj.type;
+                }
                 MyTime newObj = new MyTime() {
                     currentIndex = obj.Id,
                     startTime = obj.StartTime,

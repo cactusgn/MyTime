@@ -27,10 +27,11 @@ namespace Summary
             RecordModel.SingleDayPlot = SingleDayPlot;
             RecordModel.ThirdLevelRB = ThirdLevelRB;
             RecordModel.FirstLevelRB = FirstLevelRB;
+            RecordModel.TodayObjsGrid = todayObjsGrid;
             this.DataContext = RecordModel;
             RecordModel.refreshSingleDayPlot();
         }
-
+        
         private void RightPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ((RecordModel)this.DataContext).RightPanelHeight = RightPanel.ActualHeight;

@@ -118,12 +118,12 @@ namespace Summary.Models
        
         private void InitVariables()
         {
-            colorDic.Add(TimeType.None, "#F3F3F3");
-            colorDic.Add(TimeType.Study, "#FFB6C1");
-            colorDic.Add(TimeType.Waste, "#F08080");
-            colorDic.Add(TimeType.Rest, "#98FB98");
-            colorDic.Add(TimeType.Work, "#FFD700");
-            colorDic.Add(TimeType.Play, "#ADD8E6");
+            colorDic.Add(TimeType.none, "#F3F3F3");
+            colorDic.Add(TimeType.study, "#FFB6C1");
+            colorDic.Add(TimeType.waste, "#F08080");
+            colorDic.Add(TimeType.rest, "#98FB98");
+            colorDic.Add(TimeType.work, "#FFD700");
+            colorDic.Add(TimeType.play, "#ADD8E6");
             height = LeftPanelHeight;
         }
 
@@ -374,7 +374,7 @@ namespace Summary.Models
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTime > tempStart)
                         {
-                            TimeViewObj startTimeObj = Helper.CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.None, lastIndex,height);
+                            TimeViewObj startTimeObj = Helper.CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.none, lastIndex,height);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             Helper.UpdateColor(startTimeObj, "none");
@@ -401,7 +401,7 @@ namespace Summary.Models
                 TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
                 if (endTime < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = Helper.CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex, height);
+                    TimeViewObj startTimeObj = Helper.CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.none, lastIndex, height);
                     Helper.UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
@@ -421,11 +421,11 @@ namespace Summary.Models
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
                 lastIndex++;
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex,height);
-                Helper.UpdateColor(newTimeObj1, TimeType.None.ToString());
-                Helper.UpdateColor(newTimeObj2, TimeType.None.ToString());
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex,height);
+                Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
+                Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);
@@ -486,4 +486,5 @@ namespace Summary.Models
         public TimeSpan Time { get; set; }
 
     }
+    
 }

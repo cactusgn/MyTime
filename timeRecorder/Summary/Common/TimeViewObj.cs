@@ -87,12 +87,12 @@ namespace Summary.Common
     }
     public enum TimeType
     {
-        None,
-        Study,
-        Waste,
-        Rest,
-        Work,
-        Play
+        none,
+        study,
+        waste,
+        rest,
+        work,
+        play
     }
-    
+
 }

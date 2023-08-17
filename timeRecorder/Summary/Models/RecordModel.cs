@@ -53,7 +53,7 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
-                    
+        public DataGrid TodayObjsGrid{ get; set; }
         public MyCommand Enter_ClickCommand { get; set; }
         public MyCommand DeleteContextMenu_ClickCommand { get; set; }
         public MyCommand TodayListBoxSelectionChangeCommand { get; set; }
@@ -105,7 +105,7 @@ namespace Summary.Models
             get { return endbtnEnabled; }
             set { endbtnEnabled = value; OnPropertyChanged(); }
         }
-
+        public MyCommand SingleDayRBChangedCommand { get; set; }
         private ObservableCollection<GridSourceTemplate> allTimeViewObjs;
 
         public ObservableCollection<GridSourceTemplate> AllTimeViewObjs
@@ -113,6 +113,14 @@ namespace Summary.Models
             get { return allTimeViewObjs; }
             set { allTimeViewObjs = value; OnPropertyChanged(); }
         }
+        private ObservableCollection<TimeViewObj> todayDailyObj;
+
+        public ObservableCollection<TimeViewObj> TodayDailyObj
+        {
+            get { return todayDailyObj; }
+            set { todayDailyObj = value; OnPropertyChanged(); }
+        }
+
         public ISQLCommands SQLCommands { get; set; }
         public ObservableCollection<TimeViewObj> DailyObj { get; set; } = new ObservableCollection<TimeViewObj>();
         private TimeViewObj selectedTimeObj;
@@ -123,6 +131,7 @@ namespace Summary.Models
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand SplitButtonClickCommand { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
+        public MyCommand CellEditEndingCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -132,7 +141,9 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+       
         private TimeSpan WorkStartTime;
+        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "study",};
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
@@ -143,13 +154,26 @@ namespace Summary.Models
             ResizeCommand = new MyCommand(resizeHeight);
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
             TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
+            SingleDayRBChangedCommand = new MyCommand(SingleDayRBChanged);
             StartCommand = new MyCommand(StartClick);
             EndCommand = new MyCommand(EndClick);
+            CellEditEndingCommand = new MyCommand(CellEditEnding);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
         }
-
+        private void SingleDayRBChanged(object obj)
+        {
+            refreshSingleDayPlot();
+        }
+        private async void CellEditEnding(object obj){
+            TimeViewObj curr = (TimeViewObj)obj;
+            var plotblock = AllTimeViewObjs.First().DailyObjs.First(x=>x.Id == curr.Id);
+            plotblock.Note = curr.Note;
+            plotblock.Type = curr.Type;
+            await SQLCommands.UpdateObj(curr);
+            refreshSingleDayPlot();
+        }
         private async void TextBoxLostFocus(object obj)
         {
             var updateTimeViewObj = (TimeViewObj)obj;
@@ -171,7 +195,7 @@ namespace Summary.Models
                 currentDateTemplate = AllTimeViewObjs[0];
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, TimeType.None, lastIndex, height, "record");
+            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, TimeType.none, lastIndex, height, "record");
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, "none");
             currentDateTemplate.DailyObjs.Add(newObj);
@@ -191,7 +215,7 @@ namespace Summary.Models
             {
                 var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.StartTime).LastOrDefault();
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.Rest, lastIndex, height, "record");
+                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, lastIndex, height, "record");
                 await SQLCommands.AddObj(newObj);
                 Helper.UpdateColor(newObj, "none");
                 AllTimeViewObjs[0].DailyObjs.Add(newObj);
@@ -201,7 +225,7 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
-                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.Rest, 1, height, "record");
+                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record");
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, "none");
                     currentDateTemplate.DailyObjs.Add(newObj);
@@ -211,6 +235,7 @@ namespace Summary.Models
                     Helper.GlobalStartTimeSpan = Helper.getCurrentTime();
                 }
             }
+            InitGrid();
             refreshSingleDayPlot();
         }
         //private void outputText(bool showMessage = true)
@@ -248,6 +273,7 @@ namespace Summary.Models
                 currentDateTemplate.Color = "#008080";
             }
             AllTimeViewObjs.Add(currentDateTemplate);
+            InitGrid();
             return currentDateTemplate;
         }
         private async Task showMessageBox(string message)
@@ -275,11 +301,11 @@ namespace Summary.Models
             {
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
                 lastIndex++;
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.None, lastIndex, height);
-                Helper.UpdateColor(newTimeObj1, TimeType.None.ToString());
-                Helper.UpdateColor(newTimeObj2, TimeType.None.ToString());
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
+                Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
+                Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);
@@ -311,7 +337,14 @@ namespace Summary.Models
         private async void InitTodayData()
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
-           
+            InitGrid();
+        }
+        private void InitGrid()
+        {
+            if (TodayDailyObj==null && AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
+            {
+                TodayDailyObj = AllTimeViewObjs[0].DailyObjs;
+            }
         }
         public void refreshSingleDayPlot()
         {

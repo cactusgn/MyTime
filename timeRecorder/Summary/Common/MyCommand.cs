@@ -16,7 +16,6 @@ namespace Summary
     public class MyCommand : ICommand
     {
         Action<object> executeAction;
-        Action<object,object> executeAction2;
         Action executeActionwithoutParams;
         public MyCommand(Action<object> action)
         {

@@ -3,8 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Summary"
+             xmlns:local="clr-namespace:Summary.Models"
              xmlns:domain="clr-namespace:Summary.Domain"
+             xmlns:common="clr-namespace:Summary.Common"
+             xmlns:core="clr-namespace:System;assembly=mscorlib"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF" xmlns:models="clr-namespace:Summary.Models" d:DataContext="{d:DesignInstance Type=models:RecordModel}"
@@ -15,7 +17,6 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Margin" Value="10"/>
         </Style>
-       
     </UserControl.Resources>
     <materialDesign:DialogHost x:Name="DialogHost2" Identifier="SubRootDialog"  
                                        DialogTheme="Inherit" 
@@ -174,7 +175,43 @@
                             </StackPanel>
                         </TabItem>
                         <TabItem Header="列表">
-                            
+                            <DataGrid
+                                  x:Name="todayObjsGrid"
+                                  CanUserAddRows="False"
+                                  AutoGenerateColumns="False"
+                                  HorizontalContentAlignment="Center" 
+                                  ItemsSource="{Binding TodayDailyObj}" IsTextSearchEnabled="True" 
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="CellEditEnding">
+                                        <i:InvokeCommandAction 
+                                CommandParameter="{Binding ElementName=todayObjsGrid,Path=SelectedItem}"
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=DataGrid}}"></i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <DataGrid.Resources>
+                                    <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"/>
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="StartTime" Binding="{Binding StartTime}" IsReadOnly="True"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="EndTime" Binding="{Binding EndTime}" IsReadOnly="True"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
+                                    <DataGridComboBoxColumn Header="Type" ItemsSource="{Binding Source={x:Static local:RecordModel.TimeTypes}}" SelectedItemBinding="{Binding Type,UpdateSourceTrigger=LostFocus}"></DataGridComboBoxColumn>
+                                    <DataGridTextColumn Header="Note" Binding="{Binding Note,UpdateSourceTrigger=LostFocus}"></DataGridTextColumn>
+                                    
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </TabItem>
                     </TabControl>
             </StackPanel>

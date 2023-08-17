@@ -227,6 +227,55 @@
                                                                     Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>-->
+                                                <ComboBoxItem  Tag="none"  Foreground="{DynamicResource MaterialDesignBody}" >
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                            <i:InvokeCommandAction 
+                                                                    CommandParameter="none"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                                                        <TextBlock Background="LightGray" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
+                                                        <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="none" Style="{StaticResource TextShadow}"/>
+                                                    </StackPanel>
+
+                                                </ComboBoxItem>
+                                                <ComboBoxItem  Tag="study" Foreground="{DynamicResource MaterialDesignBody}" >
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                            <i:InvokeCommandAction 
+                                                                    CommandParameter="study"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                                                        <TextBlock Background="pink" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
+                                                        <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="study" Style="{StaticResource TextShadow}">
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                </ComboBoxItem>
+                                                <ComboBoxItem  Tag="waste" Foreground="{DynamicResource MaterialDesignBody}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                            <i:InvokeCommandAction 
+                                                                    CommandParameter="waste"
+                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                                                        <TextBlock Background="OrangeRed" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
+                                                        <TextBlock HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Center"
+                                                       TextAlignment="Center" Text="waste" Style="{StaticResource TextShadow}"/>
+                                                    </StackPanel>
+
+                                                </ComboBoxItem>
                                                 <ComboBoxItem  Tag="rest" Foreground="{DynamicResource MaterialDesignBody}">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
@@ -243,23 +292,7 @@
                                                     </StackPanel>
                                                 
                                             </ComboBoxItem>
-                                                <ComboBoxItem  Tag="study" Foreground="{DynamicResource MaterialDesignBody}" >
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                        <i:InvokeCommandAction 
-                                                                    CommandParameter="study"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="pink" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="study" Style="{StaticResource TextShadow}">
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                   
-                                                </ComboBoxItem>
+                                                
                                                 <ComboBoxItem  Tag="work" Foreground="{DynamicResource MaterialDesignBody}">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
@@ -276,22 +309,7 @@
                                                     </StackPanel>
                                                    
                                             </ComboBoxItem>
-                                                <ComboBoxItem  Tag="waste" Foreground="{DynamicResource MaterialDesignBody}">
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                        <i:InvokeCommandAction 
-                                                                    CommandParameter="waste"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="OrangeRed" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="waste" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-                                                    
-                                            </ComboBoxItem>
+                                                
                                                 <ComboBoxItem  Tag="play"  Foreground="{DynamicResource MaterialDesignBody}" >
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
@@ -308,22 +326,7 @@
                                                     </StackPanel>
 
                                                 </ComboBoxItem>
-                                                <ComboBoxItem  Tag="none"  Foreground="{DynamicResource MaterialDesignBody}" >
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                        <i:InvokeCommandAction 
-                                                                    CommandParameter="none"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="LightGray" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="none" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-                                                    
-                                            </ComboBoxItem>
+                                               
                                         </ComboBox>
 
 

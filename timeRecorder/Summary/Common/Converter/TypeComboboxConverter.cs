@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ScottPlot.MarkerShapes;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 
 namespace Summary.Common.Converter
@@ -16,15 +18,16 @@ namespace Summary.Common.Converter
             {
                 throw new ArgumentNullException("Type is null");
             }
-            string type = value.ToString().Trim();
-            switch(type)
+            string type = value.ToString().Trim().ToLower();
+          
+            switch (type)
             {
-                case "rest": return 0;
+                case "none": return 0;
                 case "study": return 1;
-                case "work": return 2;
-                case "waste": return 3;
-                case "play": return 4;
-                case "none": return 5;
+                case "waste": return 2;
+                case "rest": return 3;
+                case "work": return 4;
+                case "play": return 5;
             }
 
             return 0;
@@ -39,12 +42,12 @@ namespace Summary.Common.Converter
             int i =  int.Parse(value.ToString().Trim());
             switch (i)
             {
-                case 0: return "rest";
+                case 0: return "none";
                 case 1: return "study";
-                case 2: return "work";
-                case 3: return "waste";
-                case 4: return "play";
-                case 5: return "none";
+                case 2: return "waste";
+                case 3: return "rest";
+                case 4: return "work";
+                case 5: return "play";
             }
 
             return "none";

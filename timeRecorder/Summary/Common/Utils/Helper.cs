@@ -56,7 +56,7 @@ namespace Summary.Common.Utils
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTimeSpan > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.None, lastIndex,height);
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.none, lastIndex,height);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, "none");
@@ -82,7 +82,7 @@ namespace Summary.Common.Utils
                 TimeSpan tempEndTime = GlobalEndTimeSpan;
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, "nothing", currentDate, TimeType.None, lastIndex, height);
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, "nothing", currentDate, TimeType.none, lastIndex, height);
                     UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
@@ -157,11 +157,11 @@ namespace Summary.Common.Utils
             string[] TimeLabels = new string[allItemCount];
             string[] YLabels = new string[allItemCount];
             double[] position = new double[allItemCount];
-            addChartData(studyItems, TimeType.Study, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(workItems, TimeType.Work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(wasteItems, TimeType.Waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(restItems, TimeType.Rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(playItems, TimeType.Play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(studyItems, TimeType.study, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(workItems, TimeType.work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(playItems, TimeType.play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
 
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
@@ -197,12 +197,12 @@ namespace Summary.Common.Utils
         public static void initColor(){
             if (colorDic.Count == 0)
             {
-                colorDic.Add(TimeType.None, "#F3F3F3");
-                colorDic.Add(TimeType.Study, "#FFB6C1");
-                colorDic.Add(TimeType.Waste, "#F08080");
-                colorDic.Add(TimeType.Rest, "#98FB98");
-                colorDic.Add(TimeType.Work, "#FFD700");
-                colorDic.Add(TimeType.Play, "#ADD8E6");
+                colorDic.Add(TimeType.none, "#F3F3F3");
+                colorDic.Add(TimeType.study, "#FFB6C1");
+                colorDic.Add(TimeType.waste, "#F08080");
+                colorDic.Add(TimeType.rest, "#98FB98");
+                colorDic.Add(TimeType.work, "#FFD700");
+                colorDic.Add(TimeType.play, "#ADD8E6");
             }
         }
     }

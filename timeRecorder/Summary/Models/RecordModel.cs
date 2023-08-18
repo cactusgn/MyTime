@@ -19,6 +19,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 
@@ -203,25 +204,33 @@ namespace Summary.Models
             refreshSingleDayPlot();
         }
         private async void CellEditEnding(object obj){
+            //update note or type
             TimeViewObj curr = (TimeViewObj)obj;
-            var plotblock = AllTimeViewObjs.First().DailyObjs.First(x=>x.Id == curr.Id);
-            plotblock.Note = curr.Note;
-            plotblock.Type = curr.Type;
-            plotblock.TimeNote = curr.TimeNote;
-            Helper.UpdateColor(plotblock, curr.Type);
-            await SQLCommands.UpdateObj(curr);
+            var updateNoteItem = AllTimeViewObjs.First().DailyObjs.First(x => x.Id == curr.Id);
+            updateNoteItem.TimeNote = curr.TimeNote;
+            var TodayAllObjectWithSameNote = AllTimeViewObjs.First().DailyObjs.Where(x => x.Note == curr.Note);
+            foreach (var plotblock in TodayAllObjectWithSameNote)
+            {
+                plotblock.Type = curr.Type;
+                Helper.UpdateColor(plotblock, curr.Type);
+                await SQLCommands.UpdateObj(plotblock);
+            }
             refreshSingleDayPlot();
         }
         private async void TextBoxLostFocus(object obj)
         {
+            //update note or type
             var updateTimeViewObj = (TimeViewObj)obj;
             await SQLCommands.UpdateObj(updateTimeViewObj);
             refreshSingleDayPlot();
         }
-
+        private void refreshAllObjs(){
+            UpdateGridData();
+            refreshSingleDayPlot();
+            resizeHeight();
+        }
         private async void EndClick(object obj)
         {
-            WorkStartTime = Helper.getCurrentTime();
             StartbtnEnabled = true;
             EndbtnEnabled = false;
             GridSourceTemplate currentDateTemplate;
@@ -234,15 +243,26 @@ namespace Summary.Models
                 currentDateTemplate = AllTimeViewObjs[0];
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, TimeType.none, lastIndex, height, "record");
+            TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(WorkContent));
+            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record");
             await SQLCommands.AddObj(newObj);
-            Helper.UpdateColor(newObj, "none");
+            Helper.UpdateColor(newObj, type.ToString());
             currentDateTemplate.DailyObjs.Add(newObj);
-            resizeHeight();
+            refreshAllObjs();
+            //reset rest start time
+            WorkStartTime = Helper.getCurrentTime();
         }
         private void calculateAccuTime()
         {
             CurrentWorkAccuTime = new TimeSpan(AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == workContent).Sum(x => x.LastTime.Ticks));
+        }
+        private string findPreviousType(string note){
+            var pre = AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == workContent);
+            if(pre.Count()>0){
+                return pre.First().Type;
+            }else{
+                return "none";
+            }
         }
         private async void StartClick(object obj)
         {
@@ -264,7 +284,7 @@ namespace Summary.Models
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, lastIndex, height, "record");
                 await SQLCommands.AddObj(newObj);
-                Helper.UpdateColor(newObj, "none");
+                Helper.UpdateColor(newObj, "rest");
                 AllTimeViewObjs[0].DailyObjs.Add(newObj);
             }
             else
@@ -272,9 +292,10 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
+                    TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(Helper.RestContent));
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record");
                     await SQLCommands.AddObj(newObj);
-                    Helper.UpdateColor(newObj, "none");
+                    Helper.UpdateColor(newObj, findPreviousType(newObj.Note));
                     currentDateTemplate.DailyObjs.Add(newObj);
                 }
                 else
@@ -282,9 +303,7 @@ namespace Summary.Models
                     Helper.GlobalStartTimeSpan = Helper.getCurrentTime();
                 }
             }
-            InitGrid();
-            refreshSingleDayPlot();
-            resizeHeight();
+            refreshAllObjs();
         }
 
         private void showTextBoxTimer_Tick(object sender, EventArgs e)
@@ -381,7 +400,7 @@ namespace Summary.Models
                 currentDateTemplate.Color = "#008080";
             }
             AllTimeViewObjs.Add(currentDateTemplate);
-            InitGrid();
+            UpdateGridData();
             return currentDateTemplate;
         }
         private async Task showMessageBox(string message)
@@ -445,13 +464,14 @@ namespace Summary.Models
         private async void InitTodayData()
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
-            InitGrid();
+            UpdateGridData();
         }
-        private void InitGrid()
+        private void UpdateGridData()
         {
-            if (TodayDailyObj==null && AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
+            if (AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
             {
                 TodayDailyObj = AllTimeViewObjs[0].DailyObjs;
+                
             }
         }
         public void refreshSingleDayPlot()

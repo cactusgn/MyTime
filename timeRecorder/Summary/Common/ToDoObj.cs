@@ -34,6 +34,10 @@ namespace Summary.Common
               }
              set { textDecorations = value; OnPropertyChanged(); }
         }
-		
+		private TimeType type;
+		public TimeType Type{
+			get { return type; }
+            set { type = value; OnPropertyChanged(); }
+        }
     }
 }

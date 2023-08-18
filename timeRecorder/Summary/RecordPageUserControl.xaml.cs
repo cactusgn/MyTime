@@ -29,7 +29,9 @@ namespace Summary
             RecordModel.FirstLevelRB = FirstLevelRB;
             RecordModel.TodayObjsGrid = todayObjsGrid;
             this.DataContext = RecordModel;
-            RecordModel.refreshSingleDayPlot();
+            if (RecordModel.AllTimeViewObjs.Count()>0 && RecordModel.AllTimeViewObjs[0].DailyObjs != null ) { 
+                RecordModel.refreshSingleDayPlot(); 
+            }
         }
         
         private void RightPanel_SizeChanged(object sender, SizeChangedEventArgs e)

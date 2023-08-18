@@ -60,8 +60,10 @@ namespace Summary.Data
                 obj.Id = MaxIndex + 1;
                 if(obj.Type == "rest")
                 {
-                    var oldTimeObj = todayItems.First(x=>x.note== obj.Note&&x.type!="none");
-                    obj.Type = oldTimeObj.type;
+                    var oldTimeObj = todayItems.Where(x=>x.note== obj.Note&&x.type!="none");
+                    if(oldTimeObj.Count()>0) {
+                        obj.Type = oldTimeObj.First().type;
+                    }
                 }
                 MyTime newObj = new MyTime() {
                     currentIndex = obj.Id,

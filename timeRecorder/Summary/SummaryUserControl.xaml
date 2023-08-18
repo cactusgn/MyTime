@@ -9,6 +9,7 @@
         xmlns:uc="clr-namespace:Summary.Domain"
         xmlns:cv="clr-namespace:Summary.Common.Converter"
         xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF"
+        xmlns:core="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         FontFamily="微软雅黑"
         FontSize="16" d:DesignHeight="660" d:DesignWidth="1200">
@@ -16,6 +17,12 @@
         <cv:TimeConverter x:Key="timeConverter"/>
         <cv:DateConverter x:Key="dateConverter"/>
         <cv:TypeComboboxConverter x:Key="typeConverter"/>
+        <Style TargetType="ScrollViewer">
+            <Style.Resources>
+                <core:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">8</core:Double>
+                <core:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">14</core:Double>
+            </Style.Resources>
+        </Style>
         <Style x:Key="HorizontalExpanderContentTextBlock" TargetType="{x:Type TextBlock}">
             <Setter Property="Opacity" Value=".68" />
             <Setter Property="TextWrapping" Value="Wrap" />

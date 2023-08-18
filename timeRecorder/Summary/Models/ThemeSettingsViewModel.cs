@@ -1,5 +1,6 @@
 ﻿using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
+using Summary.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -47,9 +48,8 @@ namespace Summary.Models
                 if (SetProperty(ref _isDarkTheme, value))
                 {
                     ModifyTheme(theme => theme.SetBaseTheme(value ? Theme.Dark : Theme.Light));
-                    var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
-                    cfg.AppSettings.Settings["IsDark"].Value = value.ToString();
-                    cfg.Save();
+                    Helper.SetAppSetting("IsDark", value.ToString());
+                   
                 }
             }
         }

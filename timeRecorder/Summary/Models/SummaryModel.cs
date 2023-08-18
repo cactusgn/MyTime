@@ -152,7 +152,7 @@ namespace Summary.Models
                 refreshSingleDayPlot();
             }
         }
-        
+       
         private void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;

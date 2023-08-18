@@ -10,6 +10,13 @@ namespace Summary.Common
     public class ToDoObj : ViewModelBase
     {
 		private bool finished;
+		private int id;
+
+		public int Id
+		{
+			get { return id; }
+			set { id = value; }
+		}
 
 		public bool Finished
 		{

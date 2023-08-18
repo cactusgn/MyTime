@@ -68,7 +68,7 @@
                                Style="{Binding ElementName=StyleComboBox, Path=SelectedItem, Converter={StaticResource ComboBoxItemToStyleConverter}}">
                         <ContentControl ContentTemplate="{Binding ElementName=ContentComboBox, Path=SelectedItem, Converter={StaticResource ComboBoxItemToDataTemplateConverter}}" />
                     </materialDesign:PopupBox>-->
-                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="LightGray" Width="20" Height="20" Margin="5,0,0,0">
+                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="Yellow" Width="20" Height="20" Margin="5,0,0,0">
                         
                     </TextBlock>
            </Grid>
@@ -182,19 +182,34 @@
                             </TextBox>
                         <TextBlock Grid.Row="1"  VerticalAlignment="Center">间隔提醒：</TextBlock>
                         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1"  VerticalAlignment="Center">
-                            <TextBox Width="50" TextAlignment="Center"  VerticalAlignment="Center">
+                            <TextBox Width="50" TextAlignment="Center"  VerticalAlignment="Center" >
                                 <Binding Path="Interval" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
                                     </Binding.ValidationRules>
                                 </Binding>
-                            </TextBox>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction 
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.IntervalTextBoxLostFocusCommand,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </TextBox>
                             <TextBlock Margin="10,0,20,0" VerticalAlignment="Center">分钟</TextBlock>
-                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center" VerticalContentAlignment="Bottom" IsChecked="{Binding AccumulateModeCheck}">累计模式</CheckBox>
+                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center" VerticalContentAlignment="Bottom" IsChecked="{Binding AccumulateModeCheck}" Command="{Binding AccumulateModeCheckChangedCommand}">累计模式</CheckBox>
                         </StackPanel>
                         <TextBlock  Grid.Row="2" VerticalAlignment="Center">slogan:</TextBlock>
 
-                        <TextBox Grid.Row="2" Grid.Column="1" Width="300"   HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
+                        <TextBox Grid.Row="2" Grid.Column="1" Width="300"  HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Slogan}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="LostFocus">
+                                        <i:InvokeCommandAction 
+                                                CommandParameter="{Binding }"
+                                                Command="{Binding DataContext.SloganTextBoxLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox}}"></i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
                         
                     </Grid>
                 </StackPanel>

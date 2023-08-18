@@ -87,15 +87,15 @@ namespace Summary.Models
         public MyCommand WorkContentChangeCommand { get; set; }
 
         public int interval { get; set; }
-        public string Interval
+        public int Interval
         {
             get
             {
-                return interval.ToString();
+                return interval;
             }
             set
             {
-                interval = int.Parse(value);
+                interval = value;
                 OnPropertyChanged();
             }
         }
@@ -154,6 +154,9 @@ namespace Summary.Models
         public MyCommand SplitButtonClickCommand { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand CellEditEndingCommand { get; set; }
+        public MyCommand IntervalTextBoxLostFocusCommand { get; set; }
+        public MyCommand SloganTextBoxLostFocusCommand { get; set; }
+        public MyCommand AccumulateModeCheckChangedCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -163,6 +166,14 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        private string slogan;
+
+        public string Slogan
+        {
+            get { return slogan; }
+            set { slogan = value; OnPropertyChanged(); }
+        }
+
         private TimeSpan tickTime;
 
         public TimeSpan TickTime
@@ -189,9 +200,30 @@ namespace Summary.Models
             EndCommand = new MyCommand(EndClick);
             CellEditEndingCommand = new MyCommand(CellEditEnding);
             WorkContentChangeCommand = new MyCommand(WorkContentChange);
+            IntervalTextBoxLostFocusCommand = new MyCommand(IntervalTextBoxLostFocus);
+            SloganTextBoxLostFocusCommand = new MyCommand(SloganTextBoxLostFocus);
+            AccumulateModeCheckChangedCommand = new MyCommand(AccumulateModeCheckChanged);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
+            Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
+            AccumulateModeCheck = bool.Parse(Helper.GetAppSetting("AccuMode"));
+            Slogan = Helper.GetAppSetting("Slogan");
+        }
+
+        private void AccumulateModeCheckChanged(object obj)
+        {
+            Helper.SetAppSetting("AccuMode", AccumulateModeCheck.ToString());
+        }
+
+        private void SloganTextBoxLostFocus(object obj)
+        {
+            Helper.SetAppSetting("Slogan", Slogan);
+        }
+
+        private void IntervalTextBoxLostFocus(object obj)
+        {
+            Helper.SetAppSetting("RemindTime", Interval.ToString());
         }
 
         private void WorkContentChange(object obj)
@@ -465,6 +497,17 @@ namespace Summary.Models
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
+            var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
+            foreach(var task in AllTodayTasks)
+            {
+                TodayList.Add(new ToDoObj()
+                {
+                    Finished=task.Finished,
+                    Id=task.Id,
+                    Note=task.Note,
+                    Type = (TimeType)Enum.Parse(typeof(TimeType), task.Type)
+                });
+            }
         }
         private void UpdateGridData()
         {
@@ -494,12 +537,14 @@ namespace Summary.Models
             }
 
         }
-        private void Enter_Click(object obj)
+        private async void Enter_Click(object obj)
         {
             if(obj.ToString()!=""){
-                TodayList.Add(new ToDoObj() { Note = obj.ToString(), Finished = false });
+                ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
+                TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";
+                await SQLCommands.AddTodo(newObj);
             }
         }
         private void DeleteContextMenu(object obj)
@@ -520,7 +565,7 @@ namespace Summary.Models
                 SelectedListItem = null;
             }
         }
-
+        
         public void resizeHeight(object a = null)
         {
             if (AllTimeViewObjs != null)
@@ -546,12 +591,23 @@ namespace Summary.Models
                 {
                     foreach (var obj in gridSource.DailyObjs)
                     {
-                        obj.Height = Helper.CalculateHeight(obj.LastTime, height,"record");
+                        obj.Height = CalculateRecordHeight(obj.LastTime);
                     }
                 }
             }
         }
-
+        private double CalculateRecordHeight(TimeSpan lastTime)
+        {
+            if (AllTimeViewObjs != null && AllTimeViewObjs[0].DailyObjs.Count>0)
+            {
+                TimeSpan allTimeSpan = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.EndTime).Last().EndTime - new TimeSpan(6, 0, 0);
+                return lastTime/allTimeSpan*(height-95);
+            }
+            else
+            {
+                return 0;
+            }
+        }
         private void CheckChanged(object obj) {
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
         }

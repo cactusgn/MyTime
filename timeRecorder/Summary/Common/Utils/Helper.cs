@@ -4,7 +4,9 @@ using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
@@ -16,6 +18,18 @@ namespace Summary.Common.Utils
         public const string RestContent = "休息";
         public static TimeSpan GlobalStartTimeSpan = new TimeSpan(6, 0, 0);
         public static TimeSpan GlobalEndTimeSpan = new TimeSpan(23, 59, 59);
+        public static string GetAppSetting(string key)
+        {
+            var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+            string value = cfg.AppSettings.Settings[key].Value;
+            return value;
+        }
+        public static void SetAppSetting(string key,string value)
+        {
+            var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+            cfg.AppSettings.Settings[key].Value = value;
+            cfg.Save();
+        }
         public static async Task<ObservableCollection<GridSourceTemplate>> BuildTimeViewObj(DateTime startTime,DateTime endTime,ISQLCommands SQLCommands,double height,string viewType = "summary")
         {
             DateTime currentDate = startTime;
@@ -134,11 +148,12 @@ namespace Summary.Common.Utils
             TimeObj.Id = index;
             return TimeObj;
         }
-        public static double CalculateHeight(TimeSpan lastTime,double height,string viewType="summary")
+        public static double CalculateHeight(TimeSpan lastTime, double height, string viewType = "summary")
         {
             TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
-            if (viewType == "record"){
-                allTimeSpan = Helper.getCurrentTime() - new TimeSpan(6,0,0);
+            if (viewType == "record")
+            {
+                allTimeSpan = Helper.getCurrentTime() - new TimeSpan(6, 0, 0);
                 return lastTime/allTimeSpan*(height-90);
             }
             return lastTime/allTimeSpan*(height-100);

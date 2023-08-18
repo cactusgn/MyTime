@@ -29,7 +29,19 @@ namespace Summary.Data
         [StringLength(50), AllowNull]
         public string userid { get; set; }
     }
-    
+    public class ToDo
+    {
+        public bool Finished { get; set; }
+        [NotNull]
+        public DateTime CreateDate { get; set; }
+        [StringLength(50), NotNull]
+        public string Note { get; set; }
+        [StringLength(10), AllowNull]
+        public string Type { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public int parentId { get; set; }
+    }
     public class MytimeContext : DbContext
     {
        
@@ -42,10 +54,11 @@ namespace Summary.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MyTime>().HasKey(m => new { m.currentIndex, m.createDate });
+            modelBuilder.Entity<ToDo>().HasKey(m => m.Id);
             base.OnModelCreating(modelBuilder);
 
         }
         public DbSet<MyTime> MyTime { set; get; }
-
+        public DbSet<ToDo> ToDos { set; get; }
     }
 }

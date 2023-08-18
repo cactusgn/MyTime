@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Reflection;
 using MaterialDesignColors;
 using System.Configuration;
+using Summary.Common.Utils;
 
 namespace Summary.Models
 {
@@ -66,9 +67,8 @@ namespace Summary.Models
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
-            var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
-            string ThemeColor = cfg.AppSettings.Settings["ThemeColor"].Value;
-            bool isDark = bool.Parse(cfg.AppSettings.Settings["IsDark"].Value);
+            string ThemeColor = Helper.GetAppSetting("ThemeColor");
+            bool isDark = bool.Parse(Helper.GetAppSetting("IsDark"));
             theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString(ThemeColor));
             if(isDark){
                 theme.SetBaseTheme(new MaterialDesignDarkTheme());

@@ -88,6 +88,35 @@ namespace Summary.Data
                 return 1;
             }
         }
+
+        public async Task<int> AddTodo(ToDoObj obj)
+        {
+            using (var context = new MytimeContext())
+            {
+                await context.ToDos.AddAsync(new ToDo() { CreateDate=DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                await context.SaveChangesAsync();
+            }
+            return 1;
+        }
+
+        public Task<int> UpdateTodo(ToDoObj obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> DeleteTodo(ToDoObj obj)
+        {
+            throw new NotImplementedException();
+        }
+        public List<ToDo> GetTasks(DateTime date)
+        {
+            var list = new List<ToDo>();
+            using (var context = new MytimeContext())
+            {
+                list = context.ToDos.Where(x=>x.CreateDate == date).ToList();
+            }
+            return list;
+        }
     }
     
 }

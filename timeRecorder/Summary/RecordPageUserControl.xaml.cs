@@ -1,4 +1,5 @@
-﻿using Summary.Models;
+﻿using Summary.Common.Utils;
+using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,36 +42,54 @@ namespace Summary
         }
         private void DialogHost2_DialogClosing(object sender, MaterialDesignThemes.Wpf.DialogClosingEventArgs eventArgs)
         {
-            if (!Equals(eventArgs.Parameter, true))
-                return;
-            var dialogRes = ((RecordModel)this.DataContext).sampleDialogViewModel;
+            if(((RecordModel)this.DataContext).dialogType == Common.DialogType.SplitDialog)
+            {
+                if (!Equals(eventArgs.Parameter, true))
+                    return;
+                var dialogRes = ((RecordModel)this.DataContext).sampleDialogViewModel;
 
-            if (!(dialogRes.SplitTime<dialogRes.EndTime&&dialogRes.SplitTime>dialogRes.StartTime))
-            {
-                dialogRes.ShowTip = "Visible";
-                eventArgs.Cancel();
-                return;
-            }
-            else
-            {
-                dialogRes.ShowTip = "Hidden";
-            }
-            if (dialogRes.Content1=="")
-            {
-                eventArgs.Cancel();
-                return;
-            }
+                if (!(dialogRes.SplitTime<dialogRes.EndTime&&dialogRes.SplitTime>dialogRes.StartTime))
+                {
+                    dialogRes.ShowTip = "Visible";
+                    eventArgs.Cancel();
+                    return;
+                }
+                else
+                {
+                    dialogRes.ShowTip = "Hidden";
+                }
+                if (dialogRes.Content1=="")
+                {
+                    eventArgs.Cancel();
+                    return;
+                }
             ((RecordModel)this.DataContext).SplitTimeBlock(dialogRes.SplitTime, dialogRes.Content1, dialogRes.Content2);
+            }
         }
 
         private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)
         {
-            var dialogRes = ((RecordModel)this.DataContext).sampleDialogViewModel;
-            dialogRes.ShowTip = "Hidden";
-            ((RecordModel)this.DataContext).sampleDialogViewModel.Content1 = "";
-            ((RecordModel)this.DataContext).sampleDialogViewModel.Content2 = "";
-            if (!Equals(eventArgs.Parameter, true))
-                return;
+            if (((RecordModel)this.DataContext).dialogType == Common.DialogType.SplitDialog)
+            {
+                if (!Equals(eventArgs.Parameter, true))
+                    return;
+                var dialogRes = ((RecordModel)this.DataContext).sampleDialogViewModel;
+                dialogRes.ShowTip = "Hidden";
+                ((RecordModel)this.DataContext).sampleDialogViewModel.Content1 = "";
+                ((RecordModel)this.DataContext).sampleDialogViewModel.Content2 = "";
+            }
+            if (((RecordModel)this.DataContext).dialogType == Common.DialogType.OkCancelDialog)
+            {
+                if (Equals(eventArgs.Parameter, true))
+                    return;
+                ((RecordModel)this.DataContext).EndClick(null);
+            }
+            if (((RecordModel)this.DataContext).dialogType == Common.DialogType.DeleteTodayTimeDialog)
+            {
+                if (!Equals(eventArgs.Parameter, true))
+                    return;
+                ((RecordModel)this.DataContext).DeleteAllAfterCheck();
+            }
         }
     }
 }

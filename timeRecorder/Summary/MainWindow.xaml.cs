@@ -1,10 +1,12 @@
 ﻿using MaterialDesignThemes.Wpf;
+using Summary.Common.Utils;
 using Summary.Data;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,12 +28,12 @@ namespace Summary
     {
         public MainWindow(MainModel mainModel)
         {
+      
             InitializeComponent();
-            
             this.DataContext = mainModel;
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
-
+            MinimizeWindow minimizeWindow = new MinimizeWindow(this, new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext)));
             btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
             btnMax.Click += (s, e) => {
                 if (this.WindowState == WindowState.Maximized)
@@ -57,6 +59,25 @@ namespace Summary
                     this.DragMove();
                 }
             };
+            btnLittleWin.Click+=(s, e) =>
+            {
+                this.Hide();
+                Helper.MiniWindowShow = true;
+                
+                if (Helper.WorkMode)
+                {
+                    ((MiniModel)minimizeWindow.DataContext).ToggleIcon = "Pause";
+                    ((MiniModel)minimizeWindow.DataContext).WorkContent = Helper.WorkContent;
+                }
+                else
+                {
+                    ((MiniModel)minimizeWindow.DataContext).ToggleIcon = "Play";
+                    ((MiniModel)minimizeWindow.DataContext).WorkContent = Helper.GetAppSetting("Slogan");
+                }
+                minimizeWindow.Show();
+
+                this.Owner = minimizeWindow;
+            };
             ColorZone.MouseDoubleClick += (s, e) =>
             {
                 if (this.WindowState == WindowState.Normal)
@@ -73,7 +94,7 @@ namespace Summary
             };
             
         }
-     
         
+
     }
 }

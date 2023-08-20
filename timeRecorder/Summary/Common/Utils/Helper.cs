@@ -18,6 +18,15 @@ namespace Summary.Common.Utils
         public const string RestContent = "休息";
         public static TimeSpan GlobalStartTimeSpan = new TimeSpan(6, 0, 0);
         public static TimeSpan GlobalEndTimeSpan = new TimeSpan(23, 59, 59);
+        public static TimeSpan TickTime;
+        public static string WorkContent;
+        public static bool WorkMode;
+        public static bool MiniWindowShow = false;
+        public static RecordModel recordModel;
+        public static TimeType ConvertTimeType(string type)
+        {
+            return (TimeType)Enum.Parse(typeof(TimeType), type);
+        }
         public static string GetAppSetting(string key)
         {
             var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);

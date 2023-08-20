@@ -88,32 +88,60 @@ namespace Summary.Data
                 return 1;
             }
         }
-
-        public async Task<int> AddTodo(ToDoObj obj)
+        public async Task<int> DeleteObjByDate(DateTime date)
         {
             using (var context = new MytimeContext())
             {
-                await context.ToDos.AddAsync(new ToDo() { CreateDate=DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                var item = context.MyTime.Where(x => x.createDate == date);
+                await item.ExecuteDeleteAsync();
+                return 1;
+            }
+        }
+        public async Task<int> AddTodo(ToDoObj obj)
+        {
+            int index = 1;
+            using (var context = new MytimeContext())
+            {
+                await context.ToDos.AddAsync(new ToDo() { CreateDate=DateTime.Today, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                await context.SaveChangesAsync();
+                index = context.ToDos.First(x => x.UpdatedDate==DateTime.Today&&x.Note == obj.Note).Id;
+            }
+            return index;
+        }
+
+        public async Task<int> UpdateTodo(ToDoObj obj)
+        {
+            using (var context = new MytimeContext())
+            {
+                var item = context.ToDos.Where(x=>x.Note == obj.Note);
+                if (item!=null)
+                {
+                    var updateObj = item.First();
+                    updateObj.UpdatedDate = DateTime.Today;
+                    updateObj.Type = obj.Type.ToString();
+                    updateObj.Finished = obj.Finished;
+                }
                 await context.SaveChangesAsync();
             }
             return 1;
         }
-
-        public Task<int> UpdateTodo(ToDoObj obj)
+       
+        public async Task<int> DeleteTodo(ToDoObj obj)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> DeleteTodo(ToDoObj obj)
-        {
-            throw new NotImplementedException();
+            using (var context = new MytimeContext())
+            {
+                var item = context.ToDos.Where(x => x.UpdatedDate==DateTime.Today&&x.Note == obj.Note);
+                if(item!=null)
+                    await item.ExecuteDeleteAsync();
+            }
+            return 1;
         }
         public List<ToDo> GetTasks(DateTime date)
         {
             var list = new List<ToDo>();
             using (var context = new MytimeContext())
             {
-                list = context.ToDos.Where(x=>x.CreateDate == date).ToList();
+                list = context.ToDos.Where(x=>x.UpdatedDate == date).ToList();
             }
             return list;
         }

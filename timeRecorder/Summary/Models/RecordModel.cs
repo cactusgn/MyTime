@@ -22,6 +22,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Summary.Common.Utils.Helper;
 
 namespace Summary.Models
 {
@@ -55,6 +58,7 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        public TimeSpan CalculatedRemindTime = new TimeSpan();
         private bool accumulateModeCheck;
 
         public bool AccumulateModeCheck
@@ -62,7 +66,7 @@ namespace Summary.Models
             get { return accumulateModeCheck; }
             set { accumulateModeCheck = value; OnPropertyChanged(); }
         }
-
+        public DialogType dialogType { get; set; }
         private ToDoObj currentObj { get; set; }
         public ToDoObj selectedListItem { get; set; }
         public ToDoObj SelectedListItem
@@ -157,6 +161,8 @@ namespace Summary.Models
         public MyCommand IntervalTextBoxLostFocusCommand { get; set; }
         public MyCommand SloganTextBoxLostFocusCommand { get; set; }
         public MyCommand AccumulateModeCheckChangedCommand { get; set; }
+        public MyCommand MinimizeCommand { get; set; }
+        public MyCommand DeleteAllCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -184,7 +190,11 @@ namespace Summary.Models
         System.Timers.Timer showTextBoxTimer = new System.Timers.Timer(); //新建一个Timer对象
         private TimeSpan WorkStartTime;
         private TimeSpan CurrentWorkAccuTime;
+        private bool DialogIsShown = false;
+
+        private HashSet<string> hs = new HashSet<string>();
         public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "study",};
+      
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
@@ -203,6 +213,7 @@ namespace Summary.Models
             IntervalTextBoxLostFocusCommand = new MyCommand(IntervalTextBoxLostFocus);
             SloganTextBoxLostFocusCommand = new MyCommand(SloganTextBoxLostFocus);
             AccumulateModeCheckChangedCommand = new MyCommand(AccumulateModeCheckChanged);
+            DeleteAllCommand = new MyCommand(DeleteAll);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
@@ -211,6 +222,22 @@ namespace Summary.Models
             Slogan = Helper.GetAppSetting("Slogan");
         }
 
+        private async void DeleteAll(object obj)
+        {
+            if (Helper.WorkMode)
+            {
+                await showMessageBox("请先暂停工作");
+                return;
+            }
+            showRemindDeleteDialog();
+            
+        }
+        public async void DeleteAllAfterCheck()
+        {
+            await SQLCommands.DeleteObjByDate(DateTime.Today);
+            initAllTimeViewObjs();
+            refreshSingleDayPlot();
+        }
         private void AccumulateModeCheckChanged(object obj)
         {
             Helper.SetAppSetting("AccuMode", AccumulateModeCheck.ToString());
@@ -229,6 +256,7 @@ namespace Summary.Models
         private void WorkContentChange(object obj)
         {
             calculateAccuTime();
+            Helper.WorkContent = WorkContent;
         }
 
         private void SingleDayRBChanged(object obj)
@@ -261,8 +289,9 @@ namespace Summary.Models
             refreshSingleDayPlot();
             resizeHeight();
         }
-        private async void EndClick(object obj)
+        public async void EndClick(object obj)
         {
+            Helper.WorkMode = false;
             StartbtnEnabled = true;
             EndbtnEnabled = false;
             GridSourceTemplate currentDateTemplate;
@@ -276,6 +305,14 @@ namespace Summary.Models
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
             TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(WorkContent));
+            if(type == TimeType.none)
+            {
+                var item = TodayList.Where(x => x.Note==WorkContent);
+                if (item!=null&&item.Count()>0)
+                {
+                    type = item.First().Type;
+                }
+            }
             var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record");
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, type.ToString());
@@ -296,23 +333,25 @@ namespace Summary.Models
                 return "none";
             }
         }
-        private async void StartClick(object obj)
+        public async Task<bool> StartClickMethod()
         {
+            Helper.WorkMode = true;
+            if (WorkContent==null||WorkContent == "")
+            {
+                await showMessageBox("请先填写工作内容");
+                return false;
+            }
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
-            if (WorkContent==null)
-            {
-                await showMessageBox("请先填写工作内容");
-                return;
-            }
             WorkStartTime = Helper.getCurrentTime();
             calculateAccuTime();
             StartbtnEnabled = false;
             EndbtnEnabled = true;
+            CalculatedRemindTime = new TimeSpan();
             if (AllTimeViewObjs!=null && AllTimeViewObjs.Count>0&&AllTimeViewObjs[0].DailyObjs!=null&&AllTimeViewObjs[0].DailyObjs.Count>0)
             {
-                var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.StartTime).LastOrDefault();
+                var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x => x.StartTime).LastOrDefault();
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, lastIndex, height, "record");
                 await SQLCommands.AddObj(newObj);
@@ -336,65 +375,43 @@ namespace Summary.Models
                 }
             }
             refreshAllObjs();
+            return true;
         }
-
+        public async void StartClick(object obj)
+        {
+            await StartClickMethod();
+        }
+        
         private void showTextBoxTimer_Tick(object sender, EventArgs e)
         {
             TimeSpan now = Helper.getCurrentTime();
             TimeSpan totalSpan = now - WorkStartTime;
-            bool continueTask = true;
+            
             if (AccumulateModeCheck&&endbtnEnabled)
             {
-                totalSpan = new TimeSpan(totalSpan.Ticks+ CurrentWorkAccuTime.Ticks);
+                totalSpan = new TimeSpan(totalSpan.Ticks + CurrentWorkAccuTime.Ticks);
             }
             TickTime = totalSpan;
-            //label1.Text = "间隔时间：";
-            //form2.SetTime(format_date(timeSpan));
-            //int tempRemindTime = Convert.ToInt32(TimeReminder.Text);
-            //if (time3.AddSeconds(2).Date != startTime.Date && form2.Mode.Equals("start"))
-            //{
-            //    end_btn_Click(sender, e);
-            //    if (useDatabase)
-            //    {
-            //        connectToDb.Checked = false;
-            //        connectToDb.Checked = true;
-            //    }
-            //    Thread.Sleep(2000);
-            //    timelist.Clear();
-            //    btn_start_Click(sender, e);
-            //}
-            //if (TimeReminder.Text!= "" && !hasRemindCurrentTask)
-            //{
-            //    if ((int)(time3 - startTime).TotalMinutes % remindTime == 0 && (int)(time3 - startTime).TotalMinutes > 1)
-            //    {
-            //        hasRemindCurrentTask = true;
-            //        if (hideform1)
-            //        {
-            //            continueTask = form2.ShowTip();
-            //        }
-            //        else
-            //        {
-            //            DialogResult result = MessageBox.Show("可以喝杯水休息一下眼睛啦~是否继续呢？", "心态好最重要呀", MessageBoxButtons.YesNo, MessageBoxIcon.None, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-            //            if (result == DialogResult.No)
-            //            {
-            //                continueTask = false;
-            //            }
-            //            else
-            //            {
-            //                continueTask = true;
-            //            }
-            //        }
-            //        if (!continueTask)
-            //        {
-            //            end_btn_Click(sender, e);
-            //        }
-            //        else
-            //        {
-            //            remindTime = remindTime + tempRemindTime;
-            //            hasRemindCurrentTask = false;
-            //        }
-            //    }
-            //}
+            Helper.TickTime = TickTime;
+            if(TickTime > new TimeSpan(23,59,58) && Helper.WorkMode)
+            {
+                EndClick(null);
+            }
+            if(Helper.WorkMode)
+            {
+                CalculatedRemindTime = CalculatedRemindTime.Add(new TimeSpan(0, 0, 1));
+                if (CalculatedRemindTime > new TimeSpan(0, Interval, 0) )
+                {
+                    CalculatedRemindTime = new TimeSpan();
+                    if (!Helper.MiniWindowShow)
+                    {
+                        Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                        {
+                            showRemindDialog();
+                        }));
+                    }
+                }
+            }
         }
 
         //private void outputText(bool showMessage = true)
@@ -437,8 +454,36 @@ namespace Summary.Models
         }
         private async Task showMessageBox(string message)
         {
-            var view = new SampleMessageDialog(message);
-            await DialogHost.Show(view, "SubRootDialog");
+            if (!DialogIsShown)
+            {
+                DialogIsShown = true;
+                dialogType = DialogType.MessageDialog;
+                var view = new SampleMessageDialog(message);
+                await DialogHost.Show(view, "SubRootDialog");
+                DialogIsShown = false;
+            }
+        }
+        public async void showRemindDialog()
+        {
+            if (!DialogIsShown)
+            {
+                DialogIsShown = true;
+                dialogType = DialogType.OkCancelDialog;
+                var view = new RemindDialog("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦");
+                await DialogHost.Show(view, "SubRootDialog");
+                DialogIsShown = false;
+            }
+        }
+        public async void showRemindDeleteDialog()
+        {
+            if (!DialogIsShown)
+            {
+                DialogIsShown = true;
+                dialogType = DialogType.DeleteTodayTimeDialog;
+                var view = new RemindDialog("提示", "确认删除今日所有时间块吗？");
+                await DialogHost.Show(view, "SubRootDialog");
+                DialogIsShown = false;
+            }
         }
         private void SplitButtonClick(object a = null)
         {
@@ -451,8 +496,14 @@ namespace Summary.Models
                 await showMessageBox("请先选中要分割的时间块");
                 return;
             }
-            var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
-            await DialogHost.Show(view, "SubRootDialog");
+            if (!DialogIsShown)
+            {
+                DialogIsShown = true;
+                dialogType = DialogType.SplitDialog;
+                var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
+                await DialogHost.Show(view, "SubRootDialog");
+                DialogIsShown = false;
+            }
         }
         public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2)
         {
@@ -485,6 +536,23 @@ namespace Summary.Models
                 obj.Type = a.ToString();
                 Helper.UpdateColor(obj, a.ToString());
                 await SQLCommands.UpdateObj(obj);
+                if (!hs.Contains(obj.Note)&&(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play"))
+                {
+                    hs.Add(obj.Note);
+                    ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
+                    var id = await SQLCommands.AddTodo(newObj);
+                    newObj.Id = id;
+                    TodayList.Add(newObj);
+                    hs.Add(obj.Note);
+                }else if (hs.Contains(obj.Note)&&!(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play"))
+                {
+                    var item= TodayList.Where(x => x.Note == obj.Note);
+                    if (item!=null)
+                    {
+                        hs.Remove(obj.Note);
+                        await SQLCommands.DeleteTodo(item.First());
+                    }
+                }
             }
             refreshSingleDayPlot();
         }
@@ -498,16 +566,44 @@ namespace Summary.Models
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
             var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
-            foreach(var task in AllTodayTasks)
+            
+            //把DailyObj里的work，study，play时间块加入到todaylist
+            if (AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
             {
-                TodayList.Add(new ToDoObj()
+                foreach(var obj in AllTimeViewObjs[0].DailyObjs)
                 {
-                    Finished=task.Finished,
-                    Id=task.Id,
-                    Note=task.Note,
-                    Type = (TimeType)Enum.Parse(typeof(TimeType), task.Type)
-                });
+                    if(obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
+                    {
+                        if (!hs.Contains(obj.Note))
+                        {
+                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
+                            var id = await SQLCommands.AddTodo(newObj);
+                            newObj.Id = id;
+                            TodayList.Add(newObj);
+                            hs.Add(obj.Note);
+                        }
+                    }
+                }
             }
+            //加载todayTaks里的work,study,play时间块
+            if (AllTodayTasks.Count()>0)
+            {
+                foreach(var obj in AllTodayTasks)
+                {
+                    if (obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
+                    {
+                        if (!hs.Contains(obj.Note))
+                        {
+                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type=Helper.ConvertTimeType(obj.Type) };
+                            var id = await SQLCommands.AddTodo(newObj);
+                            newObj.Id = id;
+                            TodayList.Add(newObj);
+                            hs.Add(obj.Note);
+                        }
+                    }
+                }
+            }
+            TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
         }
         private void UpdateGridData()
         {
@@ -541,10 +637,11 @@ namespace Summary.Models
         {
             if(obj.ToString()!=""){
                 ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
+                var index = await SQLCommands.AddTodo(newObj);
+                newObj.Id = index;
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";
-                await SQLCommands.AddTodo(newObj);
             }
         }
         private void DeleteContextMenu(object obj)
@@ -562,6 +659,7 @@ namespace Summary.Models
             {
                 currentObj= SelectedListItem;
                 WorkContent = SelectedListItem.Note;
+                Helper.WorkContent = WorkContent;
                 SelectedListItem = null;
             }
         }
@@ -608,9 +706,11 @@ namespace Summary.Models
                 return 0;
             }
         }
-        private void CheckChanged(object obj) {
+        private async void CheckChanged(object obj) {
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+            await SQLCommands.UpdateTodo((ToDoObj)obj);
         }
-       
+        
     }
+    
 }

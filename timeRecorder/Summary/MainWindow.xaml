@@ -50,6 +50,9 @@
                     materialDesign:ElevationAssist.Elevation="Dp2"
                     Mode="PrimaryDark">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="5"  VerticalAlignment="Center">
+                <Button  x:Name="btnLittleWin" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
+                    <materialDesign:PackIcon VerticalAlignment="Center" Kind="DockWindow" Width="20" Height="20" />
+                </Button>
                 <Button  x:Name="btnMin" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
                     <materialDesign:PackIcon VerticalAlignment="Center" Kind="WindowMinimize" Width="20" Height="20" />
                 </Button>

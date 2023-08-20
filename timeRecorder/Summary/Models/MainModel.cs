@@ -31,7 +31,6 @@ namespace Summary.Models
 {
     public class MainModel : ViewModelBase
     {
-
         public MyCommand OpenPageCommand { get; set; }
 
         private UIElement mainContent;
@@ -78,6 +77,8 @@ namespace Summary.Models
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
+            Helper.recordModel = recordModel;
+
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
             ColorTool = new ColorTool(this);

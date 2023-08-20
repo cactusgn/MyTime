@@ -13,6 +13,7 @@ namespace Summary.Data
         public  Task<int> UpdateObj(TimeViewObj obj);
         public Task<int> AddObj(TimeViewObj obj);
         public Task<int> DeleteObj(TimeViewObj obj);
+        public Task<int> DeleteObjByDate(DateTime date);
         public List<ToDo> GetTasks(DateTime date);
         public Task<int> AddTodo(ToDoObj obj);
         public Task<int> UpdateTodo(ToDoObj obj);

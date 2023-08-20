@@ -94,5 +94,11 @@ namespace Summary.Common
         work,
         play
     }
-
+    public enum DialogType
+    {
+        MessageDialog,
+        SplitDialog,
+        OkCancelDialog,
+        DeleteTodayTimeDialog
+    }
 }

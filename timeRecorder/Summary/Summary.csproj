@@ -9,11 +9,15 @@
 
   <ItemGroup>
     <None Remove="App.config" />
+    <None Remove="TimeTests.db" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TimeTests.db">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

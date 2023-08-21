@@ -15,9 +15,9 @@
         Title="MinimizeWindow" Height="65" Width="220">
 
         <Border CornerRadius="10" Width="210">
-            <Border.Effect>
+            <!--<Border.Effect>
                 <DropShadowEffect Color="Gray" ShadowDepth="0" BlurRadius="5" Opacity="0.8" Direction="300"/>
-            </Border.Effect>
+            </Border.Effect>-->
             <Grid Width="210">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"></RowDefinition>

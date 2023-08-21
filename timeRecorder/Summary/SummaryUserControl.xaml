@@ -338,9 +338,9 @@
 
 
                                         <TextBox FontWeight="Normal" Name="SelectedNote"
-                                         HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5" 
+                                         HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="5" Margin ="5,5,20,5" 
                                         VerticalAlignment="Top" IsEnabled="{Binding SelectedTimeObj.IsEnabled}"
-                                        AcceptsReturn="True"
+                                        AcceptsReturn="True" Padding="5" 
                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                         TextWrapping="Wrap"
                                         VerticalScrollBarVisibility="Auto" Text="{Binding SelectedTimeObj.Note}" >

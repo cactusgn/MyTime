@@ -86,6 +86,10 @@ namespace Summary.Common.Utils
                             currentDateTemplate.DailyObjs.Add(startTimeObj);
                         }
                     }
+                    if (TimeObj.type==null)
+                    {
+                        TimeObj.type = "";
+                    }
                     if (startTimeSpan>=new TimeSpan(6, 0, 0))
                     {
                         timeViewObj.CreatedDate = currentDate;

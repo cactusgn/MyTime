@@ -50,7 +50,7 @@ namespace Summary
                     btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowRestore;
                 }
             };
-            btnClose.Click += (s, e) => { this.Close(); };
+            btnClose.Click += (s, e) => { this.Close(); minimizeWindow.Close(); };
             ColorZone.MouseMove += (s, e) => {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {

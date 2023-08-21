@@ -43,10 +43,17 @@ namespace Summary.Models
         public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
         public ColorTool ColorTool { get; set; }
+        public Settings Settings { get; set; }
         public SummaryModel SummaryModel { get; set; }
         public string summaryBtnForegroundColor = Colors.Gray.ToString();
         public string recordBtnForegroundColor = Colors.Gray.ToString();
         public string colorBtnForegroundColor = Colors.Gray.ToString();
+        public string settingsBtnForegroundColor = Colors.Gray.ToString();
+        public string SettingsBtnForegroundColor
+        {
+            get { return settingsBtnForegroundColor; }
+            set { settingsBtnForegroundColor = value; OnPropertyChanged(); }
+        }
         public string SummaryBtnForegroundColor
         {
             get { return summaryBtnForegroundColor; }
@@ -77,8 +84,8 @@ namespace Summary.Models
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
-            Helper.recordModel = recordModel;
-
+            //Helper.recordModel = recordModel;
+            Settings = new Settings(new SettingsModel());
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
             ColorTool = new ColorTool(this);
@@ -108,12 +115,19 @@ namespace Summary.Models
                 ResetColor();
                 ColorBtnForegroundColor = palette.Color.ToString();
             }
+            else if (o.ToString() == "Settings")
+            {
+                MainContent = Settings;
+                ResetColor();
+                SettingsBtnForegroundColor = palette.Color.ToString();
+            }
         }
         private void ResetColor()
         {
             ColorBtnForegroundColor = Colors.Gray.ToString();
             SummaryBtnForegroundColor = Colors.Gray.ToString();
             RecordBtnForegroundColor = Colors.Gray.ToString();
+            SettingsBtnForegroundColor = Colors.Gray.ToString();
         }
     }
 

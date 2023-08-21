@@ -19,13 +19,15 @@ namespace Summary.Domain
     /// </summary>
     public partial class YESNOWindow : Window
     {
-        public YESNOWindow(string title="", string message = "")
+        public YESNOWindow(string title="", string message = "",string confirmString = "", string cancelString = "")
         {
             InitializeComponent();
             this.DataContext = new
             {
                 Title = title,
                 Message = message,
+                ConfirmString = confirmString,
+                CancelString = cancelString
             };
             TitleRow.MouseMove += (s, e) =>
             {

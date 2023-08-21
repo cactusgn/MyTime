@@ -45,15 +45,14 @@
             </Grid.ColumnDefinitions>
             <Button Click="Button_Click_1"
               IsDefault="True" IsCancel="True" Grid.Column="0" Width="100" Margin="60,0,0,0"
-              Style="{StaticResource MaterialDesignFlatButton}">
+              Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding CancelString}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
-               休息
             </Button>
             <Button Grid.Column="1" Click="Button_Click"
                Width="100" Margin="0,0,60,0"
-              Style="{StaticResource MaterialDesignFlatButton}" Content="继续">
+              Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding ConfirmString}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>

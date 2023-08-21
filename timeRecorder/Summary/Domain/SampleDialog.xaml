@@ -48,8 +48,6 @@
                 <materialDesign:TimePicker.Text>
                     <Binding Path="SplitTime"  UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
-                            <!--<domain:BetweenDateValidationRule ValidatesOnTargetUpdated="True" >
-                            </domain:BetweenDateValidationRule>-->
                         </Binding.ValidationRules>
                     </Binding>
                 </materialDesign:TimePicker.Text>

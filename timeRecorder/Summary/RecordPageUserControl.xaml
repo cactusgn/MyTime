@@ -141,13 +141,13 @@
                         Kind="StopCircleOutline" Foreground="IndianRed"  Width="40" Height="40"/>
                     </Button>
                     <Button
-                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      Style="{StaticResource MaterialDesignIconForegroundButton}"  Command="{Binding ImportCommand}"
                       ToolTip="导入" Margin="10,0"  Width="50" Height="50">
                         <materialDesign:PackIcon
                         Kind="DownloadOutline"  Foreground="LightBlue"  Width="40" Height="40"/>
                     </Button>
                     <Button
-                      Style="{StaticResource MaterialDesignIconForegroundButton}"
+                      Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding ExportCommand}"
                       ToolTip="导出" Margin="10,0"  Width="50" Height="50">
                         <materialDesign:PackIcon
                         Kind="UploadOutline" Foreground="LightBlue"  Width="40" Height="40"/>

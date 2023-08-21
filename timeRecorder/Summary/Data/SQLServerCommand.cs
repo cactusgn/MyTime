@@ -53,7 +53,7 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 var todayItems = context.MyTime.Where(x => x.createDate == obj.CreatedDate);
-                var MaxIndex = 1;
+                var MaxIndex = 0;
                 if (todayItems.Count() > 0) {
                     MaxIndex = todayItems.Max(x => x.currentIndex);
                 }

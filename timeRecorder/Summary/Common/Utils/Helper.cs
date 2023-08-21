@@ -22,7 +22,7 @@ namespace Summary.Common.Utils
         public static string WorkContent;
         public static bool WorkMode;
         public static bool MiniWindowShow = false;
-        public static RecordModel recordModel;
+        //public static RecordModel recordModel;
         public static TimeType ConvertTimeType(string type)
         {
             return (TimeType)Enum.Parse(typeof(TimeType), type);

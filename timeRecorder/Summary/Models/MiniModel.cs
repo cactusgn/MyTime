@@ -87,7 +87,7 @@ namespace Summary.Models
                 {
                     Application.Current.Dispatcher.BeginInvoke(new Action(delegate{ 
                         if (!openDialog){
-                            YesNoDialog = new YESNOWindow("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦");
+                            YesNoDialog = new YESNOWindow("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦", "继续", "休息");
                             openDialog = true;
                             if (YesNoDialog.ShowDialog() == true)
                             {

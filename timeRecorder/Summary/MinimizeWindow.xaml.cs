@@ -72,7 +72,7 @@ namespace Summary
                 if (recordModel.CalculatedRemindTime >= new TimeSpan(0, recordModel.Interval, 0) && Helper.MiniWindowShow)
                 {
                     Application.Current.Dispatcher.BeginInvoke(new Action(delegate {
-                            YESNOWindow YesNoDialog = new YESNOWindow("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦");
+                            YESNOWindow YesNoDialog = new YESNOWindow("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦","继续","休息");
                             YesNoDialog.Owner = this;
                             if(!DialogIsShown){
                                 DialogIsShown = true;

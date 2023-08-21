@@ -10,6 +10,7 @@ using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -89,6 +90,8 @@ namespace Summary.Models
         public MyCommand StartCommand { get; set; }
         public MyCommand EndCommand { get; set; }
         public MyCommand WorkContentChangeCommand { get; set; }
+        public MyCommand ImportCommand { get; set; }
+        public MyCommand ExportCommand { get; set; }
 
         public int interval { get; set; }
         public int Interval
@@ -214,6 +217,8 @@ namespace Summary.Models
             SloganTextBoxLostFocusCommand = new MyCommand(SloganTextBoxLostFocus);
             AccumulateModeCheckChangedCommand = new MyCommand(AccumulateModeCheckChanged);
             DeleteAllCommand = new MyCommand(DeleteAll);
+            ImportCommand = new MyCommand(ImportFile);
+            ExportCommand = new MyCommand(ExportFile);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
@@ -223,6 +228,119 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+        public static void DeleteDirectory(string directoryPath, string fileName)
+        {
+            //删除文件
+            for (int i = 0; i < Directory.GetFiles(directoryPath).ToList().Count; i++)
+            {
+                if (Directory.GetFiles(directoryPath)[i].Substring(directoryPath.Length+1) == fileName)
+                {
+                    File.Delete(Directory.GetFiles(directoryPath)[i]);
+                }
+            }
+        }
+        private void deleteFile(string filepath)
+        {
+            DeleteDirectory(filepath, "time_record.txt");
+        }
+        //private void outputText(bool showMessage = true)
+        //{
+        //    deleteFile();
+        //    for (int i = 0; i < timelist.Count; i++)
+        //    {
+        //        addText("开始时间：" + format_date(timelist[i].mStartTime));
+        //        if (timelist[i].mEndTime == DateTime.Parse("1994-11-11"))
+        //        {
+        //            timelist[i].mEndTime = DateTime.Now;
+        //            timelist[i].interval = timelist[i].mEndTime - timelist[i].mStartTime;
+        //        }
+        //        addText("间隔时间：" + format_date(timelist[i].interval));
+        //        addText("结束时间：" + format_date(timelist[i].mEndTime));
+        //        addText("类型：" + timelist[i].timeType);
+        //        addText("备注：" + timelist[i].comment);
+        //        addText("");
+        //    }
+        //    if (showMessage)
+        //        MessageBox.Show("导出成功！");
+        //}
+        public static void addText(String name)
+        {
+            FileStream fs = new FileStream(Helper.GetAppSetting("OutputDirectory")+ "\\time_record.txt", FileMode.Append, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine(name);
+            sw.Close();
+        }
+        private async void ExportFile(object obj)
+        {
+            deleteFile(Helper.GetAppSetting("OutputDirectory"));
+            for (int i = 0; i < TodayDailyObj.Count; i++)
+            {
+                addText("开始时间：" + TodayDailyObj[i].StartTime);
+                
+                addText("间隔时间：" + (TodayDailyObj[i].EndTime - TodayDailyObj[i].StartTime));
+                addText("结束时间：" + TodayDailyObj[i].EndTime);
+                addText("类型：" + TodayDailyObj[i].Type);
+                addText("备注：" + TodayDailyObj[i].Note);
+                addText("");
+            }
+            await showMessageBox("导出成功！");
+        }
+        private async Task import()
+        {
+            var importDirectory = Helper.GetAppSetting("ImportDirectory");
+            string text = System.IO.File.ReadAllText(importDirectory + "\\time_record.txt");
+            string[] lines = text.Split(new char[2] { '\r', '\n' });
+            TimeSpan startTime = new TimeSpan();
+            TimeSpan stopTime = new TimeSpan();
+            TimeType timeType = TimeType.none;
+            string comment = "";
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("开始时间"))
+                {
+                    startTime = TimeSpan.Parse(lines[i].Substring(5, 8));
+                }
+                if (lines[i].StartsWith("结束时间"))
+                {
+                    stopTime = TimeSpan.Parse(lines[i].Substring(5, 8));
+                }
+                if (lines[i].StartsWith("类型"))
+                {
+                    timeType = Helper.ConvertTimeType(lines[i].Substring(3));
+                }
+                if (lines[i].StartsWith("备注"))
+                {
+                    comment = lines[i].Substring(3);
+                    var newObj = Helper.CreateNewTimeObj(startTime, stopTime, comment, DateTime.Today, timeType, 1, height, "record");
+                    await SQLCommands.AddObj(newObj);
+                }
+               
+            }
+            InitTodayData();
+            resizeHeight();
+        }
+        private async void ImportFile(object obj)
+        {
+            if(todayDailyObj!=null&&todayDailyObj.Count()>0)
+            {
+                YESNOWindow dialog = new YESNOWindow("提示","确定覆盖现在的时间块吗","确定","取消");
+                if (dialog.ShowDialog() == true)
+                {
+                    if (Helper.WorkMode)
+                    {
+                        await showMessageBox("请先暂停工作");
+                        return;
+                    }
+                    DeleteAllAfterCheck();
+                    await import();
+                }
+            }
+            else
+            {
+                await import();
+            }
+           
         }
 
         private async void DeleteAll(object obj)
@@ -423,26 +541,7 @@ namespace Summary.Models
             }
         }
 
-        //private void outputText(bool showMessage = true)
-        //{
-        //    deleteFile();
-        //    for (int i = 0; i < timelist.Count; i++)
-        //    {
-        //        addText("开始时间：" + format_date(timelist[i].mStartTime));
-        //        if (timelist[i].mEndTime == DateTime.Parse("1994-11-11"))
-        //        {
-        //            timelist[i].mEndTime = DateTime.Now;
-        //            timelist[i].interval = timelist[i].mEndTime - timelist[i].mStartTime;
-        //        }
-        //        addText("间隔时间：" + format_date(timelist[i].interval));
-        //        addText("结束时间：" + format_date(timelist[i].mEndTime));
-        //        addText("类型：" + timelist[i].timeType);
-        //        addText("备注：" + timelist[i].comment);
-        //        addText("");
-        //    }
-        //    if (showMessage)
-        //        MessageBox.Show("导出成功！");
-        //}
+       
         private GridSourceTemplate initAllTimeViewObjs()
         {
             AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
@@ -546,9 +645,8 @@ namespace Summary.Models
                 obj.Type = a.ToString();
                 Helper.UpdateColor(obj, a.ToString());
                 await SQLCommands.UpdateObj(obj);
-                if (!hs.Contains(obj.Note)&&(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play"))
+                if (!hs.Contains(obj.Note)&&(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play")&&obj.Note!="")
                 {
-                    hs.Add(obj.Note);
                     ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
                     var id = await SQLCommands.AddTodo(newObj);
                     newObj.Id = id;
@@ -584,7 +682,7 @@ namespace Summary.Models
                 {
                     if (obj.Type == "study" || obj.Type == "work" || obj.Type == "play")
                     {
-                        if (!hs.Contains(obj.Note))
+                        if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
                             ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type = Helper.ConvertTimeType(obj.Type),Id = obj.Id };
                             TodayList.Add(newObj);
@@ -600,7 +698,7 @@ namespace Summary.Models
                 {
                     if(obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
                     {
-                        if (!hs.Contains(obj.Note))
+                        if (!hs.Contains(obj.Note)&& obj.Note != "")
                         {
                             ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
                             var id = await SQLCommands.AddTodo(newObj);

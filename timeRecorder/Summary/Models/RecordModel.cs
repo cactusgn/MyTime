@@ -326,7 +326,7 @@ namespace Summary.Models
             CurrentWorkAccuTime = new TimeSpan(AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == workContent).Sum(x => x.LastTime.Ticks));
         }
         private string findPreviousType(string note){
-            var pre = AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == workContent);
+            var pre = AllTimeViewObjs[0].DailyObjs.Where(x => x.Note == note);
             if(pre.Count()>0){
                 return pre.First().Type;
             }else{
@@ -353,9 +353,17 @@ namespace Summary.Models
             {
                 var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x => x.StartTime).LastOrDefault();
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, lastIndex, height, "record");
+                var restCon = Helper.RestContent;
+                if ( WorkStartTime - lastViewObj.EndTime > new TimeSpan(0,2,0)){
+                    RemindWindow rw = new RemindWindow();
+                    if(rw.ShowDialog()==true){
+                        restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
+                    }
+                }
+                TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(restCon));
+                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record");
                 await SQLCommands.AddObj(newObj);
-                Helper.UpdateColor(newObj, "rest");
+                Helper.UpdateColor(newObj, type.ToString());
                 AllTimeViewObjs[0].DailyObjs.Add(newObj);
             }
             else
@@ -452,7 +460,7 @@ namespace Summary.Models
             UpdateGridData();
             return currentDateTemplate;
         }
-        private async Task showMessageBox(string message)
+        public async Task showMessageBox(string message)
         {
             if (!DialogIsShown)
             {
@@ -469,7 +477,7 @@ namespace Summary.Models
             {
                 DialogIsShown = true;
                 dialogType = DialogType.OkCancelDialog;
-                var view = new RemindDialog("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦");
+                var view = new RemindDialog("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦", "休息", "继续");
                 await DialogHost.Show(view, "SubRootDialog");
                 DialogIsShown = false;
             }
@@ -480,7 +488,7 @@ namespace Summary.Models
             {
                 DialogIsShown = true;
                 dialogType = DialogType.DeleteTodayTimeDialog;
-                var view = new RemindDialog("提示", "确认删除今日所有时间块吗？");
+                var view = new RemindDialog("提示", "确认删除今日所有时间块吗？","取消","确定");
                 await DialogHost.Show(view, "SubRootDialog");
                 DialogIsShown = false;
             }
@@ -566,7 +574,22 @@ namespace Summary.Models
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
             var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
-            
+            //加载todayTaks里的work,study,play时间块
+            if (AllTodayTasks.Count() > 0)
+            {
+                foreach (var obj in AllTodayTasks)
+                {
+                    if (obj.Type == "study" || obj.Type == "work" || obj.Type == "play")
+                    {
+                        if (!hs.Contains(obj.Note))
+                        {
+                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type = Helper.ConvertTimeType(obj.Type),Id = obj.Id };
+                            TodayList.Add(newObj);
+                            hs.Add(obj.Note);
+                        }
+                    }
+                }
+            }
             //把DailyObj里的work，study，play时间块加入到todaylist
             if (AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
             {
@@ -585,24 +608,7 @@ namespace Summary.Models
                     }
                 }
             }
-            //加载todayTaks里的work,study,play时间块
-            if (AllTodayTasks.Count()>0)
-            {
-                foreach(var obj in AllTodayTasks)
-                {
-                    if (obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
-                    {
-                        if (!hs.Contains(obj.Note))
-                        {
-                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type=Helper.ConvertTimeType(obj.Type) };
-                            var id = await SQLCommands.AddTodo(newObj);
-                            newObj.Id = id;
-                            TodayList.Add(newObj);
-                            hs.Add(obj.Note);
-                        }
-                    }
-                }
-            }
+            
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
         }
         private void UpdateGridData()
@@ -661,6 +667,7 @@ namespace Summary.Models
                 WorkContent = SelectedListItem.Note;
                 Helper.WorkContent = WorkContent;
                 SelectedListItem = null;
+                WorkContentChange(null);
             }
         }
         

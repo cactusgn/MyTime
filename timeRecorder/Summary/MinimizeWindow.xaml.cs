@@ -1,4 +1,5 @@
 ﻿using Summary.Common.Utils;
+using Summary.Domain;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,17 @@ namespace Summary
     /// </summary>
     public partial class MinimizeWindow : Window
     {
-        public MinimizeWindow(MainWindow mainWindow, MiniModel miniModel)
+        System.Timers.Timer showTextBoxTimer = new System.Timers.Timer(); //新建一个Timer对象
+        public RecordModel recordModel { get; set; }
+        public MiniModel MiniModel { get; set; }    
+        private bool DialogIsShown{ get;set; }
+        public MinimizeWindow(MainWindow mainWindow, MiniModel miniModel, RecordModel rm)
         {
             InitializeComponent();
-            this.Topmost = true;
+            recordModel = rm;
             this.DataContext = miniModel;
+            MiniModel = miniModel;
+            this.Topmost = true;
             
             UpperPanel.MouseMove += (s, e) =>
             {
@@ -47,17 +54,73 @@ namespace Summary
             this.Deactivated += (s, e) =>
             {
                 this.Topmost = true;
-            };
+            }; 
+            
+            showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
+            showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
+            showTextBoxTimer.Start();
         }
-        private void DialogHost2_DialogClosing(object sender, MaterialDesignThemes.Wpf.DialogClosingEventArgs eventArgs)
+        
+        private void showTextBoxTimer_Tick(object sender, EventArgs e)
         {
+            var model = MiniModel;
+            model.TickTime = Helper.TickTime;
+            if (Helper.WorkMode)
+            {
+                model.ToggleIcon = "Pause";
+
+                if (recordModel.CalculatedRemindTime >= new TimeSpan(0, recordModel.Interval, 0) && Helper.MiniWindowShow)
+                {
+                    Application.Current.Dispatcher.BeginInvoke(new Action(delegate {
+                            YESNOWindow YesNoDialog = new YESNOWindow("心态好最重要呀", "已经工作好一会了，休息一下眼睛更好哦");
+                            YesNoDialog.Owner = this;
+                            if(!DialogIsShown){
+                                DialogIsShown = true;
+                                if (YesNoDialog.ShowDialog() == true)
+                                {
+                                    recordModel.EndClick(null);
+                                    model.ToggleIcon = "Play";
+                                    recordModel.EndbtnEnabled = false;
+                                    recordModel.StartbtnEnabled = true;
+                                    model.WorkContent = Helper.GetAppSetting("Slogan");
+                                    DialogIsShown = false;
+                                }
+                            }
+                            
+                        }
+                    ));
+                }
+            }
+            else
+            {
+                model.ToggleIcon = "Play";
+            }
         }
 
-        private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)
+        private async void toggleBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (Equals(eventArgs.Parameter, true))
-                return;
-            ((MiniModel)this.DataContext).recordModel.EndClick(null);
+            var model = (MiniModel)(this.DataContext);
+            if (model.ToggleIcon == "Play")
+            {
+                if (recordModel.WorkContent == null || recordModel.WorkContent == "")
+                {
+                    await recordModel.showMessageBox("请先填写工作内容");
+                    return;
+                }
+                await recordModel.StartClickMethod();
+                model.ToggleIcon = "Pause";
+                recordModel.EndbtnEnabled = true;
+                recordModel.StartbtnEnabled = false;
+                model.WorkContent = Helper.WorkContent;
+            }
+            else
+            {
+                recordModel.EndClick(null);
+                model.ToggleIcon = "Play";
+                recordModel.EndbtnEnabled = false;
+                recordModel.StartbtnEnabled = true;
+                model.WorkContent = Helper.GetAppSetting("Slogan");
+            }
         }
     }
 }

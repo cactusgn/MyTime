@@ -12,16 +12,13 @@
         BorderThickness="5"
         FontFamily="微软雅黑"
         FontSize="16"
-        Title="MinimizeWindow" Height="65" Width="210">
-    <materialDesign:DialogHost x:Name="DialogHost2" Identifier="MiniRootDialog"  
-                                       DialogTheme="Inherit" 
-                                       DialogClosing="DialogHost2_DialogClosing"
-                                        DialogClosed="DialogHost2_DialogClosed">
-        <Border CornerRadius="10" Width="200">
+        Title="MinimizeWindow" Height="65" Width="220">
+
+        <Border CornerRadius="10" Width="210">
             <Border.Effect>
                 <DropShadowEffect Color="Gray" ShadowDepth="0" BlurRadius="5" Opacity="0.8" Direction="300"/>
             </Border.Effect>
-            <Grid Width="200">
+            <Grid Width="210">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -35,7 +32,7 @@
                     </Button>
                     <Button Width="30" Height="30" Padding="0"  Margin="0" DockPanel.Dock="Right" x:Name="toggleBtn" 
                     Style="{StaticResource MaterialDesignFlatMidBgButton}"  Background="Transparent" 
-                    Command="{Binding ToggleBtnCommand}"
+                    Command="{Binding ToggleBtnCommand}" Click="toggleBtn_Click"
                     BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
                         <materialDesign:PackIcon VerticalAlignment="Center" Kind="{Binding ToggleIcon}" Width="20" Height="20"  />
                     </Button>
@@ -52,5 +49,4 @@
 
             </Grid>
         </Border>
-    </materialDesign:DialogHost>
 </Window>

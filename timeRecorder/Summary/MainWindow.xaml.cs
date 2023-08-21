@@ -1,6 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Summary.Common.Utils;
 using Summary.Data;
+using Summary.Domain;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,9 @@ namespace Summary
             this.DataContext = mainModel;
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
-            MinimizeWindow minimizeWindow = new MinimizeWindow(this, new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext)));
+            MiniModel miniModel = new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext));
+            MinimizeWindow minimizeWindow = new MinimizeWindow(this, miniModel, (RecordModel)(mainModel.RecordPageUserControl.DataContext));
+            
             btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
             btnMax.Click += (s, e) => {
                 if (this.WindowState == WindowState.Maximized)
@@ -75,8 +78,6 @@ namespace Summary
                     ((MiniModel)minimizeWindow.DataContext).WorkContent = Helper.GetAppSetting("Slogan");
                 }
                 minimizeWindow.Show();
-
-                this.Owner = minimizeWindow;
             };
             ColorZone.MouseDoubleClick += (s, e) =>
             {

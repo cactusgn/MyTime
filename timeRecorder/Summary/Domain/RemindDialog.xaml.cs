@@ -8,13 +8,15 @@ namespace Summary.Domain
     /// </summary>
     public partial class RemindDialog : UserControl
     {
-        public RemindDialog(string title, string message)
+        public RemindDialog(string title, string message,string noCaption, string yesCaption)
         {
             InitializeComponent();
             this.DataContext = new
             {
                 Title = title,
-                Message = message
+                Message = message,
+                NoCaption = noCaption,
+                YesCaption = yesCaption
             };
         }
     }

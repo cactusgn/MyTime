@@ -188,8 +188,8 @@ namespace Summary.Models
             set { tickTime = value; OnPropertyChanged(); }
         }
         System.Timers.Timer showTextBoxTimer = new System.Timers.Timer(); //新建一个Timer对象
-        private TimeSpan WorkStartTime;
-        private TimeSpan CurrentWorkAccuTime;
+        private TimeSpan WorkStartTime = new TimeSpan();
+        private TimeSpan CurrentWorkAccuTime = new TimeSpan();
         private bool DialogIsShown = false;
 
         private HashSet<string> hs = new HashSet<string>();
@@ -220,6 +220,9 @@ namespace Summary.Models
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
             AccumulateModeCheck = bool.Parse(Helper.GetAppSetting("AccuMode"));
             Slogan = Helper.GetAppSetting("Slogan");
+            showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
+            showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
+            showTextBoxTimer.Start();//启动计时
         }
 
         private async void DeleteAll(object obj)
@@ -341,9 +344,7 @@ namespace Summary.Models
                 await showMessageBox("请先填写工作内容");
                 return false;
             }
-            showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
-            showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
-            showTextBoxTimer.Start();//启动计时
+            
             WorkStartTime = Helper.getCurrentTime();
             calculateAccuTime();
             StartbtnEnabled = false;
@@ -408,7 +409,7 @@ namespace Summary.Models
             if(Helper.WorkMode)
             {
                 CalculatedRemindTime = CalculatedRemindTime.Add(new TimeSpan(0, 0, 1));
-                if (CalculatedRemindTime > new TimeSpan(0, Interval, 0) )
+                if (CalculatedRemindTime > new TimeSpan(0, Interval, 0) && !Helper.MiniWindowShow)
                 {
                     CalculatedRemindTime = new TimeSpan();
                     if (!Helper.MiniWindowShow)
@@ -534,6 +535,7 @@ namespace Summary.Models
                 AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
                 SelectedTimeObj = newTimeObj1;
                 refreshSingleDayPlot();
+                resizeHeight();
             }
         }
         private async void UpdateType(object a){
@@ -551,11 +553,12 @@ namespace Summary.Models
                     var id = await SQLCommands.AddTodo(newObj);
                     newObj.Id = id;
                     TodayList.Add(newObj);
+                    TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                     hs.Add(obj.Note);
                 }else if (hs.Contains(obj.Note)&&!(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play"))
                 {
                     var item= TodayList.Where(x => x.Note == obj.Note);
-                    if (item!=null)
+                    if (item!=null&&item.Count()>0)
                     {
                         hs.Remove(obj.Note);
                         await SQLCommands.DeleteTodo(item.First());
@@ -655,6 +658,8 @@ namespace Summary.Models
             if(currentObj != null)
             {
                 TodayList.Remove(currentObj);
+                SQLCommands.DeleteTodo(currentObj);
+                hs.Remove(currentObj.Note);
                 currentObj = null;
             }
             

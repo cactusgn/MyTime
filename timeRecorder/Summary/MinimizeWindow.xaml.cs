@@ -76,13 +76,16 @@ namespace Summary
                             YesNoDialog.Owner = this;
                             if(!DialogIsShown){
                                 DialogIsShown = true;
-                                if (YesNoDialog.ShowDialog() == true)
+                                recordModel.CalculatedRemindTime = new TimeSpan();
+                                if (YesNoDialog.ShowDialog() == false)
                                 {
                                     recordModel.EndClick(null);
                                     model.ToggleIcon = "Play";
                                     recordModel.EndbtnEnabled = false;
                                     recordModel.StartbtnEnabled = true;
                                     model.WorkContent = Helper.GetAppSetting("Slogan");
+                                    DialogIsShown = false;
+                                }else{
                                     DialogIsShown = false;
                                 }
                             }

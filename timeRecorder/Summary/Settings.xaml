@@ -28,16 +28,16 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.ColumnSpan="2" >
                 <TextBlock FontSize="20" Margin="0,20,0,10">设置</TextBlock>
-                <TextBlock Width="400" Height="2" Background="{DynamicResource MaterialDesignDarkSeparatorBackground}" HorizontalAlignment="Left"></TextBlock>
+                <TextBlock Width="600" Height="2" Background="{DynamicResource MaterialDesignDarkSeparatorBackground}" HorizontalAlignment="Left"></TextBlock>
             </StackPanel>
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" Width="64">开始时间:</TextBlock>
             <materialDesign:TimePicker  Is24Hours="True" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="100" Text="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}"></materialDesign:TimePicker>
             <TextBlock Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" Width="64">导入目录:</TextBlock>
-            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="300" Text="{Binding ImportDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding ImportDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <TextBlock Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" Width="64">导出目录:</TextBlock>
-            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="300" Text="{Binding OutputDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding OutputDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <TextBlock Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" Width="96">默认休息内容:</TextBlock>
-            <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="300" Text="{Binding RestContent, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding RestContent, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <Button Grid.Row="6"  Width="100" Command="{Binding SaveCommand}">保存</Button>
         </Grid>
     </materialDesign:DialogHost>

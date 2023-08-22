@@ -244,26 +244,7 @@ namespace Summary.Models
         {
             DeleteDirectory(filepath, "time_record.txt");
         }
-        //private void outputText(bool showMessage = true)
-        //{
-        //    deleteFile();
-        //    for (int i = 0; i < timelist.Count; i++)
-        //    {
-        //        addText("开始时间：" + format_date(timelist[i].mStartTime));
-        //        if (timelist[i].mEndTime == DateTime.Parse("1994-11-11"))
-        //        {
-        //            timelist[i].mEndTime = DateTime.Now;
-        //            timelist[i].interval = timelist[i].mEndTime - timelist[i].mStartTime;
-        //        }
-        //        addText("间隔时间：" + format_date(timelist[i].interval));
-        //        addText("结束时间：" + format_date(timelist[i].mEndTime));
-        //        addText("类型：" + timelist[i].timeType);
-        //        addText("备注：" + timelist[i].comment);
-        //        addText("");
-        //    }
-        //    if (showMessage)
-        //        MessageBox.Show("导出成功！");
-        //}
+       
         public static void addText(String name)
         {
             FileStream fs = new FileStream(Helper.GetAppSetting("OutputDirectory")+ "\\time_record.txt", FileMode.Append, FileAccess.Write);
@@ -322,7 +303,13 @@ namespace Summary.Models
         }
         private async void ImportFile(object obj)
         {
-            if(todayDailyObj!=null&&todayDailyObj.Count()>0)
+            var importDirectory = Helper.GetAppSetting("ImportDirectory");
+            if (!File.Exists(importDirectory + "\\time_record.txt"))
+            {
+                await showMessageBox("未找到要导入的文件，请在设置中确认导入目录");
+                return;
+            }
+            if (todayDailyObj!=null&&todayDailyObj.Count()>0)
             {
                 YESNOWindow dialog = new YESNOWindow("提示","确定覆盖现在的时间块吗","确定","取消");
                 if (dialog.ShowDialog() == true)
@@ -395,6 +382,15 @@ namespace Summary.Models
                 plotblock.Type = curr.Type;
                 Helper.UpdateColor(plotblock, curr.Type);
                 await SQLCommands.UpdateObj(plotblock);
+            }
+            if (!hs.Contains(curr.Note)&&(curr.Type=="work"||curr.Type=="study"||curr.Type=="play")&&curr.Note!="")
+            {
+                ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type=Helper.ConvertTimeType(curr.Type) };
+                var id = await SQLCommands.AddTodo(newObj);
+                newObj.Id = id;
+                TodayList.Add(newObj);
+                TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+                hs.Add(curr.Note);
             }
             refreshSingleDayPlot();
         }
@@ -490,10 +486,10 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
-                    TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(Helper.RestContent));
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record");
                     await SQLCommands.AddObj(newObj);
-                    Helper.UpdateColor(newObj, findPreviousType(newObj.Note));
+                    Helper.UpdateColor(newObj, "rest");
+
                     currentDateTemplate.DailyObjs.Add(newObj);
                 }
                 else
@@ -624,21 +620,26 @@ namespace Summary.Models
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
                 Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
                 Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
-                await SQLCommands.DeleteObj(selectedTimeObj);
-                await SQLCommands.AddObj(newTimeObj1);
-                await SQLCommands.AddObj(newTimeObj2);
-
+                
                 currentDailyObj.Add(newTimeObj1);
                 currentDailyObj.Add(newTimeObj2);
                 currentDailyObj.Remove(selectedTimeObj);
                 AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
-                SelectedTimeObj = newTimeObj1;
+                UpdateGridData();
                 refreshSingleDayPlot();
                 resizeHeight();
+                await SQLCommands.DeleteObj(selectedTimeObj);
+                await SQLCommands.AddObj(newTimeObj1);
+                await SQLCommands.AddObj(newTimeObj2);
+                SelectedTimeObj = newTimeObj1;
             }
         }
-        private async void UpdateType(object a){
-    
+        private async void UpdateType(object a) {
+            if (SelectedTimeObj==null)
+            {
+                await showMessageBox("请先选中左侧要改的时间块");
+                return;
+            }
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note == selectedTimeObj.Note);
             foreach (var obj in TodayAllObjectWithSameNote)
             {

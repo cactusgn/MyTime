@@ -70,13 +70,14 @@
             <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="Filter" Height="70"/>
-                    <RowDefinition x:Name="Result" Height="*"/>
+                        <RowDefinition  Height="2"/>
+                        <RowDefinition x:Name="Result" Height="*"/>
                 </Grid.RowDefinitions>
                 <!--查询界面-->
                 <Border Padding="0,0,0,1">
-                    <Border.Effect>
+                    <!--<Border.Effect>
                         <DropShadowEffect Color="Gray" ShadowDepth="3" BlurRadius="8" Opacity="0.3" Direction="356"/>
-                    </Border.Effect>
+                    </Border.Effect>-->
                         <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Grid.ColumnSpan="2" Orientation="Horizontal" >
 
                         <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" ></TextBlock>
@@ -113,8 +114,9 @@
                         </Button>
                     </StackPanel>
                 </Border>
+                    <Border Background="Silver" Grid.Row="1"></Border>
                 <!--左边panel-->
-                    <Grid Grid.Row="1" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" Background="{DynamicResource MaterialDesignCardBackground}">
+                    <Grid Grid.Row="2" Height="{Binding LeftPanelHeight}" SizeChanged="leftPanel_SizeChanged" x:Name="SecondRowGrid" Background="{DynamicResource MaterialDesignCardBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="7*"/>
                         <ColumnDefinition Width="auto"/>

@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Common\icons\countdown_128px_1224986_easyicon.net.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +18,7 @@
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Common\icons\countdown_128px_1224986_easyicon.net.ico" />
     <Content Include="TimeTests.db">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>

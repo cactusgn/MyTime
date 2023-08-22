@@ -70,11 +70,11 @@
             <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="Filter" Height="70"/>
-                        <RowDefinition  Height="2"/>
+                        <RowDefinition  Height="1"/>
                         <RowDefinition x:Name="Result" Height="*"/>
                 </Grid.RowDefinitions>
                 <!--查询界面-->
-                <Border Padding="0,0,0,1">
+                <Border Padding="0">
                     <!--<Border.Effect>
                         <DropShadowEffect Color="Gray" ShadowDepth="3" BlurRadius="8" Opacity="0.3" Direction="356"/>
                     </Border.Effect>-->

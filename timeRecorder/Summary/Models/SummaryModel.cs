@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -224,7 +225,6 @@ namespace Summary.Models
         }
         private async void clickOkButton(object a = null)
         {
-            var tempDate = EndTime;
             if (a!=null && a.ToString() == "LastWeek")
             {
                 StartTime = StartTime.AddDays(-7);
@@ -232,21 +232,25 @@ namespace Summary.Models
             }
             if (a!=null &&a.ToString() == "NextWeek")
             {
-                StartTime = StartTime.AddDays(7);
+                StartTime = EndTime.AddDays(1);
                 EndTime = StartTime.AddDays(6);
             }
             if (a!=null &&a.ToString() == "LastMonth")
             {
-                StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(-1);
+                StartTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(-1);
                 EndTime = StartTime.AddMonths(1).AddDays(-1);
             }
             if (a!=null &&a.ToString() == "NextMonth")
             {
-                StartTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
-                EndTime = DateTime.ParseExact(tempDate.Year.ToString() +tempDate.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
+                StartTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
+                EndTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
             }
-
-            await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); });
+            if (a != null && a.ToString() == "ThisWeek"){
+                DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
+                startTime = DateTime.Today.AddDays(DayOfWeek.Monday- dayOfWeek);
+                EndTime = DateTime.Today.AddDays(DayOfWeek.Saturday - dayOfWeek+1);
+            }
+                await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); });
             //await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); }).ContinueWith(delegate { closeDialog(); });
         }
 
@@ -334,89 +338,7 @@ namespace Summary.Models
                 SingleDayPlot.Refresh();
             }
         }
-        private async Task<ObservableCollection<GridSourceTemplate>> BuildTimeViewObj(List<MyTime> allTimeData)
-        {
-            DateTime currentDate = startTime;
-            ObservableCollection<GridSourceTemplate> AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
-            
-            while (currentDate<=endTime)
-            {
-                int lastIndex = 1;
-                var currentDateTemplate = new GridSourceTemplate(currentDate);
-
-                currentDateTemplate.Title = currentDate.ToShortDateString();
-                currentDateTemplate.Week = currentDate.DayOfWeek.ToString();
-
-                if (currentDateTemplate.Week.Equals("Saturday")||currentDateTemplate.Week.Equals("Sunday"))
-                {
-                    currentDateTemplate.Color = "#32CD32";
-                }
-                else
-                {
-                    currentDateTemplate.Color = "#008080";
-                }
-                TimeSpan endTime = new TimeSpan(6, 0, 0);
-                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.startTime>=endTime).OrderBy(s => s.startTime).ToList<MyTime>();
-                bool firstTimeObj = true;
-                if(currentDateData.Count>0)
-                {
-                    lastIndex = currentDateData.Max(x => x.currentIndex)+1;
-                }
-                foreach (MyTime TimeObj in currentDateData)
-                {
-                    TimeViewObj timeViewObj = new TimeViewObj();
-                    TimeSpan startTime = TimeSpan.Parse(TimeObj.startTime.ToString());
-                    endTime = TimeSpan.Parse(TimeObj.endTime.ToString());
-                    if (firstTimeObj)
-                    {
-                        firstTimeObj = false;
-                        //Add first time object
-                        TimeSpan tempStart = new TimeSpan(6, 0, 0);
-                        if (startTime > tempStart)
-                        {
-                            TimeViewObj startTimeObj = Helper.CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.none, lastIndex,height);
-                            lastIndex++;
-                            await SQLCommands.AddObj(startTimeObj);
-                            Helper.UpdateColor(startTimeObj, "none");
-                            currentDateTemplate.DailyObjs.Add(startTimeObj);
-                        }
-                    }
-                    if (startTime>=new TimeSpan(6, 0, 0))
-                    {
-                        timeViewObj.CreatedDate = currentDate;
-                        timeViewObj.LastTime = TimeObj.endTime-TimeObj.startTime;
-                        timeViewObj.Note = TimeObj.note;
-                        timeViewObj.Height = CalculateHeight(endTime - startTime);
-                        timeViewObj.StartTime = TimeObj.startTime;
-                        timeViewObj.EndTime = TimeObj.endTime;
-                        timeViewObj.Type = TimeObj.type.Trim()==""? "none": TimeObj.type.Trim();
-                        timeViewObj.Id = TimeObj.currentIndex;
-                        Helper.UpdateColor(timeViewObj, TimeObj.type.Trim().ToLower());
-
-                    }
-                    currentDateTemplate.DailyObjs.Add(timeViewObj);
-                }
-                //Add last obj
-                //Add first time object
-                TimeSpan tempEndTime = new TimeSpan(23, 59, 59);
-                if (endTime < tempEndTime && currentDate<DateTime.Today)
-                {
-                    TimeViewObj startTimeObj = Helper.CreateNewTimeObj(endTime, tempEndTime, "nothing", currentDate, TimeType.none, lastIndex, height);
-                    Helper.UpdateColor(startTimeObj, "none");
-                    await SQLCommands.AddObj(startTimeObj);
-                    currentDateTemplate.DailyObjs.Add(startTimeObj);
-                }
-                currentDate = currentDate.AddDays(1);
-                AllTimeViewObjs.Add(currentDateTemplate);
-            }
-            return AllTimeViewObjs;
-        }
         
-        private double CalculateHeight(TimeSpan lastTime)
-        {
-            TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
-            return lastTime/allTimeSpan*(height-100);
-        }
         public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2){
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;

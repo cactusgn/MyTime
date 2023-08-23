@@ -371,28 +371,67 @@ namespace Summary.Models
         {
             refreshSingleDayPlot();
         }
-        private async void CellEditEnding(object obj){
-            //update note or type
-            TimeViewObj curr = (TimeViewObj)obj;
-            var updateNoteItem = AllTimeViewObjs.First().DailyObjs.First(x => x.Id == curr.Id);
-            updateNoteItem.TimeNote = curr.TimeNote;
-            var TodayAllObjectWithSameNote = AllTimeViewObjs.First().DailyObjs.Where(x => x.Note == curr.Note);
-            foreach (var plotblock in TodayAllObjectWithSameNote)
+        private async void updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
+            var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
+            foreach (var obj in TodayAllObjectWithSameNote)
             {
-                plotblock.Type = curr.Type;
-                Helper.UpdateColor(plotblock, curr.Type);
-                await SQLCommands.UpdateObj(plotblock);
+                obj.Type = changedType;
+                Helper.UpdateColor(obj, changedType);
+                await SQLCommands.UpdateObj(obj);
             }
-            if (!hs.Contains(curr.Note)&&(curr.Type=="work"||curr.Type=="study"||curr.Type=="play")&&curr.Note!="")
+            if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "study" || changedType == "play") && curr.Note != "")
             {
-                ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type=Helper.ConvertTimeType(curr.Type) };
+                ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type) };
                 var id = await SQLCommands.AddTodo(newObj);
                 newObj.Id = id;
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 hs.Add(curr.Note);
             }
+            else if (hs.Contains(curr.Note) && !(changedType == "work" || changedType == "study" || changedType == "play"))
+            {
+                var item = TodayList.Where(x => x.Note == curr.Note);
+                if (item != null && item.Count() > 0)
+                {
+                    hs.Remove(curr.Note);
+                    await SQLCommands.DeleteTodo(item.First());
+                    TodayList.Remove(item.First());
+                }
+            }
             refreshSingleDayPlot();
+        }
+        private async void UpdateType(object a)
+        {
+            if (SelectedTimeObj == null)
+            {
+                await showMessageBox("请先选中左侧要改的时间块");
+                return;
+            }
+            updateTodayListAfterChangeType(SelectedTimeObj, a.ToString());
+        }
+        private async void CellEditEnding(object obj){
+            //update note or type
+            TimeViewObj curr = (TimeViewObj)obj;
+            var updateNoteItem = AllTimeViewObjs.First().DailyObjs.First(x => x.Id == curr.Id);
+            updateNoteItem.TimeNote = curr.TimeNote;
+            updateTodayListAfterChangeType(updateNoteItem, curr.Type);
+            //var TodayAllObjectWithSameNote = AllTimeViewObjs.First().DailyObjs.Where(x => x.Note == curr.Note);
+            //foreach (var plotblock in TodayAllObjectWithSameNote)
+            //{
+            //    plotblock.Type = curr.Type;
+            //    Helper.UpdateColor(plotblock, curr.Type);
+            //    await SQLCommands.UpdateObj(plotblock);
+            //}
+            //if (!hs.Contains(curr.Note)&&(curr.Type=="work"||curr.Type=="study"||curr.Type=="play")&&curr.Note!="")
+            //{
+            //    ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type=Helper.ConvertTimeType(curr.Type) };
+            //    var id = await SQLCommands.AddTodo(newObj);
+            //    newObj.Id = id;
+            //    TodayList.Add(newObj);
+            //    TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+            //    hs.Add(curr.Note);
+            //}
+            //refreshSingleDayPlot();
         }
         private async void TextBoxLostFocus(object obj)
         {
@@ -634,38 +673,7 @@ namespace Summary.Models
                 SelectedTimeObj = newTimeObj1;
             }
         }
-        private async void UpdateType(object a) {
-            if (SelectedTimeObj==null)
-            {
-                await showMessageBox("请先选中左侧要改的时间块");
-                return;
-            }
-            var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note == selectedTimeObj.Note);
-            foreach (var obj in TodayAllObjectWithSameNote)
-            {
-                obj.Type = a.ToString();
-                Helper.UpdateColor(obj, a.ToString());
-                await SQLCommands.UpdateObj(obj);
-                if (!hs.Contains(obj.Note)&&(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play")&&obj.Note!="")
-                {
-                    ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
-                    var id = await SQLCommands.AddTodo(newObj);
-                    newObj.Id = id;
-                    TodayList.Add(newObj);
-                    TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
-                    hs.Add(obj.Note);
-                }else if (hs.Contains(obj.Note)&&!(a.ToString()=="work"||a.ToString()=="study"||a.ToString()=="play"))
-                {
-                    var item= TodayList.Where(x => x.Note == obj.Note);
-                    if (item!=null&&item.Count()>0)
-                    {
-                        hs.Remove(obj.Note);
-                        await SQLCommands.DeleteTodo(item.First());
-                    }
-                }
-            }
-            refreshSingleDayPlot();
-        }
+        
         private void Selected(object obj)
         {
             TimeViewObj myTimeView = (TimeViewObj)obj;

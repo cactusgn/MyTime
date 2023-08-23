@@ -254,7 +254,14 @@ namespace Summary.Models
         }
         private async void ExportFile(object obj)
         {
-            deleteFile(Helper.GetAppSetting("OutputDirectory"));
+            if(File.Exists(Helper.GetAppSetting("OutputDirectory")+ "\\time_record.txt"))
+            {
+                deleteFile(Helper.GetAppSetting("OutputDirectory"));
+            }
+            if (!Directory.Exists(Helper.GetAppSetting("OutputDirectory")))
+            {
+                Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+            }
             for (int i = 0; i < TodayDailyObj.Count; i++)
             {
                 addText("开始时间：" + TodayDailyObj[i].StartTime);
@@ -409,29 +416,12 @@ namespace Summary.Models
             }
             updateTodayListAfterChangeType(SelectedTimeObj, a.ToString());
         }
-        private async void CellEditEnding(object obj){
+        private  void CellEditEnding(object obj){
             //update note or type
             TimeViewObj curr = (TimeViewObj)obj;
             var updateNoteItem = AllTimeViewObjs.First().DailyObjs.First(x => x.Id == curr.Id);
             updateNoteItem.TimeNote = curr.TimeNote;
             updateTodayListAfterChangeType(updateNoteItem, curr.Type);
-            //var TodayAllObjectWithSameNote = AllTimeViewObjs.First().DailyObjs.Where(x => x.Note == curr.Note);
-            //foreach (var plotblock in TodayAllObjectWithSameNote)
-            //{
-            //    plotblock.Type = curr.Type;
-            //    Helper.UpdateColor(plotblock, curr.Type);
-            //    await SQLCommands.UpdateObj(plotblock);
-            //}
-            //if (!hs.Contains(curr.Note)&&(curr.Type=="work"||curr.Type=="study"||curr.Type=="play")&&curr.Note!="")
-            //{
-            //    ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type=Helper.ConvertTimeType(curr.Type) };
-            //    var id = await SQLCommands.AddTodo(newObj);
-            //    newObj.Id = id;
-            //    TodayList.Add(newObj);
-            //    TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
-            //    hs.Add(curr.Note);
-            //}
-            //refreshSingleDayPlot();
         }
         private async void TextBoxLostFocus(object obj)
         {

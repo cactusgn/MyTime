@@ -741,7 +741,10 @@ namespace Summary.Models
         }
         private async void Enter_Click(object obj)
         {
-            if(obj.ToString()!="" && !hs.Contains(obj.ToString())){
+            if(obj.ToString() == ""){
+                return;
+            }
+            if(!hs.Contains(obj.ToString())){
                 ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
@@ -749,6 +752,9 @@ namespace Summary.Models
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";
+            }else{
+                TodayText = "";
+                await showMessageBox("已存在这个任务");
             }
         }
         private void DeleteContextMenu(object obj)

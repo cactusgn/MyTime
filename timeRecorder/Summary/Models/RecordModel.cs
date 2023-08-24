@@ -741,10 +741,11 @@ namespace Summary.Models
         }
         private async void Enter_Click(object obj)
         {
-            if(obj.ToString()!=""){
+            if(obj.ToString()!="" && !hs.Contains(obj.ToString())){
                 ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
+                hs.Add(obj.ToString());
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";

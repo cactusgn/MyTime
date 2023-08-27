@@ -101,4 +101,5 @@ namespace Summary.Common
         OkCancelDialog,
         DeleteTodayTimeDialog
     }
+    
 }

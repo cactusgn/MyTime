@@ -247,13 +247,21 @@ namespace Summary.Models
             }
             if (a != null && a.ToString() == "ThisWeek"){
                 DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
-                startTime = DateTime.Today.AddDays(DayOfWeek.Monday- dayOfWeek);
-                EndTime = DateTime.Today.AddDays(DayOfWeek.Saturday - dayOfWeek+1);
+                if(dayOfWeek != DayOfWeek.Sunday)
+                {
+                    StartTime = DateTime.Today.AddDays(DayOfWeek.Monday - dayOfWeek);
+                    EndTime = DateTime.Today.AddDays(DayOfWeek.Saturday - dayOfWeek+1);
+                }
+                else
+                {
+                    StartTime = DateTime.Today.AddDays(-6);
+                    EndTime = DateTime.Today;
+                }
             }
                 await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); });
             //await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); }).ContinueWith(delegate { closeDialog(); });
         }
-
+        
         private async void TimeObjType_SelectionChanged(object a)
         {
             if (SelectedTimeObj.Type!=a.ToString())

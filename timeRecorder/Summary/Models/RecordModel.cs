@@ -159,7 +159,6 @@ namespace Summary.Models
         public RadioButton FirstLevelRB { get; set; }
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand SplitButtonClickCommand { get; set; }
-        public MyCommand MergeButtonClickCommand { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand CellEditEndingCommand { get; set; }
         public MyCommand IntervalTextBoxLostFocusCommand { get; set; }
@@ -208,7 +207,6 @@ namespace Summary.Models
             UpdateTypeCommand = new MyCommand(UpdateType);
             ResizeCommand = new MyCommand(resizeHeight);
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
-            MergeButtonClickCommand = new MyCommand(MergeButtonClick);
             TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
             SingleDayRBChangedCommand = new MyCommand(SingleDayRBChanged);
             StartCommand = new MyCommand(StartClick);
@@ -231,12 +229,6 @@ namespace Summary.Models
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
         }
-
-        private void MergeButtonClick(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
         public static void DeleteDirectory(string directoryPath, string fileName)
         {
             //删除文件

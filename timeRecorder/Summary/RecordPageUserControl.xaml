@@ -30,7 +30,7 @@
                                        DialogTheme="Inherit" 
                                        DialogClosing="DialogHost2_DialogClosing"
                                         DialogClosed="DialogHost2_DialogClosed">
-        <Grid  Background="{DynamicResource MaterialDesignCardBackground}" Margin="0,10,-193,0">
+        <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" MinWidth="280"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -300,23 +300,14 @@
                         <!--<materialDesign:PackIcon Kind="Alarm" />--> -
                     </Button>
                 </DockPanel>
-                    <DockPanel  Margin="10,0,10,0">
-                        <Button DockPanel.Dock="Left"  Width="25" Height="25" Margin="5" VerticalAlignment="Center"  Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
+                <Button Margin="10" VerticalAlignment="Center"  Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="切分时间块" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" Command="{Binding SplitButtonClickCommand}">
                     <materialDesign:PackIcon
-                                                    Width="20"
+                                                    Width="30"
                                                     Height="20"
                                                     Kind="CallSplit" />
                 </Button>
-                        <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  VerticalAlignment="Center"   Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
-                                BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="合并时间块" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" Command="{Binding MergeButtonClickCommand}">
-                        <materialDesign:PackIcon
-                                                    Width="20"
-                                                    Height="20"
-                                                    Kind="CallMerge" />
-                    </Button>
-                    </DockPanel>
-                    <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="study">study</Button>
+                <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="study">study</Button>
                 <Button Background="#F08080"  Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="waste">waste</Button>
                 <Button Background="#98FB98" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="rest">rest</Button>
                 <Button Background="#FFD700" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="work">work</Button>

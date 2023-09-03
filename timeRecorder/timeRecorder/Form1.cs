@@ -78,6 +78,7 @@ namespace timeRecorder
         bool copiedFromList = false;
         public Form1()
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
             form2 = new Form2(this);
         }
@@ -909,9 +910,10 @@ namespace timeRecorder
         {
             calcHeight();
             chart1.Height = (this.Height - chart1.Location.Y*4)/2;
-            chart2.Location = new Point(chart1.Location.X-10, chart1.Location.Y + chart1.Height + chart1.Location.Y);
-            chart2.Height = chart1.Height-40;
-            chart2.Width = chart1.Width-40;
+            //chart2.Location = new Point(chart1.Location.X-10, Convert.ToInt32(chart1.Location.Y + chart1.Height + chart1.Location.Y));
+            //chart2.Height = chart1.Height-40;
+            //chart2.Width = chart1.Width-40;
+            //chart2.Visible = true;
         }
 
         private void ConnectToDb_CheckedChanged(object sender, EventArgs e)
@@ -1013,6 +1015,7 @@ namespace timeRecorder
 
         private void addWorkItem(string itemContent, bool completeStatus)
         {
+            const int workItemHeight = 45;
             if (itemContent != "")
             {
                 int index = todayList.Controls.OfType<Label>().Count();
@@ -1021,13 +1024,13 @@ namespace timeRecorder
                 label.Width = todayList.Width;
                 label.Height = 30;
                 label.Font = new Font("Microsoft YaHei", 11);
-                label.Location = new Point(25, 9 + index * 37);
+                label.Location = new Point(25, 5 + index * workItemHeight);
                 label.Click += Label_Click;
                 label.DoubleClick += label_doubleClick;
                 label.MouseDown += label_MouseDown;
                 label.Name = index.ToString();
                 CheckBox cb = new CheckBox();
-                cb.Location = new Point(3, 9 + index * 37);
+                cb.Location = new Point(3, 9 + index * workItemHeight);
                 cb.Text = "";
                 cb.Width = 20;
                 cb.Name = index.ToString();
@@ -1047,13 +1050,13 @@ namespace timeRecorder
 
 
                 TextBox split = new TextBox();
-                split.Location = new Point(4, 40 + index * 37);
+                split.Location = new Point(4, 40 + index * workItemHeight);
                 split.Multiline = true;
-                split.Width = 350;
+                split.Width = panel4.Width-3;
                 split.Height = 1;
                 split.BackColor = Color.Black;
                 split.Name = index.ToString();
-
+                
                 todayList.Controls.Add(cb);
                 todayList.Controls.Add(label);
                 todayList.Controls.Add(split);
@@ -1529,6 +1532,21 @@ namespace timeRecorder
             hideResults();
         }
 
-      
+        private void panel4_SizeChanged(object sender, EventArgs e)
+        {
+            for (int i = 0; i< todayList.Controls.Count; i++)
+            {
+                if (todayList.Controls[i].GetType()==typeof(TextBox)&& todayList.Controls[i].Height==1)
+                {
+                    todayList.Controls[i].Width = panel4.Width-3;
+                }
+            }
+            workItemTextBox.Width = panel4.Width-3;
+        }
+
+        private void summary_btn_Click(object sender, EventArgs e)
+        {
+            
+        }
     }
 }

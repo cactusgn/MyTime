@@ -17,6 +17,7 @@ namespace timeRecorder
         Form1 Form1;
         public Form4(Form1 form1)
         {
+            AutoScaleMode = AutoScaleMode.Dpi;
             InitializeComponent();
             Form1 = form1;
             this.TopMost = true;

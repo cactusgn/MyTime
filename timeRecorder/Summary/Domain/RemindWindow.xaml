@@ -1,0 +1,68 @@
+﻿<Window x:Class="Summary.Domain.RemindWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:domain="clr-namespace:Summary.Domain"
+             xmlns:cv="clr-namespace:Summary.Common.Converter"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+             Height="200"
+             Width="400"
+             WindowStyle="None"
+             FontFamily="微软雅黑"
+             AllowsTransparency="True"
+             WindowStartupLocation="CenterScreen"
+             Background="{DynamicResource MaterialDesignDarkBackground}"
+             Foreground="{DynamicResource MaterialDesignDarkForeground}"
+             FontSize="16"
+             mc:Ignorable="d">
+    <Window.Resources>
+        <cv:TimeConverter x:Key="timeConverter"/>
+        <cv:DateConverter x:Key="dateConverter"/>
+    </Window.Resources>
+        <Grid Margin="16,0,16,16" >
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Border x:Name="TitleRow" Grid.Row="0" CornerRadius="4" >
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="提示"></TextBlock>
+        </Border>
+        <Border Grid.Row="0" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
+        <StackPanel Margin="0,8,0,0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock VerticalAlignment="Center" Text="请输入休息期间做的事："></TextBlock>
+        </StackPanel>
+        <StackPanel Margin="0,8,0,0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBox x:Name="InputTextBox" Width="300" TextAlignment="Center" VerticalAlignment="Center"  materialDesign:HintAssist.Hint="休息"></TextBox>
+        </StackPanel>
+        <Grid Grid.Row="4"
+                Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Button Click="Button_Click_1"
+              IsCancel="True" Grid.Column="0" Width="100" Margin="60,0,0,0"
+              Style="{StaticResource MaterialDesignFlatButton}">
+                <Button.CommandParameter>
+                    <system:Boolean>False</system:Boolean>
+                </Button.CommandParameter>
+               取消
+            </Button>
+            <Button Grid.Column="1" Click="Button_Click"
+               Width="100" Margin="0,0,60,0" IsDefault="True" 
+              Style="{StaticResource MaterialDesignFlatButton}" Content="确定">
+                <Button.CommandParameter>
+                    <system:Boolean>True</system:Boolean>
+                </Button.CommandParameter>
+            </Button>
+
+        </Grid>
+    </Grid>
+
+    </Window>

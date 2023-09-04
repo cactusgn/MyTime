@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Summary.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,10 @@ namespace Summary
     /// </summary>
     public partial class TaskManagerUserControl : UserControl
     {
-        public TaskManagerUserControl()
+        public TaskManagerUserControl(TaskManagerModel taskManagerModel)
         {
             InitializeComponent();
+            this.DataContext = taskManagerModel;
         }
     }
 }

@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <None Remove="App.config" />
-    <None Remove="TimeTests.db" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,9 +18,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Common\icons\countdown_128px_1224986_easyicon.net.ico" />
-    <Content Include="TimeTests.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +43,16 @@
     <Compile Update="Domain\YESNOWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="bin\x64\Debug\net6.0-windows\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TimeTests.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

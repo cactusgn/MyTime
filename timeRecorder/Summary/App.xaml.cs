@@ -54,6 +54,7 @@ namespace Summary
             services.AddSingleton<SummaryModel>();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<RecordModel>();
+            services.AddSingleton<TaskManagerModel>();
             services.AddSingleton<SampleDialogViewModel>();
         }
         protected override void OnStartup(StartupEventArgs e)

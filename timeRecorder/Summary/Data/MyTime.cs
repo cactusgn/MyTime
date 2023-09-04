@@ -82,11 +82,11 @@ namespace Summary.Data
     public class MytimeContext : DbContext
     {
        
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                base.OnConfiguring(optionsBuilder);
-                optionsBuilder.UseSqlite("Filename=TimeTests.db");
-                //optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Trusted_Connection=True;Initial Catalog=MyTime;User ID=sa;Password=abcd-1234;integrated security=false;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True;");
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseSqlite("Filename=TimeTests.db");
+            //optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Trusted_Connection=True;Initial Catalog=MyTime;User ID=sa;Password=abcd-1234;integrated security=false;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True;");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -97,5 +97,7 @@ namespace Summary.Data
         }
         public DbSet<MyTime> MyTime { set; get; }
         public DbSet<GeneratedToDoTask> ToDos { set; get; }
+        public DbSet<Category> Categories { set; get; }
+        public DbSet<ToDoTaskSetting> ToDoTaskSettings { set; get; }
     }
 }

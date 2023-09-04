@@ -18,5 +18,6 @@ namespace Summary.Data
         public Task<int> AddTodo(ToDoObj obj);
         public Task<int> UpdateTodo(ToDoObj obj);
         public Task<int> DeleteTodo(ToDoObj obj);
+        public Task<List<Category>> GetAllCategory();
     }
 }

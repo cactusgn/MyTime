@@ -42,6 +42,7 @@ namespace Summary.Models
         private readonly PaletteHelper _paletteHelper = new PaletteHelper();
         public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
+        public TaskManagerUserControl TaskManagerUserControl { get; set; }
         public ColorTool ColorTool { get; set; }
         public Settings Settings { get; set; }
         public SummaryModel SummaryModel { get; set; }
@@ -49,6 +50,12 @@ namespace Summary.Models
         public string recordBtnForegroundColor = Colors.Gray.ToString();
         public string colorBtnForegroundColor = Colors.Gray.ToString();
         public string settingsBtnForegroundColor = Colors.Gray.ToString();
+        public string taskBtnForegroundColor = Colors.Gray.ToString();
+        public string TaskBtnForegroundColor
+        {
+            get { return taskBtnForegroundColor; }
+            set { taskBtnForegroundColor = value; OnPropertyChanged(); }
+        }
         public string SettingsBtnForegroundColor
         {
             get { return settingsBtnForegroundColor; }
@@ -69,7 +76,7 @@ namespace Summary.Models
             get { return colorBtnForegroundColor; }
             set { colorBtnForegroundColor = value; OnPropertyChanged(); }
         }
-        public MainModel(SummaryModel summaryModel,RecordModel recordModel)
+        public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
@@ -88,6 +95,7 @@ namespace Summary.Models
             Settings = new Settings(new SettingsModel());
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
+            TaskManagerUserControl = new TaskManagerUserControl(taskManagerModel);
             ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
@@ -121,6 +129,12 @@ namespace Summary.Models
                 ResetColor();
                 SettingsBtnForegroundColor = palette.Color.ToString();
             }
+            else if (o.ToString() == "TaskManager")
+            {
+                MainContent = TaskManagerUserControl;
+                ResetColor();
+                TaskBtnForegroundColor = palette.Color.ToString();
+            }
         }
         private void ResetColor()
         {
@@ -128,6 +142,7 @@ namespace Summary.Models
             SummaryBtnForegroundColor = Colors.Gray.ToString();
             RecordBtnForegroundColor = Colors.Gray.ToString();
             SettingsBtnForegroundColor = Colors.Gray.ToString();
+            TaskBtnForegroundColor = Colors.Gray.ToString();
         }
     }
 

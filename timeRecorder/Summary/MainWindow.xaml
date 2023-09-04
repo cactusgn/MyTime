@@ -104,7 +104,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button  Height="55"  Width="50" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl">
+                        <Button  Height="55"  Width="50" Command="{Binding OpenPageCommand}" CommandParameter="SummaryUserControl" Margin="0,0,0,10">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}">
                                     <Setter Property="Template">
@@ -112,7 +112,7 @@
                                             <ControlTemplate TargetType="Button">
                                                 <StackPanel>
                                                         <TextBlock Height="35"   Background="Transparent" HorizontalAlignment="Center"  Foreground="{Binding SummaryBtnForegroundColor}" VerticalAlignment="Center" Padding="0,4,0,4" >
-                                                            <materialDesign:PackIcon  x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="45" Height="35" VerticalAlignment="Center" />
+                                                            <materialDesign:PackIcon  x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="ElevationRise" Width="45" Height="40" VerticalAlignment="Center" />
                                                         </TextBlock>
                                                     <TextBlock Text="总览" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding SummaryBtnForegroundColor}"/>
                                                 </StackPanel>
@@ -134,7 +134,38 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                            <Button  Height="55"  Width="50" Command="{Binding OpenPageCommand}" CommandParameter="TaskManager" Margin="0,0,0,10">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <StackPanel>
+                                                        <TextBlock Height="35"   Background="Transparent" HorizontalAlignment="Center"  Foreground="{Binding TaskBtnForegroundColor}" VerticalAlignment="Center" Padding="0,4,0,4" >
+                                                            <materialDesign:PackIcon  x:Name="LeftButtonIcon" HorizontalAlignment="Center" Kind="CheckboxMarkedCirclePlusOutline" Width="45" Height="30" VerticalAlignment="Center" />
+                                                        </TextBlock>
+                                                        <TextBlock Text="任务" FontSize="14" x:Name="LeftButtonText" HorizontalAlignment="Center" Foreground="{Binding TaskBtnForegroundColor}"/>
+                                                    </StackPanel>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Cursor" Value="Hand"/>
+                                                            <Setter Property="Effect">
+                                                                <Setter.Value>
+                                                                    <DropShadowEffect BlurRadius="10"  ShadowDepth="1" Color="#DDD"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                        
                         <StackPanel DockPanel.Dock="Bottom"   VerticalAlignment="Bottom" Margin="0,5,0,20">
                             <Button  Height="55" Width="50" Command="{Binding OpenPageCommand}" CommandParameter="ColorTool">
                                 <Button.Style>

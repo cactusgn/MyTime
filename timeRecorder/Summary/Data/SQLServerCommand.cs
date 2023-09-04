@@ -102,7 +102,7 @@ namespace Summary.Data
             int index = 1;
             using (var context = new MytimeContext())
             {
-                await context.ToDos.AddAsync(new ToDo() { CreateDate=DateTime.Today, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=DateTime.Today, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
                 await context.SaveChangesAsync();
                 index = context.ToDos.First(x => x.UpdatedDate==DateTime.Today&&x.Note == obj.Note).Id;
             }
@@ -136,9 +136,9 @@ namespace Summary.Data
             }
             return 1;
         }
-        public List<ToDo> GetTasks(DateTime date)
+        public List<GeneratedToDoTask> GetTasks(DateTime date)
         {
-            var list = new List<ToDo>();
+            var list = new List<GeneratedToDoTask>();
             using (var context = new MytimeContext())
             {
                 list = context.ToDos.Where(x=>x.UpdatedDate == date).ToList();

@@ -46,7 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="bin\x64\Debug\net6.0-windows\" />
+    <None Include="bin\x64\Debug\net6.0-windows\TimeTests.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

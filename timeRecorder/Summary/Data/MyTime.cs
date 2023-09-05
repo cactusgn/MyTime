@@ -81,7 +81,6 @@ namespace Summary.Data
     }
     public class MytimeContext : DbContext
     {
-       
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -92,6 +91,8 @@ namespace Summary.Data
         {
             modelBuilder.Entity<MyTime>().HasKey(m => new { m.currentIndex, m.createDate });
             modelBuilder.Entity<GeneratedToDoTask>().HasKey(m => m.Id);
+            modelBuilder.Entity<Category>();
+            modelBuilder.Entity<ToDoTaskSetting>();
             base.OnModelCreating(modelBuilder);
 
         }

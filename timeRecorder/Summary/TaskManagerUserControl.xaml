@@ -3,18 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Summary"
+             xmlns:model="clr-namespace:Summary.Models"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="TreeviewItemStyle"
+        TargetType="TreeViewItem"
+        BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+            <Setter
+          Property="materialDesign:TreeViewAssist.ShowSelection"
+          Value="False" />
+            <Setter Property="IsExpanded" 
+                Value="{Binding IsExpanded, 
+                        Mode=OneWay, 
+                        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueMidBrush}" />
+                </Trigger>
+                
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="4*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
-            
+        <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
+            <!--<TextBlock Margin="10,10">任务类别：</TextBlock>-->
+            <TreeView Name="RootTreeView" ItemContainerStyle="{StaticResource TreeviewItemStyle}" >
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type model:MenuItem}" ItemsSource="{Binding Items}">
+                        <TextBlock x:Name="Title" Text="{Binding Title}" />
+                        <HierarchicalDataTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueMidBrush}" />
+                            </Trigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
         </StackPanel>
         <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   

@@ -146,7 +146,7 @@ namespace Summary.Data
             return list;
         }
 
-        public async Task<List<Category>> GetAllCategory()
+        public async Task<List<Category>> GetAllCategories()
         {
             var list = new List<Category>();
             using (var context = new MytimeContext())
@@ -154,11 +154,9 @@ namespace Summary.Data
                 if (context.Categories.ToList().Count == 0)
                 {
                     Category invest = new Category() { Name = "invest", Color = "#FFB6C1" };
-                    Category waste = new Category() { Name = "waste", Color = "#F08080" };
-                    Category rest = new Category() { Name = "rest", Color = "#98FB98" };
                     Category work = new Category() { Name = "work", Color = "#FFD700" };
                     Category play = new Category() { Name = "play", Color = "#ADD8E6" };
-                    context.Categories.AddRange(invest, waste, rest,work,play);
+                    context.Categories.AddRange(invest,work,play);
                     await context.SaveChangesAsync();
                 }
                 list = context.Categories.ToList();

@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="bin\x64\**" />
+    <EmbeddedResource Remove="bin\x64\**" />
+    <None Remove="bin\x64\**" />
+    <Page Remove="bin\x64\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="App.config" />
   </ItemGroup>
 
@@ -46,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="bin\x64\Debug\net6.0-windows\TimeTests.db">
+    <None Include="bin\Debug\net6.0-windows\TimeTests.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

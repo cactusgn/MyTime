@@ -6,52 +6,78 @@
              xmlns:model="clr-namespace:Summary.Models"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Name ="myWindow">
     <UserControl.Resources>
+
+        <ContextMenu x:Key="CategoryContextMenu" >
+            <MenuItem Header="增加类别" Command="{Binding AddCategoryCommand}" />
+            <MenuItem Header="修改类别"/>
+            <!--<Separator></Separator>-->
+            <MenuItem Header="删除类别"/>
+        </ContextMenu>
         <Style x:Key="TreeviewItemStyle"
         TargetType="TreeViewItem"
         BasedOn="{StaticResource MaterialDesignTreeViewItem}">
             <Setter
           Property="materialDesign:TreeViewAssist.ShowSelection"
           Value="False" />
-            <Setter Property="IsExpanded" 
-                Value="{Binding IsExpanded, 
-                        Mode=OneWay, 
-                        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" />
+            <Setter Property="IsExpanded" Value="true" />
+            <Setter Property="Tag" Value="{Binding ElementName=myWindow}"/>
+            <Setter Property="ContextMenu" Value="{StaticResource CategoryContextMenu}">
+            </Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueMidBrush}" />
                 </Trigger>
-                
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid Background="{DynamicResource MaterialDesignCardBackground}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
-            <ColumnDefinition Width="4*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
-            <!--<TextBlock Margin="10,10">任务类别：</TextBlock>-->
-            <TreeView Name="RootTreeView" ItemContainerStyle="{StaticResource TreeviewItemStyle}" >
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type model:MenuItem}" ItemsSource="{Binding Items}">
-                        <TextBlock x:Name="Title" Text="{Binding Title}" />
-                        <HierarchicalDataTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueMidBrush}" />
-                            </Trigger>
-                        </HierarchicalDataTemplate.Triggers>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </StackPanel>
-        <GridSplitter HorizontalAlignment="Center"   
+    <materialDesign:DialogHost x:Name="DialogHost2" Identifier="SubRootDialog"  
+                                       DialogTheme="Inherit" 
+                                       DialogClosing="DialogHost2_DialogClosing"
+                                        DialogClosed="DialogHost2_DialogClosed">
+        <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="4*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
+                <!--<TextBlock Margin="10,10">任务类别：</TextBlock>-->
+                <TreeView Name="RootTreeView" ItemContainerStyle="{StaticResource TreeviewItemStyle}" PreviewMouseRightButtonUp="RootTreeView_MouseRightButtonUp"  >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TreeViewSelectedItemChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeView,AncestorLevel=1}}"></i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type model:MenuItem}" ItemsSource="{Binding Items}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse
+                                Width="10"
+                                Height="10"
+                                Fill="{Binding Color}"/>
+                                <TextBlock Margin="10,0" x:Name="Title" Text="{Binding Title}" />
+                            </StackPanel>
+                            <HierarchicalDataTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                </Trigger>
+                            </HierarchicalDataTemplate.Triggers>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
+            <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   
                       Width="1" Background="Silver">
-        </GridSplitter>
-    </Grid>
+            </GridSplitter>
+        </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

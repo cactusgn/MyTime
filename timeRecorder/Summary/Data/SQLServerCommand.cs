@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Summary.Common;
+using Summary.Domain;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -153,15 +155,59 @@ namespace Summary.Data
             {
                 if (context.Categories.ToList().Count == 0)
                 {
-                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1" };
-                    Category work = new Category() { Name = "work", Color = "#FFD700" };
-                    Category play = new Category() { Name = "play", Color = "#ADD8E6" };
+                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1",Visible = true, BonusPerHour = 20 };
+                    Category work = new Category() { Name = "work", Color = "#FFD700", Visible = true, BonusPerHour = 20 };
+                    Category play = new Category() { Name = "play", Color = "#ADD8E6", Visible = true, BonusPerHour = 20 };
                     context.Categories.AddRange(invest,work,play);
                     await context.SaveChangesAsync();
                 }
                 list = context.Categories.ToList();
             }
             return list;
+        }
+        public async Task<int> UpdateCategory(AddCategoryModel category)
+        {
+            using (var context = new MytimeContext()){
+                var oldCategory = context.Categories.Where(x => x.Id == category.Id);
+                if (oldCategory.Count()>0){
+                    var obj = oldCategory.First();
+                    obj.Color = category.SelectedColor;
+                    obj.Name = category.Category;
+                    obj.ParentCategoryId = category.ParentId;
+                    obj.BonusPerHour = category.Bonus;
+                    obj.Visible = category.Visible;
+                }
+                await context.SaveChangesAsync();
+            }
+            return 1;
+        }
+        public async Task<int> AddCategory(AddCategoryModel category)
+        {
+            using (var context = new MytimeContext())
+            {
+                Category cate = new Category() { 
+                    Name = category.Category, 
+                    Color = category.SelectedColor,
+                    ParentCategoryId = category.ParentId,
+                    BonusPerHour = category.Bonus,
+                    Visible = category.Visible
+                };
+                context.Categories.Add(cate);
+                await context.SaveChangesAsync();
+            }
+            return 1;
+        }
+        public async Task<int> DeleteCategory(int id){
+            using (var context = new MytimeContext()){
+                var item = context.Categories.Where(x => x.Id == id);
+                var subItems = context.Categories.Where(x=>x.ParentCategoryId == id).ToList();
+                foreach (var category in subItems)
+                {
+                    await DeleteCategory(category.Id);
+                }
+                await item.ExecuteDeleteAsync();
+            }
+            return 1;
         }
     }
     

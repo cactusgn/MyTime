@@ -12,10 +12,10 @@
     <UserControl.Resources>
 
         <ContextMenu x:Key="CategoryContextMenu" >
-            <MenuItem Header="增加类别" Command="{Binding AddCategoryCommand}" />
-            <MenuItem Header="修改类别"/>
+            <MenuItem Header="增加子类别" Command="{Binding AddCategoryCommand}" />
+            <MenuItem Header="修改类别" Command="{Binding EditCategoryCommand}"/>
             <!--<Separator></Separator>-->
-            <MenuItem Header="删除类别"/>
+            <MenuItem Header="删除类别" Command="{Binding DeleteCategoryCommand}"/>
         </ContextMenu>
         <Style x:Key="TreeviewItemStyle"
         TargetType="TreeViewItem"

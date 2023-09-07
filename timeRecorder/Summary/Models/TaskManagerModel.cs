@@ -1,6 +1,8 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Query;
 using Summary.Common;
+using Summary.Common.Utils;
 using Summary.Data;
 using Summary.Domain;
 using System;
@@ -22,6 +24,8 @@ namespace Summary.Models
         
         public MyCommand TreeViewSelectedItemChangedCommand{ get; set; }
         public MyCommand AddCategoryCommand { get; set; }
+        public MyCommand EditCategoryCommand { get; set; }
+        public MyCommand DeleteCategoryCommand { get; set; }
         public AddCategoryModel CategoryModel { get; set; }
         private string contextVisible = "Visible";
         
@@ -33,24 +37,46 @@ namespace Summary.Models
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;
             TreeViewSelectedItemChangedCommand = new MyCommand(TreeViewSelectedItemChanged);
-            AddCategoryCommand = new MyCommand(AddCategory);
+            AddCategoryCommand = new MyCommand(AddCategoryClick);
+            EditCategoryCommand = new MyCommand(EditCategoryClick);
+            DeleteCategoryCommand = new MyCommand(DeleteCategoryClick);
             CategoryModel = categoryModel;
         }
-        public async void showCategoryDialog(string title, string category, string color, int bonus=20)
+
+        private void DeleteCategoryClick(object obj)
+        {
+            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            YESNOWindow dialog = new YESNOWindow("提示", "确定删除类别" + root.Title +"及其子类别吗", "确定", "取消");
+            if (dialog.ShowDialog() == true)
+            {
+                SQLCommands.DeleteCategory(root.Id);
+            }
+            Init();
+        }
+
+        private void EditCategoryClick(object obj)
+        {
+            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId);
+        }
+
+        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, int bonus=20)
         {
             CategoryModel.Title = title;
             CategoryModel.Category = category;
             CategoryModel.SelectedColor = color;
             CategoryModel.Bonus = bonus;
+            CategoryModel.Id = id;
+            CategoryModel.ParentId = parentId;
             CategoryModel.NoCaption = "取消";
             CategoryModel.YesCaption = "确定";
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
-        private void AddCategory(object obj)
+        private void AddCategoryClick(object obj)
         {
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
-            showCategoryDialog("增加类别",root.Id,root.Color);
+            showCategoryDialog("增加子类别",0,"",root.Color, root.Id);
         }
 
         private void TreeViewSelectedItemChanged(object obj)
@@ -70,27 +96,36 @@ namespace Summary.Models
                 }
             }
         }
-
+        public void initNode(List<Category> Categories, MenuItem currentNode)
+        {
+            var subCategories = Categories.Where(x=>x.ParentCategoryId == currentNode.Id).ToList();
+            foreach(var category in subCategories) {
+                if(category.Visible){
+                    MenuItem child = new MenuItem() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId};
+                    initNode(Categories, child);
+                    currentNode.Items.Add(child);
+                }
+            }
+        }
         public async void Init()
         {
             List<Category> AllCategories =  await SQLCommands.GetAllCategories();
-            MenuItem root = new MenuItem() { Title="任务类别："};
-            MenuItem InvestRoot = new MenuItem() { Title = "Invest", Color = "#FFB6C1"};
-            MenuItem child1 = new MenuItem() { Title="Invest1" };
-            MenuItem child2 = new MenuItem() { Title="Invest2" };
-            InvestRoot.Items.Add(child1);
-            InvestRoot.Items.Add(child2);
-            MenuItem WorkRoot = new MenuItem() { Title = "Work", Color = "#FFD700" };
-            MenuItem Work1 = new MenuItem() { Title="Work1" };
-            MenuItem Work2 = new MenuItem() { Title="Work2" };
-            WorkRoot.Items.Add(Work1);
-            WorkRoot.Items.Add(Work2);
-            MenuItem playRoot = new MenuItem() { Title = "Play", Color = "#ADD8E6" };
-            root.Items.Add(InvestRoot);
-            root.Items.Add(WorkRoot);
-            root.Items.Add(playRoot);
+            MenuItem root = new MenuItem() { Title="任务类别：",Id=0};
+            initNode(AllCategories, root);
+            RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
-            
+        }
+
+        public async void addCategory(AddCategoryModel category){
+            await SQLCommands.AddCategory(category);
+            Init();
+        }
+        public async void EditCategory(AddCategoryModel category)
+        {
+            await SQLCommands.UpdateCategory(category);
+            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            root.Title = category.Category;
+            root.Color = category.SelectedColor;
         }
     }
     public class MenuItem : ViewModelBase
@@ -122,7 +157,14 @@ namespace Summary.Models
             get { return color; }
             set { color = value; OnPropertyChanged(); }
         }
-        
+        private int parentId;
+
+        public int ParentId
+        {
+            get { return parentId; }
+            set { parentId = value; }
+        }
+
 
         public ObservableCollection<MenuItem> Items { get; set; }
     }

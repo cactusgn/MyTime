@@ -49,7 +49,7 @@ namespace Summary
                 }
                 else{
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(0)).IsEnabled = true;
-                    if (((Models.MenuItem)treeViewItem.Header).Title == "Invest" || ((Models.MenuItem)treeViewItem.Header).Title == "Work" || ((Models.MenuItem)treeViewItem.Header).Title == "Play")
+                    if (((Models.MenuItem)treeViewItem.Header).Title == "invest" || ((Models.MenuItem)treeViewItem.Header).Title == "work" || ((Models.MenuItem)treeViewItem.Header).Title == "play")
                     {
                         ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(1)).IsEnabled = false;
                         ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(2)).IsEnabled = false;
@@ -80,12 +80,16 @@ namespace Summary
         {
             if (!Equals(eventArgs.Parameter, true))
                 return;
-
-            var dialogRes = ((TaskManagerModel)this.DataContext).CategoryModel;
-            if(dialogRes.Title=="增加类别"){
-                
+            var tmModel = (TaskManagerModel)this.DataContext;
+            var dialogRes = tmModel.CategoryModel;
+            if(dialogRes.Category=="") {
+                return;
             }
-            
+            if(dialogRes.Title=="增加子类别"&&dialogRes.Visible){
+                tmModel.addCategory(dialogRes);
+            }else if(dialogRes.Title=="修改类别"){
+                tmModel.EditCategory(dialogRes);
+            }
         }
 
         private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)

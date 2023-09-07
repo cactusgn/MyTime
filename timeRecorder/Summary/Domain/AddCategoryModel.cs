@@ -50,6 +50,27 @@ namespace Summary.Domain
             get { return bonus; }
             set { bonus = value; OnPropertyChanged(); }
         }
+        private int id;
+
+        public int Id
+        {
+            get { return id; }
+            set { id = value; OnPropertyChanged(); }
+        }
+        private int parentId;
+
+        public int ParentId
+        {
+            get { return parentId; }
+            set { parentId = value; OnPropertyChanged(); }
+        }
+        private bool visible = true;
+
+        public bool Visible
+        {
+            get { return visible; }
+            set { visible = value; OnPropertyChanged(); }
+        }
 
         public AddCategoryModel(){
         }

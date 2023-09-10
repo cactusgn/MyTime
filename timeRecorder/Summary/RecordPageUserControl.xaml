@@ -266,9 +266,9 @@
                                     <DataGridTextColumn Header="EndTime" Binding="{Binding EndTime}" IsReadOnly="True"></DataGridTextColumn>
                                     <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
                                     <DataGridComboBoxColumn Header="Type" ItemsSource="{Binding Source={x:Static local:RecordModel.TimeTypes}}"
-                                                            SelectedItemBinding="{Binding Type,UpdateSourceTrigger=LostFocus}">
+                                                            SelectedItemBinding="{Binding Type,UpdateSourceTrigger=PropertyChanged}">
                                     </DataGridComboBoxColumn>
-                                    <DataGridTextColumn Header="Note" Binding="{Binding Note,UpdateSourceTrigger=LostFocus}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Note" Binding="{Binding Note,UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
                                     
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -307,7 +307,7 @@
                                                     Height="20"
                                                     Kind="CallSplit" />
                 </Button>
-                <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="study">study</Button>
+                    <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="invest">invest</Button>
                 <Button Background="#F08080"  Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="waste">waste</Button>
                 <Button Background="#98FB98" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="rest">rest</Button>
                 <Button Background="#FFD700" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="work">work</Button>

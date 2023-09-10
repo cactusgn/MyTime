@@ -120,7 +120,7 @@ namespace Summary.Models
         private void InitVariables()
         {
             colorDic.Add(TimeType.none, "#F3F3F3");
-            colorDic.Add(TimeType.study, "#FFB6C1");
+            colorDic.Add(TimeType.invest, "#FFB6C1");
             colorDic.Add(TimeType.waste, "#F08080");
             colorDic.Add(TimeType.rest, "#98FB98");
             colorDic.Add(TimeType.work, "#FFD700");
@@ -299,7 +299,7 @@ namespace Summary.Models
             }));
             StudyRB.Dispatcher.Invoke(new Action(delegate
             {
-                if (StudyRB.IsChecked==true) refreshSummaryPlot("study");
+                if (StudyRB.IsChecked==true) refreshSummaryPlot("invest");
             }));
             WasteRB.Dispatcher.Invoke(new Action(delegate
             {
@@ -351,9 +351,15 @@ namespace Summary.Models
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
+                int taskId = SQLCommands.QueryTodo(content1);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId: taskId);
                 lastIndex++;
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex,height);
+                taskId = 0;
+                if (content2!="")
+                {
+                    taskId =  SQLCommands.QueryTodo(content2);
+                }
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex,height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
                 Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
                 await SQLCommands.DeleteObj(selectedTimeObj);

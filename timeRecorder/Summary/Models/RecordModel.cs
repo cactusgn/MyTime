@@ -196,7 +196,7 @@ namespace Summary.Models
         private bool DialogIsShown = false;
 
         private HashSet<string> hs = new HashSet<string>();
-        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "study",};
+        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };
       
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
@@ -386,16 +386,16 @@ namespace Summary.Models
                 Helper.UpdateColor(obj, changedType);
                 await SQLCommands.UpdateObj(obj);
             }
-            if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "study" || changedType == "play") && curr.Note != "")
+            if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "invest" || changedType == "play") && curr.Note != "")
             {
-                ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type) };
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type) };
                 var id = await SQLCommands.AddTodo(newObj);
                 newObj.Id = id;
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 hs.Add(curr.Note);
             }
-            else if (hs.Contains(curr.Note) && !(changedType == "work" || changedType == "study" || changedType == "play"))
+            else if (hs.Contains(curr.Note) && !(changedType == "work" || changedType == "invest" || changedType == "play"))
             {
                 var item = TodayList.Where(x => x.Note == curr.Note);
                 if (item != null && item.Count() > 0)
@@ -451,15 +451,17 @@ namespace Summary.Models
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
             TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(WorkContent));
+            int taskId = 0;
             if(type == TimeType.none)
             {
                 var item = TodayList.Where(x => x.Note==WorkContent);
                 if (item!=null&&item.Count()>0)
                 {
                     type = item.First().Type;
+                    taskId = item.First().Id;
                 }
             }
-            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record");
+            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record", taskId);
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, type.ToString());
             currentDateTemplate.DailyObjs.Add(newObj);
@@ -505,7 +507,8 @@ namespace Summary.Models
                     }
                 }
                 TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(restCon));
-                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record");
+                int taskId = SQLCommands.QueryTodo(restCon);
+                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
                 Helper.UpdateColor(newObj, type.ToString());
                 AllTimeViewObjs[0].DailyObjs.Add(newObj);
@@ -515,7 +518,8 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
-                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record");
+                    int taskId = SQLCommands.QueryTodo(Helper.RestContent);
+                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, "rest");
 
@@ -644,9 +648,15 @@ namespace Summary.Models
             {
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
+                int taskId = SQLCommands.QueryTodo(content1);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId:taskId);
                 lastIndex++;
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
+                taskId = 0;
+                if (content2!="")
+                {
+                    taskId =  SQLCommands.QueryTodo(content2);
+                }
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
                 Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
                 
@@ -674,32 +684,32 @@ namespace Summary.Models
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
             var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
-            //加载todayTaks里的work,study,play时间块
+            //加载todayTaks里的work,invest,play时间块
             if (AllTodayTasks.Count() > 0)
             {
                 foreach (var obj in AllTodayTasks)
                 {
-                    if (obj.Type == "study" || obj.Type == "work" || obj.Type == "play")
+                    if (obj.Type == "invest" || obj.Type == "work" || obj.Type == "play")
                     {
                         if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
-                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type = Helper.ConvertTimeType(obj.Type),Id = obj.Id };
+                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = obj.Finished, Type = Helper.ConvertTimeType(obj.Type),Id = obj.Id };
                             TodayList.Add(newObj);
                             hs.Add(obj.Note);
                         }
                     }
                 }
             }
-            //把DailyObj里的work，study，play时间块加入到todaylist
+            //把DailyObj里的work，invest，play时间块加入到todaylist
             if (AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
             {
                 foreach(var obj in AllTimeViewObjs[0].DailyObjs)
                 {
-                    if(obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
+                    if(obj.Type == "invest" || obj.Type == "work"||obj.Type=="play")
                     {
                         if (!hs.Contains(obj.Note)&& obj.Note != "")
                         {
-                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
+                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
                             var id = await SQLCommands.AddTodo(newObj);
                             newObj.Id = id;
                             TodayList.Add(newObj);
@@ -745,7 +755,7 @@ namespace Summary.Models
                 return;
             }
             if(!hs.Contains(obj.ToString())){
-                ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type=TimeType.work };
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());

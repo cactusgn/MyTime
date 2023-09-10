@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Summary.Models
@@ -34,6 +35,13 @@ namespace Summary.Models
             get { return contextVisible; }
             set { contextVisible = value; OnPropertyChanged(); }
         }
+        private UIElement mainContent;
+        public UIElement MainContent
+        {
+            get { return mainContent; }
+            set { mainContent = value; OnPropertyChanged(); }
+        }
+        private QueryTaskModel queryTaskModel;
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;
             TreeViewSelectedItemChangedCommand = new MyCommand(TreeViewSelectedItemChanged);
@@ -41,6 +49,8 @@ namespace Summary.Models
             EditCategoryCommand = new MyCommand(EditCategoryClick);
             DeleteCategoryCommand = new MyCommand(DeleteCategoryClick);
             CategoryModel = categoryModel;
+            queryTaskModel =  new QueryTaskModel("invest", DateTime.Today.AddDays(-6), DateTime.Today, SqlCommands);
+            MainContent = new QueryTaskUserControl(queryTaskModel);
         }
 
         private void DeleteCategoryClick(object obj)
@@ -51,7 +61,7 @@ namespace Summary.Models
             {
                 SQLCommands.DeleteCategory(root.Id);
             }
-            Init();
+            RefreshCategories();
         }
 
         private void EditCategoryClick(object obj)
@@ -83,17 +93,7 @@ namespace Summary.Models
         {
             if (RootTreeView.SelectedItem != null){
                 MenuItem root = (MenuItem)RootTreeView.SelectedItem;
-                if (root != null)
-                {
-                    if (root.Title == "Invest" || root.Title == "Work" || root.Title == "Play")
-                    {
-                        ContextVisible = "Hidden";
-                    }
-                    else
-                    {
-                        ContextVisible = "Visible";
-                    }
-                }
+                queryTaskModel.Category = root.Title=="任务类别："?"": root.Title;
             }
         }
         public void initNode(List<Category> Categories, MenuItem currentNode)
@@ -107,18 +107,28 @@ namespace Summary.Models
                 }
             }
         }
-        public async void Init()
+        public async void RefreshCategories()
         {
             List<Category> AllCategories =  await SQLCommands.GetAllCategories();
             MenuItem root = new MenuItem() { Title="任务类别：",Id=0};
             initNode(AllCategories, root);
             RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
+            List<MyTime> AllTimeObjs = SQLCommands.GetTimeObjsByType("study");
+            if(AllTimeObjs != null)
+            {
+                foreach(MyTime timeObj in AllTimeObjs)
+                {
+                    timeObj.type = "invest";
+                    await SQLCommands.UpdateObj(timeObj);
+                }
+            }
+            queryTaskModel.UpdateContextMenu();
         }
 
         public async void addCategory(AddCategoryModel category){
             await SQLCommands.AddCategory(category);
-            Init();
+            RefreshCategories();
         }
         public async void EditCategory(AddCategoryModel category)
         {

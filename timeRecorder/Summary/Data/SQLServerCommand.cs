@@ -29,6 +29,26 @@ namespace Summary.Data
             }
             return list;
         }
+        public List<MyTime> GetTimeObjsByName(string name)
+        {
+            List<MyTime> list = null;
+            using (var context = new MytimeContext())
+            {
+                // 查询
+                list = context.MyTime.Where(x => x.note==name).ToList();
+            }
+            return list;
+        }
+        public List<MyTime> GetTimeObjsByType(string type)
+        {
+            List<MyTime> list = null;
+            using (var context = new MytimeContext())
+            {
+                // 查询
+                list = context.MyTime.Where(x => x.type==type).ToList();
+            }
+            return list;
+        }
         public async Task<int> UpdateObj(TimeViewObj obj)
         {
             using (var context = new MytimeContext())
@@ -38,7 +58,7 @@ namespace Summary.Data
                 {
                     objToUpdate.type = obj.Type;
                     objToUpdate.note = obj.Note;
-
+                    objToUpdate.taskId = obj.TaskId;
                     var allNotes = context.MyTime.Where(x => x.note==obj.Note && x.createDate == obj.CreatedDate);
                     foreach (var note in allNotes)
                     {
@@ -47,6 +67,22 @@ namespace Summary.Data
                     await context.SaveChangesAsync();
                 }
                 
+            }
+            return 1;
+        }
+        public async Task<int> UpdateObj(MyTime obj)
+        {
+            using (var context = new MytimeContext())
+            {
+                var objToUpdate = context.MyTime.FirstOrDefault(x => x.currentIndex==obj.currentIndex && x.createDate == obj.createDate);
+                if (objToUpdate != null)
+                {
+                    objToUpdate.type = obj.type;
+                    objToUpdate.note = obj.note;
+                    objToUpdate.taskId = obj.taskId;
+                    await context.SaveChangesAsync();
+                }
+
             }
             return 1;
         }
@@ -74,7 +110,8 @@ namespace Summary.Data
                     lastTime = obj.LastTime,
                     createDate = obj.CreatedDate,
                     note = obj.Note,
-                    type = obj.Type
+                    type = obj.Type,
+                    taskId = obj.TaskId
                 };
                 
                 await context.MyTime.AddAsync(newObj);
@@ -104,13 +141,24 @@ namespace Summary.Data
             int index = 1;
             using (var context = new MytimeContext())
             {
-                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=DateTime.Today, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
                 await context.SaveChangesAsync();
                 index = context.ToDos.First(x => x.UpdatedDate==DateTime.Today&&x.Note == obj.Note).Id;
             }
             return index;
         }
-
+        public int QueryTodo(string note)
+        {
+            using (var context = new MytimeContext())
+            {
+                var item = context.ToDos.Where(x => x.Note == note);
+                if (item.Count()>0)
+                {
+                    return item.First().Id;
+                }
+            }
+            return 0;
+        }
         public async Task<int> UpdateTodo(ToDoObj obj)
         {
             using (var context = new MytimeContext())
@@ -156,9 +204,10 @@ namespace Summary.Data
                 if (context.Categories.ToList().Count == 0)
                 {
                     Category invest = new Category() { Name = "invest", Color = "#FFB6C1",Visible = true, BonusPerHour = 20 };
-                    Category work = new Category() { Name = "work", Color = "#FFD700", Visible = true, BonusPerHour = 20 };
-                    Category play = new Category() { Name = "play", Color = "#ADD8E6", Visible = true, BonusPerHour = 20 };
-                    context.Categories.AddRange(invest,work,play);
+                    Category work = new Category() { Name = "work", Color = "#FFD700", Visible = true, BonusPerHour = 0 };
+                    Category play = new Category() { Name = "play", Color = "#ADD8E6", Visible = true, BonusPerHour = 0 };
+                    Category rest = new Category() { Name = "rest", Color = "#98FB98", Visible = true, BonusPerHour = 0 };
+                    context.Categories.AddRange(invest,work,play,rest);
                     await context.SaveChangesAsync();
                 }
                 list = context.Categories.ToList();

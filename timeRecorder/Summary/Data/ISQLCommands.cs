@@ -12,7 +12,10 @@ namespace Summary.Data
     {
         #region TimeObjs
         public Task<List<MyTime>> GetAllTimeObjs(DateTime startTime, DateTime endTime);
+        public List<MyTime> GetTimeObjsByName(string name);
+        public List<MyTime> GetTimeObjsByType(string type);
         public  Task<int> UpdateObj(TimeViewObj obj);
+        public Task<int> UpdateObj(MyTime obj);
         public Task<int> AddObj(TimeViewObj obj);
         public Task<int> DeleteObj(TimeViewObj obj);
         public Task<int> DeleteObjByDate(DateTime date);
@@ -23,6 +26,7 @@ namespace Summary.Data
         public Task<int> AddTodo(ToDoObj obj);
         public Task<int> UpdateTodo(ToDoObj obj);
         public Task<int> DeleteTodo(ToDoObj obj);
+        public int QueryTodo(string note);
         #endregion
         #region category
         public Task<List<Category>> GetAllCategories();

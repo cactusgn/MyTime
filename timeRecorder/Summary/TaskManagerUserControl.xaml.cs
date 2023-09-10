@@ -28,7 +28,7 @@ namespace Summary
             InitializeComponent();
             this.DataContext = taskManagerModel;
             taskManagerModel.RootTreeView = RootTreeView;
-            taskManagerModel.Init();
+            taskManagerModel.RefreshCategories();
             CategoryContextMenu = (ContextMenu)this.Resources["CategoryContextMenu"];
             taskManagerModel.CategoryContextMenu = CategoryContextMenu;
             taskManagerModel.CategoryContextMenu.DataContext = taskManagerModel;

@@ -53,14 +53,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="bin\Debug\net6.0-windows\TimeTests.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="TimeTests.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TimeTests.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="bin\Debug\net6.0-windows\TimeTests.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

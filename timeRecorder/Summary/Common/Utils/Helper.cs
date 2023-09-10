@@ -25,6 +25,7 @@ namespace Summary.Common.Utils
         //public static RecordModel recordModel;
         public static TimeType ConvertTimeType(string type)
         {
+            if (type==""||type==null) return TimeType.none;
             return (TimeType)Enum.Parse(typeof(TimeType), type);
         }
         public static string GetAppSetting(string key)
@@ -79,7 +80,7 @@ namespace Summary.Common.Utils
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTimeSpan > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, "nothing", currentDate, TimeType.none, lastIndex,height);
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, TimeType.none, lastIndex,height);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, "none");
@@ -109,7 +110,7 @@ namespace Summary.Common.Utils
                 TimeSpan tempEndTime = GlobalEndTimeSpan;
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, "nothing", currentDate, TimeType.none, lastIndex, height);
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, TimeType.none, lastIndex, height);
                     UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
@@ -124,7 +125,7 @@ namespace Summary.Common.Utils
         {
             switch (type.ToLower())
             {
-                case "study":
+                case "invest":
                     timeViewObj.Color = "#FFB6C1";
                     break;
                 case "waste":
@@ -148,7 +149,8 @@ namespace Summary.Common.Utils
             DateTime now = DateTime.Now;
             return new TimeSpan(now.Hour, now.Minute, now.Second);
         }
-        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height,string viewType = "summary")
+        
+        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height,string viewType = "summary",int taskId=0)
         {
             TimeViewObj TimeObj = new TimeViewObj();
             TimeObj.CreatedDate = createDate;
@@ -159,6 +161,7 @@ namespace Summary.Common.Utils
             TimeObj.EndTime = endTime;
             TimeObj.Type = type.ToString().ToLower();
             TimeObj.Id = index;
+            TimeObj.TaskId = taskId;
             return TimeObj;
         }
         public static double CalculateHeight(TimeSpan lastTime, double height, string viewType = "summary")
@@ -174,7 +177,7 @@ namespace Summary.Common.Utils
         public static void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
         {
             var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note = x.Key.Note, Type = x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
-            var studyItems = items.Where(x => x.Type == "study").ToArray();
+            var studyItems = items.Where(x => x.Type == "invest").ToArray();
             var wasteItems = items.Where(x => x.Type == "waste").ToArray();
             var workItems = items.Where(x => x.Type == "work").ToArray();
             var restItems = items.Where(x => x.Type == "rest").ToArray();
@@ -186,7 +189,7 @@ namespace Summary.Common.Utils
             string[] TimeLabels = new string[allItemCount];
             string[] YLabels = new string[allItemCount];
             double[] position = new double[allItemCount];
-            addChartData(studyItems, TimeType.study, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            addChartData(studyItems, TimeType.invest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(workItems, TimeType.work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
@@ -227,7 +230,7 @@ namespace Summary.Common.Utils
             if (colorDic.Count == 0)
             {
                 colorDic.Add(TimeType.none, "#F3F3F3");
-                colorDic.Add(TimeType.study, "#FFB6C1");
+                colorDic.Add(TimeType.invest, "#FFB6C1");
                 colorDic.Add(TimeType.waste, "#F08080");
                 colorDic.Add(TimeType.rest, "#98FB98");
                 colorDic.Add(TimeType.work, "#FFD700");

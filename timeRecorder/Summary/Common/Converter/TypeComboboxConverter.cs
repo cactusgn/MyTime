@@ -23,7 +23,7 @@ namespace Summary.Common.Converter
             switch (type)
             {
                 case "none": return 0;
-                case "study": return 1;
+                case "invest": return 1;
                 case "waste": return 2;
                 case "rest": return 3;
                 case "work": return 4;
@@ -43,7 +43,7 @@ namespace Summary.Common.Converter
             switch (i)
             {
                 case 0: return "none";
-                case 1: return "study";
+                case 1: return "invest";
                 case 2: return "waste";
                 case 3: return "rest";
                 case 4: return "work";

@@ -1,4 +1,5 @@
-﻿using Summary.Common;
+﻿using MaterialDesignThemes.Wpf;
+using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
 using System;
@@ -7,6 +8,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Summary.Models
@@ -64,7 +67,7 @@ namespace Summary.Models
             set { totalBonus = value; OnPropertyChanged(); }
         }
         public System.Windows.Controls.MenuItem UpdateCategoryMenuItem;
-
+        public DataGrid CategoryDatagrid;
         public MyCommand ClickOkButtonCommand { get; set; }
         public MyCommand UpdateCategoryCommand { get; set; }
         private ObservableCollection<ToDoObj> categoryDataGridSource = new ObservableCollection<ToDoObj>();
@@ -89,7 +92,7 @@ namespace Summary.Models
         }
         public MyCommand CellEditEndingCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
-        private string SelectedContextMenuCategory { get; set; }
+        private int SelectedContextMenuCategoryId { get; set; }
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -112,17 +115,28 @@ namespace Summary.Models
         private void updateSubContextMenu(List<Category> Categories, System.Windows.Controls.MenuItem currentNode, int id)
         {
             var subCategories = Categories.Where(x => x.ParentCategoryId == id).ToList();
+            if(subCategories.Count == 0) {
+                currentNode.Click += updateCurrentSelectedCategory;
+            }
             foreach (var category in subCategories)
             {
                 if (category.Visible)
                 {
                     System.Windows.Controls.MenuItem child = new System.Windows.Controls.MenuItem();
+                    child.Tag = category.Id;
                     child.Header = category.Name;
                     child.Command = UpdateCategoryCommand;
+                    child.CommandParameter = CategoryDatagrid.SelectedItems;
                     updateSubContextMenu(Categories, child,category.Id);
                     currentNode.Items.Add(child);
                 }
             }
+        }
+
+        private void updateCurrentSelectedCategory(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.MenuItem item = (System.Windows.Controls.MenuItem)sender;
+            SelectedContextMenuCategoryId = (int)item.Tag;
         }
 
         public async void UpdateContextMenu()
@@ -131,9 +145,18 @@ namespace Summary.Models
             UpdateCategoryMenuItem.Items.Clear();
             updateSubContextMenu(AllCategories, UpdateCategoryMenuItem,0);
         }
-        private void UpdateCategory(object obj)
+        private async void UpdateCategory(object obj)
         {
-            Console.WriteLine(obj);
+            System.Collections.IList items = (System.Collections.IList)obj;
+            var collection = items.Cast<ToDoObj>();
+            List<ToDoObj> selectedTasks = collection.ToList();
+            List<Category> allCategories = await SQLCommands.GetAllCategories();
+            foreach (var task in selectedTasks) {
+                task.CategoryId = SelectedContextMenuCategoryId;
+                task.Category = allCategories.First(x=>x.Id ==SelectedContextMenuCategoryId).Name;
+                await SQLCommands.UpdateTodo(task);
+            }
+            GetSummaryDate();
         }
 
         private async void GetSummaryDate()
@@ -142,26 +165,31 @@ namespace Summary.Models
             {
                 List<MyTime> allTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
                 List<ToDoObj> allTasks = new List<ToDoObj>();
+                List<Category> AllCategories = await SQLCommands.GetAllCategories();
+                List<GeneratedToDoTask> AllTasks = SQLCommands.GetTasks(StartTime, EndTime);
+                int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
                 if (Category=="invest"||Category=="rest"||Category=="work"||Category=="play")
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                }
-                else if (Category=="")
-                {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type)}).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 else
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                    allTasks = allTasks.Where(x => x.Category==Category).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime ).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 TotalBonus = 0;
-                List<Category> AllCategories = await SQLCommands.GetAllCategories();
+                
                 foreach (ToDoObj task in allTasks)
                 {
                     if (task.Id == 0)
                     {
                        await updateTaskIndex(task);
+                    }else{
+                        updateTaskCategory(task, AllTasks, findCategoryId, AllCategories);
+                            
+                    }
+                    if (task.Category == "" || task.Category == null)
+                    {
+                        task.Category = task.Type.ToString();
                     }
                     int bonus = 0;
                     var categoryItem = AllCategories.FirstOrDefault(x => x.Name == task.Category);
@@ -179,6 +207,7 @@ namespace Summary.Models
                     task.Bonus = (int)(task.LastTime.TotalSeconds* bonus/3600);
                     TotalBonus = TotalBonus + task.Bonus;
                 }
+                allTasks = allTasks.Where(x=>x.CategoryId == findCategoryId).ToList();
                 CategoryDataGridSource = new ObservableCollection<ToDoObj>(allTasks);
                 totalCost = new TimeSpan(allTasks.Sum(x => x.LastTime.Ticks));
                 TotalCostString = $"{totalCost.Hours}h{totalCost.Minutes}m";
@@ -187,6 +216,27 @@ namespace Summary.Models
                 
             }
             
+        }
+        private void updateTaskCategory(ToDoObj task, List<GeneratedToDoTask> AllTasks, int findCategoryId, List<Category> AllCategories)
+        {
+            var findTask = AllTasks.Where(x => x.Note == task.Note).FirstOrDefault();
+            if (findTask != null)
+            {
+                task.CategoryId = findTask.CategoryId;
+                if (task.CategoryId == 0)
+                {
+                    task.CategoryId = findCategoryId;
+                    task.Category = Category;
+                }
+                else
+                {
+                    var findCategory = AllCategories.FirstOrDefault(x => x.Id == findTask.CategoryId);
+                    if (findCategory != null)
+                    {
+                        task.Category = findCategory.Name;
+                    }
+                }
+            }
         }
         private async Task updateTaskIndex(ToDoObj task)
         {

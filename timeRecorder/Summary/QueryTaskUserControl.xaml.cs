@@ -27,6 +27,7 @@ namespace Summary
             InitializeComponent();
             this.DataContext = queryTaskModel;
             queryTaskModel.UpdateCategoryMenuItem = UpdateCategoryMenuItem;
+            queryTaskModel.CategoryDatagrid = CategoryDataGrid;
         }
     }
 }

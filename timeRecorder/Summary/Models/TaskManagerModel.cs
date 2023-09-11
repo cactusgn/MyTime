@@ -136,6 +136,7 @@ namespace Summary.Models
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
+            queryTaskModel.UpdateContextMenu();
         }
     }
     public class MenuItem : ViewModelBase

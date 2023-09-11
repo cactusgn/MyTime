@@ -116,8 +116,6 @@
                         <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn Header="Bonus" Binding="{Binding Bonus}" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn Header="Category"  IsReadOnly="True" Binding="{Binding Category}"></DataGridTextColumn>
-                        <DataGridComboBoxColumn Header="Type"  ItemsSource="{Binding Source={x:Static models:RecordModel.TimeTypes}}"
-                                                            SelectedItemBinding="{Binding TypeString,UpdateSourceTrigger=LostFocus}"></DataGridComboBoxColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <GridSplitter HorizontalAlignment="Center"   

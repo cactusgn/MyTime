@@ -683,7 +683,7 @@ namespace Summary.Models
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
-            var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
+            var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today, DateTime.Today);
             //加载todayTaks里的work,invest,play时间块
             if (AllTodayTasks.Count() > 0)
             {

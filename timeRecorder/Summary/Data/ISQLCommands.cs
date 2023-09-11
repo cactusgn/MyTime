@@ -22,7 +22,7 @@ namespace Summary.Data
         #endregion
 
         #region GeneratedToDoTask
-        public List<GeneratedToDoTask> GetTasks(DateTime date);
+        public List<GeneratedToDoTask> GetTasks(DateTime startDate, DateTime endDate);
         public Task<int> AddTodo(ToDoObj obj);
         public Task<int> UpdateTodo(ToDoObj obj);
         public Task<int> DeleteTodo(ToDoObj obj);

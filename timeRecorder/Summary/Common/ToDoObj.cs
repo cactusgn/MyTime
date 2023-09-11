@@ -79,5 +79,13 @@ namespace Summary.Common
             get { return category; }
             set { category = value; OnPropertyChanged(); }
         }
+        private int categoryId;
+
+        public int CategoryId
+        {
+            get { return categoryId; }
+            set { categoryId = value; OnPropertyChanged(); }
+        }
+
     }
 }

@@ -65,7 +65,7 @@
                 <ColumnDefinition Width="160*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button Command="{x:Static wpf:DialogHost.CloseDialogCommand}"
-              IsDefault="True" IsCancel="True" Grid.Column="0" Width="100" Margin="60,0,0,0"
+               IsCancel="True" Grid.Column="0" Width="100" Margin="60,0,0,0"
               Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding NoCaption}" Grid.ColumnSpan="2">
                 <Button.CommandParameter>
                     <sys:Boolean>False</sys:Boolean>
@@ -74,7 +74,7 @@
             </Button>
             <Button Grid.Column="2"
               Command="{x:Static wpf:DialogHost.CloseDialogCommand}"
-               Width="100" Margin="0,0,60,0"
+               Width="100" Margin="0,0,60,0" IsDefault="True"
               Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding YesCaption}">
                 <Button.CommandParameter>
                     <sys:Boolean>True</sys:Boolean>

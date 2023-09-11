@@ -77,7 +77,7 @@ namespace Summary.Data
                 var objToUpdate = context.MyTime.FirstOrDefault(x => x.currentIndex==obj.currentIndex && x.createDate == obj.createDate);
                 if (objToUpdate != null)
                 {
-                    objToUpdate.type = obj.type;
+                    objToUpdate.type = obj.type.Trim();
                     objToUpdate.note = obj.note;
                     objToUpdate.taskId = obj.taskId;
                     await context.SaveChangesAsync();
@@ -141,7 +141,7 @@ namespace Summary.Data
             int index = 1;
             using (var context = new MytimeContext())
             {
-                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString() });
+                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString(), CategoryId=obj.CategoryId });
                 await context.SaveChangesAsync();
                 index = context.ToDos.First(x => x.UpdatedDate == DateTime.Today&&x.Note == obj.Note).Id;
             }

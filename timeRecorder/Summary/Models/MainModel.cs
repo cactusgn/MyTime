@@ -26,6 +26,7 @@ using System.Reflection;
 using MaterialDesignColors;
 using System.Configuration;
 using Summary.Common.Utils;
+using Microsoft.Data.SqlClient;
 
 namespace Summary.Models
 {
@@ -99,7 +100,7 @@ namespace Summary.Models
             ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
-       
+        
         private void OpenPage(object o)
         {
             ITheme theme = _paletteHelper.GetTheme();

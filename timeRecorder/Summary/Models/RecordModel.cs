@@ -507,7 +507,8 @@ namespace Summary.Models
                     }
                 }
                 TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(restCon));
-                int taskId = SQLCommands.QueryTodo(restCon);
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
+                int taskId = findTask==null? 0:findTask.Id;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
                 Helper.UpdateColor(newObj, type.ToString());
@@ -518,7 +519,8 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
-                    int taskId = SQLCommands.QueryTodo(Helper.RestContent);
+                    GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
+                    int taskId = findTask==null ? 0 : findTask.Id;
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, "rest");
@@ -648,13 +650,15 @@ namespace Summary.Models
             {
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
-                int taskId = SQLCommands.QueryTodo(content1);
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
+                int taskId = findTask==null ? 0 : findTask.Id;
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId:taskId);
                 lastIndex++;
                 taskId = 0;
                 if (content2!="")
                 {
-                    taskId =  SQLCommands.QueryTodo(content2);
+                    findTask = SQLCommands.QueryTodo(content2);
+                    taskId = findTask==null ? 0 : findTask.Id;
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());

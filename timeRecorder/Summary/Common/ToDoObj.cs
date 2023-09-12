@@ -67,7 +67,7 @@ namespace Summary.Common
 		}
         public string CreatedDateString{
             get{
-                return createdDate.ToShortDateString();
+                return createdDate.ToString("yyyy-MM-dd");
             }
         }
         private int bonus;

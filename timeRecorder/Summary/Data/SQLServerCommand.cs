@@ -45,7 +45,7 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 // 查询
-                list = context.MyTime.Where(x => x.type==type).ToList();
+                list = context.MyTime.Where(x => x.type.Trim()==type).ToList();
             }
             return list;
         }
@@ -147,17 +147,17 @@ namespace Summary.Data
             }
             return index;
         }
-        public int QueryTodo(string note)
+        public GeneratedToDoTask QueryTodo(string note)
         {
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x => x.Note == note);
                 if (item.Count()>0)
                 {
-                    return item.First().Id;
+                    return item.First();
                 }
             }
-            return 0;
+            return null;
         }
         public async Task<int> UpdateTodo(ToDoObj obj)
         {
@@ -192,7 +192,15 @@ namespace Summary.Data
             var list = new List<GeneratedToDoTask>();
             using (var context = new MytimeContext())
             {
-                list = context.ToDos.Where(x=>x.CreateDate >= startDate && x.CreateDate<=endDate).ToList();
+                if (startDate.Year==1900)
+                {
+                    list = context.ToDos.ToList();
+                }
+                else
+                {
+                    list = context.ToDos.Where(x => x.CreateDate >= startDate && x.CreateDate<=endDate).ToList();
+                }
+                
             }
             return list;
         }
@@ -204,11 +212,14 @@ namespace Summary.Data
             {
                 if (context.Categories.ToList().Count == 0)
                 {
-                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1",Visible = true, BonusPerHour = 20 };
+                    //Category root = new Category() { Name = "", Color = "", Visible = true, BonusPerHour = 0,ParentCategoryId=-1 };
+                    //context.Categories.AddRange(root);
+                    //await context.SaveChangesAsync();
+                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1", Visible = true, BonusPerHour = 20 };
                     Category work = new Category() { Name = "work", Color = "#FFD700", Visible = true, BonusPerHour = 0 };
                     Category play = new Category() { Name = "play", Color = "#ADD8E6", Visible = true, BonusPerHour = 0 };
                     Category rest = new Category() { Name = "rest", Color = "#98FB98", Visible = true, BonusPerHour = 0 };
-                    context.Categories.AddRange(invest,work,play,rest);
+                    context.Categories.AddRange(invest, work, play, rest);
                     await context.SaveChangesAsync();
                 }
                 list = context.Categories.ToList();

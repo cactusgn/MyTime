@@ -49,7 +49,7 @@ namespace Summary.Models
             EditCategoryCommand = new MyCommand(EditCategoryClick);
             DeleteCategoryCommand = new MyCommand(DeleteCategoryClick);
             CategoryModel = categoryModel;
-            queryTaskModel =  new QueryTaskModel("invest", DateTime.Today.AddDays(-6), DateTime.Today, SqlCommands);
+            queryTaskModel =  new QueryTaskModel("", DateTime.Today.AddDays(-6), DateTime.Today, SqlCommands);
             MainContent = new QueryTaskUserControl(queryTaskModel);
         }
 
@@ -67,7 +67,7 @@ namespace Summary.Models
         private void EditCategoryClick(object obj)
         {
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
-            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId);
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Bonus);
         }
 
         public async void showCategoryDialog(string title,int id, string category, string color, int parentId, int bonus=20)
@@ -86,7 +86,7 @@ namespace Summary.Models
         private void AddCategoryClick(object obj)
         {
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
-            showCategoryDialog("增加子类别",0,"",root.Color, root.Id);
+            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, root.Bonus);
         }
 
         private void TreeViewSelectedItemChanged(object obj)
@@ -114,15 +114,7 @@ namespace Summary.Models
             initNode(AllCategories, root);
             RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
-            List<MyTime> AllTimeObjs = SQLCommands.GetTimeObjsByType("study");
-            if(AllTimeObjs != null)
-            {
-                foreach(MyTime timeObj in AllTimeObjs)
-                {
-                    timeObj.type = "invest";
-                    await SQLCommands.UpdateObj(timeObj);
-                }
-            }
+            
             queryTaskModel.UpdateContextMenu();
         }
 
@@ -136,6 +128,7 @@ namespace Summary.Models
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
+            root.Bonus = category.Bonus;
             queryTaskModel.UpdateContextMenu();
         }
     }
@@ -176,6 +169,13 @@ namespace Summary.Models
             set { parentId = value; }
         }
 
+        private int bonus;
+
+        public int Bonus
+        {
+            get { return bonus; }
+            set { bonus = value; OnPropertyChanged(); }
+        }
 
         public ObservableCollection<MenuItem> Items { get; set; }
     }

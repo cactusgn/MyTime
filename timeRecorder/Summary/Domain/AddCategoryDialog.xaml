@@ -46,13 +46,14 @@
         </StackPanel>
         <StackPanel Margin="0,8,0,0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock VerticalAlignment="Center" Text="颜色："></TextBlock>
-            <TextBox Margin="2,0,10,2"
+            <Border Background="{Binding Path=Text, ElementName=colorbox}" Width="10" Height="10"></Border>
+            <TextBox Margin="5,0,10,2" x:Name="colorbox"
                        DockPanel.Dock="Top"
                        Text="{Binding Color, ElementName=ColorPicker, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock VerticalAlignment="Center" Margin="5" Text="回报率："></TextBlock>
             <TextBox Margin="2,0,10,2"
                        DockPanel.Dock="Top" TextAlignment="Center"
-                       Text="20" Width="60" />
+                       Text="{Binding Bonus}" Width="45" />
         </StackPanel>
         <materialDesign:ColorPicker Grid.Row="3" x:Name="ColorPicker" Width="250" Height="100"
                                     Margin="0,10" 

@@ -114,9 +114,21 @@ namespace Summary.Models
             sampleDialogViewModel = SVM;
             SelectedCommand = new MyCommand(Selected);
             ResizeCommand = new MyCommand(resizeHeight);
+            updateOldStudyItems();
         }
 
-       
+        private  void updateOldStudyItems()
+        {
+            List<MyTime> AllTimeObjs = SQLCommands.GetTimeObjsByType("study");
+            if (AllTimeObjs != null)
+            {
+                foreach (MyTime timeObj in AllTimeObjs)
+                {
+                    timeObj.type = "invest";
+                    SQLCommands.UpdateObj(timeObj);
+                }
+            }
+        }
         private void InitVariables()
         {
             colorDic.Add(TimeType.none, "#F3F3F3");
@@ -351,13 +363,15 @@ namespace Summary.Models
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
-                int taskId = SQLCommands.QueryTodo(content1);
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
+                int taskId = findTask==null ? 0 : findTask.Id;
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId: taskId);
                 lastIndex++;
                 taskId = 0;
                 if (content2!="")
                 {
-                    taskId =  SQLCommands.QueryTodo(content2);
+                    findTask = SQLCommands.QueryTodo(content2);
+                    taskId =  findTask==null ? 0 : findTask.Id;
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex,height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());

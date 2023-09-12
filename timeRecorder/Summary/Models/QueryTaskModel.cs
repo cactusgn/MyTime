@@ -95,6 +95,7 @@ namespace Summary.Models
         public ISQLCommands SQLCommands { get; set; }
         private int SelectedContextMenuCategoryId { get; set; }
         private string SelectedContextMenuType { get; set; }
+        public Dictionary<string, int> TypesDic { get; set; } = new Dictionary<string, int>();
 
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
@@ -131,6 +132,7 @@ namespace Summary.Models
                     {
                         child.Tag = category.Name;
                         child.Click += updateCurrentSelectedType;
+                        TypesDic.Add(category.Name, category.Id);
                     }
                     else
                     {
@@ -154,13 +156,20 @@ namespace Summary.Models
         private void updateCurrentSelectedCategory(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.MenuItem item = (System.Windows.Controls.MenuItem)sender;
-            SelectedContextMenuCategoryId = (int)item.Tag;
+            if (TypesDic.ContainsKey(item.Tag.ToString())) {
+                SelectedContextMenuCategoryId = TypesDic[item.Tag.ToString()];
+            }
+            else
+            {
+                SelectedContextMenuCategoryId = (int)item.Tag;
+            }
         }
 
         public async void UpdateContextMenu()
         {
             List<Category> AllCategories = await SQLCommands.GetAllCategories();
             UpdateCategoryMenuItem.Items.Clear();
+            TypesDic.Clear();
             updateSubContextMenu(AllCategories, UpdateCategoryMenuItem,0);
         }
         private async void UpdateCategory(object obj)
@@ -185,8 +194,9 @@ namespace Summary.Models
                 List<MyTime> allTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
                 List<ToDoObj> allTasks = new List<ToDoObj>();
                 List<Category> AllCategories = await SQLCommands.GetAllCategories();
-                List<GeneratedToDoTask> AllTasks = SQLCommands.GetTasks(StartTime, EndTime);
+                List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
                 int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+                if (Category=="") findCategoryId=0;
                 if (Category=="invest"||Category=="rest"||Category=="work"||Category=="play")
                 {
                     allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type)}).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
@@ -201,10 +211,10 @@ namespace Summary.Models
                     {
                        await updateTaskIndex(task, AllCategories);
                     }
-                    if (Category!="")
-                    {
-                        await updateTaskCategory(task, AllTasks, findCategoryId, AllCategories);
-                    }
+                    //if (Category!="")
+                    //{
+                        await updateTaskCategory(task, AllTasksFromDatabase, findCategoryId, AllCategories);
+                    //}
                     if (task.Category == "" || task.Category == null)
                     {
                         task.Category = task.Type.ToString();
@@ -248,15 +258,12 @@ namespace Summary.Models
         }
         private async Task updateTaskCategory(ToDoObj task, List<GeneratedToDoTask> AllTasks, int findCategoryId, List<Category> AllCategories)
         {
-            if(findCategoryId == 0)
-            {
-                findCategoryId = AllCategories.FirstOrDefault(x => x.Name==task.Type.ToString(),new Data.Category()).Id;
-                task.CategoryId = findCategoryId;
-                task.Category = task.Type.ToString();
-                await SQLCommands.UpdateTodo(task);
-            }
-            else
-            {
+            //if(findCategoryId == 0)
+            //{
+                
+            //}
+            //else
+            //{
                 var findTask = AllTasks.Where(x => x.Note == task.Note).FirstOrDefault();
                 if (findTask != null)
                 {
@@ -276,19 +283,30 @@ namespace Summary.Models
                         }
                     }
                 }
-            }
+                else
+                {
+                    findCategoryId = AllCategories.FirstOrDefault(x => x.Name==task.Type.ToString(), new Data.Category()).Id;
+                    task.CategoryId = findCategoryId;
+                    task.Category = task.Type.ToString();
+                    await SQLCommands.UpdateTodo(task);
+                }
+            //}
             
         }
         private async Task updateTaskIndex(ToDoObj task, List<Category> AllCategories)
         {
-            if(task.CategoryId == 0)
-            {
-                int categoryId = AllCategories.FirstOrDefault(x => x.Name == task.Type.ToString(), new Data.Category()).Id;
-                task.CategoryId = categoryId;
-                task.Category = task.Type.ToString();
-            }
+
+            //找到当前note对应的taskID
+            GeneratedToDoTask findTask = SQLCommands.QueryTodo(task.Note);
             
-            int findIndex = SQLCommands.QueryTodo(task.Note);
+            int findIndex =0;
+            int findTaskCategoryId = 0;
+            if (findTask != null)
+            {
+                findIndex = findTask.Id;
+                findTaskCategoryId = findTask.CategoryId;
+            }
+            //找不到task，就新建一个task
             if (findIndex==0)
             {
                 findIndex =  await SQLCommands.AddTodo(task);
@@ -307,6 +325,7 @@ namespace Summary.Models
             else
             {
                 task.Id = findIndex;
+                task.CategoryId = findTaskCategoryId;
                 List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(task.Note);
                 foreach (MyTime timeObj in timeObjs)
                 {
@@ -314,6 +333,14 @@ namespace Summary.Models
                     timeObj.type = timeObj.type.Trim();
                     await SQLCommands.UpdateObj(timeObj);
                 }
+            } 
+            //task的categoryId还是0，就改成type的ID
+            if (task.CategoryId == 0)
+            {
+                int categoryId = AllCategories.FirstOrDefault(x => x.Name == task.Type.ToString(), new Data.Category()).Id;
+                task.CategoryId = categoryId;
+                task.Category = task.Type.ToString();
+                await SQLCommands.UpdateTodo(task);
             }
         }
         private async void clickOkButton(object a = null)

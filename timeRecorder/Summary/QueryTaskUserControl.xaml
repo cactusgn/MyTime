@@ -112,6 +112,7 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                         <DataGrid.Columns>
+                        <DataGridTextColumn Header="StartDate" Binding="{Binding CreatedDateString}" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn Header="TaskName" Binding="{Binding Note}" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn Header="Bonus" Binding="{Binding Bonus}" IsReadOnly="True"></DataGridTextColumn>

@@ -65,6 +65,11 @@ namespace Summary.Common
 			get { return createdDate; }
 			set { createdDate = value; OnPropertyChanged(); }
 		}
+        public string CreatedDateString{
+            get{
+                return createdDate.ToShortDateString();
+            }
+        }
         private int bonus;
 
         public int Bonus

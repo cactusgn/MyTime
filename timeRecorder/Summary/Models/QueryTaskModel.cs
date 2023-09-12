@@ -218,7 +218,7 @@ namespace Summary.Models
                 CalculateBonus(allTasks, AllCategories);
                 CategoryDataGridSource = new ObservableCollection<ToDoObj>(allTasks);
                 totalCost = new TimeSpan(allTasks.Sum(x => x.LastTime.Ticks));
-                TotalCostString = $"{totalCost.Hours}h{totalCost.Minutes}m";
+                TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
                 AverageCost = (totalCost/(EndTime-StartTime).Days);
                 AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
             }

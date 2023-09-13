@@ -1,10 +1,12 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignDemo.Domain;
+using MaterialDesignThemes.Wpf;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -108,6 +110,7 @@ namespace Summary.Models
             SQLCommands = sqlCommands;
             GetSummaryDate();
         }
+       
         private async void CellEditEnding(object obj)
         {
             //update note or type
@@ -389,6 +392,20 @@ namespace Summary.Models
         private void openDialog()
         {
             IsDialogOpen=true;
+        }
+
+        internal async void RestoreDeleteCategoryToParentCategory(int id, List<Category> AllCategories)
+        {
+            Category curr = AllCategories.Where(x=>x.Id == id).FirstOrDefault();
+            while (curr.ParentCategoryId!=0){
+                curr = AllCategories.Where(x => x.Id == curr.ParentCategoryId).FirstOrDefault();
+            }
+            List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            var AllTasksOfDeleteCategory = AllTasksFromDatabase.Where(x => x.CategoryId == id);
+            foreach(var task in AllTasksOfDeleteCategory) {
+                task.CategoryId = curr.Id;
+                await SQLCommands.UpdateTodo(task);
+            }
         }
     }
 

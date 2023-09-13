@@ -1,4 +1,5 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignDemo.Domain;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Query;
 using Summary.Common;
@@ -53,13 +54,16 @@ namespace Summary.Models
             MainContent = new QueryTaskUserControl(queryTaskModel);
         }
 
-        private void DeleteCategoryClick(object obj)
+        private async void DeleteCategoryClick(object obj)
         {
+            List<Category> AllCategories = await SQLCommands.GetAllCategories();
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
             YESNOWindow dialog = new YESNOWindow("提示", "确定删除类别" + root.Title +"及其子类别吗", "确定", "取消");
             if (dialog.ShowDialog() == true)
             {
-                SQLCommands.DeleteCategory(root.Id);
+                queryTaskModel.RestoreDeleteCategoryToParentCategory(root.Id, AllCategories);
+                await SQLCommands.DeleteCategory(root.Id);
+               
             }
             RefreshCategories();
         }
@@ -107,6 +111,11 @@ namespace Summary.Models
                 }
             }
         }
+        public async Task showMessageBox(string message)
+        {
+            var view = new SampleMessageDialog(message);
+            await DialogHost.Show(view, "SubRootDialog");
+        }
         public async void RefreshCategories()
         {
             List<Category> AllCategories =  await SQLCommands.GetAllCategories();
@@ -118,12 +127,32 @@ namespace Summary.Models
             queryTaskModel.UpdateContextMenu();
         }
 
-        public async void addCategory(AddCategoryModel category){
-            await SQLCommands.AddCategory(category);
+        public async void addCategory(AddCategoryModel categoryModel){
+            if(CategoryExist(categoryModel.Category).Result){
+                await showMessageBox("已存在该类型，请重新输入名称");
+                return;
+            }
+            await SQLCommands.AddCategory(categoryModel);
             RefreshCategories();
         }
+
+        private async Task<bool> CategoryExist(string category)
+        {
+            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            foreach (var item in AllCategories)
+            {
+                if(item.Name==category) return true;
+            }
+            return false;
+        }
+
         public async void EditCategory(AddCategoryModel category)
         {
+            if (CategoryExist(category.Category).Result)
+            {
+                await showMessageBox("已存在该类型，请重新输入名称");
+                return;
+            }
             await SQLCommands.UpdateCategory(category);
             MenuItem root = (MenuItem)RootTreeView.SelectedItem;
             root.Title = category.Category;

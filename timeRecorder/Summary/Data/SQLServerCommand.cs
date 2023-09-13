@@ -180,7 +180,22 @@ namespace Summary.Data
             }
             return 1;
         }
-       
+        public async Task<int> UpdateTodo(GeneratedToDoTask obj){
+            using (var context = new MytimeContext())
+            {
+                var item = context.ToDos.Where(x => x.Id == obj.Id);
+                if (item != null)
+                {
+                    var updateObj = item.First();
+                    updateObj.UpdatedDate = DateTime.Today;
+                    updateObj.Type = obj.Type.ToString();
+                    updateObj.CategoryId = obj.CategoryId;
+                    updateObj.Finished = obj.Finished;
+                }
+                await context.SaveChangesAsync();
+            }
+            return 1;
+        }
         public async Task<int> DeleteTodo(ToDoObj obj)
         {
             using (var context = new MytimeContext())

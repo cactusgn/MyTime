@@ -54,11 +54,13 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 var objToUpdate = context.MyTime.FirstOrDefault(x=>x.currentIndex==obj.Id && x.createDate == obj.CreatedDate);
-                if(objToUpdate != null && (objToUpdate.note!=obj.Note || objToUpdate.type!=obj.Type))
+                if(objToUpdate != null && (objToUpdate.note!=obj.Note || objToUpdate.type!=obj.Type||objToUpdate.startTime!=obj.StartTime||objToUpdate.endTime!=obj.EndTime||objToUpdate.taskId!=obj.TaskId))
                 {
                     objToUpdate.type = obj.Type;
                     objToUpdate.note = obj.Note;
                     objToUpdate.taskId = obj.TaskId;
+                    objToUpdate.startTime = obj.StartTime;
+                    objToUpdate.endTime = obj.EndTime;
                     var allNotes = context.MyTime.Where(x => x.note==obj.Note && x.createDate == obj.CreatedDate);
                     foreach (var note in allNotes)
                     {
@@ -123,7 +125,9 @@ namespace Summary.Data
         public async Task<int> DeleteObj(TimeViewObj obj){
             using(var context = new MytimeContext()) {
                 var item = context.MyTime.Where(x => x.currentIndex == obj.Id && x.createDate == obj.CreatedDate);
-                await item.ExecuteDeleteAsync();
+                if(item.Count()>0) {
+                    await item.ExecuteDeleteAsync();
+                }
                 return 1;
             }
         }

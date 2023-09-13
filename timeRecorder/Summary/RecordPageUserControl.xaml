@@ -13,7 +13,7 @@
              xmlns:models="clr-namespace:Summary.Models" 
              d:DataContext="{d:DesignInstance Type=models:RecordModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="1000">
     <UserControl.Resources>
         <Style x:Key="TypeButton" TargetType="{x:Type ButtonBase}"  BasedOn="{StaticResource MaterialDesignRaisedButton}">
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -307,6 +307,22 @@
                                                     Height="20"
                                                     Kind="CallSplit" />
                 </Button>
+                    <DockPanel  Margin="10,0,10,0">
+                        <Button DockPanel.Dock="Left"  Width="25" Height="25" Margin="5" Command="{Binding MergeCommand}" CommandParameter="up"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                ToolTip="向上合并">
+                            <materialDesign:PackIcon Kind="ArrowUp" />
+                        </Button>
+                        <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding MergeCommand}" CommandParameter="down"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="向下合并">
+                            <materialDesign:PackIcon Kind="ArrowDown" />
+                        </Button>
+                    </DockPanel>
                     <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="invest">invest</Button>
                 <Button Background="#F08080"  Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="waste">waste</Button>
                 <Button Background="#98FB98" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="rest">rest</Button>

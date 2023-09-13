@@ -3,6 +3,7 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
+using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -92,6 +93,7 @@ namespace Summary.Models
         public MyCommand WorkContentChangeCommand { get; set; }
         public MyCommand ImportCommand { get; set; }
         public MyCommand ExportCommand { get; set; }
+        public MyCommand MergeCommand { get; set; }
 
         public int interval { get; set; }
         public int Interval
@@ -219,6 +221,7 @@ namespace Summary.Models
             DeleteAllCommand = new MyCommand(DeleteAll);
             ImportCommand = new MyCommand(ImportFile);
             ExportCommand = new MyCommand(ExportFile);
+            MergeCommand = new MyCommand(Merge);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             InitTodayData();
@@ -229,6 +232,50 @@ namespace Summary.Models
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
         }
+
+        private async void Merge(object obj)
+        {
+            if(selectedTimeObj == null){
+                await showMessageBox("请先选中左侧要改的时间块");
+                return;
+            }
+            var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
+            if (obj.ToString()=="up"){
+                YESNOWindow dialog = new YESNOWindow("提示", "确定向上合并时间块吗", "确定", "取消");
+                if (dialog.ShowDialog() == true)
+                {
+                    var aboveItemList = currentDailyObj.Where(x => x.EndTime == selectedTimeObj.StartTime);
+                    if(aboveItemList.Count()>0){
+                        var aboveItem = aboveItemList.First();
+                        var updatedStartTime = aboveItem.StartTime;
+                        SelectedTimeObj.StartTime = updatedStartTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime- SelectedTimeObj.StartTime;
+                        await SQLCommands.DeleteObj(aboveItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(aboveItem);
+                    }
+                }
+            }else{
+                YESNOWindow dialog = new YESNOWindow("提示", "确定向下合并时间块吗", "确定", "取消");
+                if (dialog.ShowDialog() == true)
+                {
+                    var downItemList = currentDailyObj.Where(x => x.StartTime == selectedTimeObj.EndTime);
+                    if (downItemList.Count() > 0)
+                    {
+                        var downItem = downItemList.First();
+                        var updatedEndTime = downItem.EndTime;
+                        SelectedTimeObj.EndTime = updatedEndTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;
+                        await SQLCommands.DeleteObj(downItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(downItem);
+                    }
+                }
+            }
+            AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+            refreshAllObjs();
+        }
+
         public static void DeleteDirectory(string directoryPath, string fileName)
         {
             //删除文件

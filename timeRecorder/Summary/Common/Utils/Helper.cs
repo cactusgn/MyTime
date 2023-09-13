@@ -25,7 +25,7 @@ namespace Summary.Common.Utils
         //public static RecordModel recordModel;
         public static TimeType ConvertTimeType(string type)
         {
-            if (type==""||type==null) return TimeType.none;
+            if (type.Trim()==""||type==null) return TimeType.none;
             return (TimeType)Enum.Parse(typeof(TimeType), type);
         }
         public static string GetAppSetting(string key)

@@ -145,6 +145,14 @@ namespace Summary.Data
             int index = 1;
             using (var context = new MytimeContext())
             {
+                var findTodoItem = context.ToDos.Where(x => x.Note == obj.Note);
+                if (findTodoItem.Count()>0)
+                {
+                    findTodoItem.First().CreateDate = DateTime.Today;
+                    findTodoItem.First().Finished = obj.Finished;
+                    await context.SaveChangesAsync();
+                    return findTodoItem.First().Id;
+                }
                 await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString(), CategoryId=obj.CategoryId });
                 await context.SaveChangesAsync();
                 index = context.ToDos.First(x => x.UpdatedDate == DateTime.Today&&x.Note == obj.Note).Id;

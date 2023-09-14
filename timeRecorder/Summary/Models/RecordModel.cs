@@ -199,7 +199,7 @@ namespace Summary.Models
 
         private HashSet<string> hs = new HashSet<string>();
         public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };
-      
+        public Dictionary<string,int> categoryDic = new Dictionary<string, int>();
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
@@ -224,6 +224,7 @@ namespace Summary.Models
             MergeCommand = new MyCommand(Merge);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
+            initCategoryDic();
             InitTodayData();
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
             AccumulateModeCheck = bool.Parse(Helper.GetAppSetting("AccuMode"));
@@ -231,6 +232,15 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+
+        private void initCategoryDic()
+        {
+            List<Category> categories = SQLCommands.GetAllCategories().Result.ToList();
+            categoryDic.Add("work", categories.Single(x => x.Name == "work").Id);
+            categoryDic.Add("invest", categories.Single(x => x.Name == "invest").Id);
+            categoryDic.Add("rest", categories.Single(x => x.Name == "rest").Id);
+            categoryDic.Add("play", categories.Single(x => x.Name == "play").Id);
         }
 
         private async void Merge(object obj)
@@ -435,7 +445,7 @@ namespace Summary.Models
             }
             if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "invest" || changedType == "play") && curr.Note != "")
             {
-                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type) };
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type), CategoryId= categoryDic[changedType] };
                 var id = await SQLCommands.AddTodo(newObj);
                 newObj.Id = id;
                 TodayList.Add(newObj);
@@ -760,7 +770,7 @@ namespace Summary.Models
                     {
                         if (!hs.Contains(obj.Note)&& obj.Note != "")
                         {
-                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
+                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type), CategoryId = categoryDic[obj.Type] };
                             var id = await SQLCommands.AddTodo(newObj);
                             newObj.Id = id;
                             TodayList.Add(newObj);
@@ -806,7 +816,8 @@ namespace Summary.Models
                 return;
             }
             if(!hs.Contains(obj.ToString())){
-                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type=TimeType.work };
+                
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type=TimeType.work,CategoryId = categoryDic["work"] };
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());

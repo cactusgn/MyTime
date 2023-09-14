@@ -1,4 +1,5 @@
 ﻿using ScottPlot;
+using ScottPlot.Renderable;
 using Summary.Data;
 using Summary.Models;
 using System;
@@ -176,6 +177,7 @@ namespace Summary.Common.Utils
         }
         public static void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
         {
+            
             var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note = x.Key.Note, Type = x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
             var studyItems = items.Where(x => x.Type == "invest").ToArray();
             var wasteItems = items.Where(x => x.Type == "waste").ToArray();
@@ -194,13 +196,20 @@ namespace Summary.Common.Utils
             addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             addChartData(playItems, TimeType.play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-
+            
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
             Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
             plt.XAxis.TickLabelFormat(customFormatter);
+            plt.YAxis.LabelStyle(fontSize: 14, fontName:"Microsoft YaHei");
+            plt.XAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+
+            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
             // adjust axis limits so there is no padding to the left of the bar graph
             plt.SetAxisLimits(xMin: 0);
+            plot.Configuration.Quality = ScottPlot.Control.QualityMode.High;
+            plot.Render(lowQuality: false);
             plot.Refresh();
         }
         private static void addChartData(ChartBar[] Items, TimeType type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)

@@ -206,7 +206,7 @@ namespace Summary.Models
                 }
                 else
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!="waste"&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="waste"&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 foreach (ToDoObj task in allTasks)
                 {

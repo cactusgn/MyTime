@@ -222,8 +222,31 @@
                                         <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">记录</TextBlock>
 
                                         <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Text="{Binding SelectedTimeObj.CreatedDate,Converter={StaticResource dateConverter}}" FontWeight="Normal"></TextBox>
-                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"  IsEnabled="False"></TextBox>
-                                        <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal" IsEnabled="False"></TextBox>
+                                            <WrapPanel Grid.Column="1" Grid.Row="1" >
+                                                <TextBox HorizontalAlignment="Left" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Grid.Row="1" Text="{Binding SelectedTimeObj.StartTime,Converter={StaticResource timeConverter}}" FontWeight="Normal"  IsEnabled="False"></TextBox>
+                                                <Button DockPanel.Dock="Left" Margin="10,0" VerticalAlignment="Center" Width="30" Height="30" Command="{Binding MergeCommand}" CommandParameter="up"
+                  IsEnabled="{Binding SelectedTimeObj.IsEnabled}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                ToolTip="向上合并">
+                                                    <materialDesign:PackIcon Kind="ArrowUp" />
+                                                </Button>
+                                            </WrapPanel>
+                                            <WrapPanel Grid.Column="1" Grid.Row="2" >
+                                                <TextBox HorizontalAlignment="Left" TextAlignment="Center"  Margin ="5" Grid.Column="1" Width="100" Grid.Row="2" Text="{Binding SelectedTimeObj.EndTime,Converter={StaticResource timeConverter}}" FontWeight="Normal" IsEnabled="False"></TextBox>
+                                                <Button DockPanel.Dock="Right"  Margin="10,0" VerticalAlignment="Center" 
+                                                        Width="30" Height="30" Command="{Binding MergeCommand}" 
+                                                        CommandParameter="down"
+                                                        IsEnabled="{Binding SelectedTimeObj.IsEnabled}"
+               Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="向下合并"> 
+                                                    <materialDesign:PackIcon Kind="ArrowDown" />
+                                                </Button>
+                                            </WrapPanel>
+
+                                           
                                         <WrapPanel Grid.Column="1" Grid.Row="3" >
                                             <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" FontWeight="Normal" Width="100"  Text="{Binding SelectedTimeObj.LastTime,Converter={StaticResource timeConverter}}"></TextBox>
                                             <Button Margin="10,0" VerticalAlignment="Center" Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"

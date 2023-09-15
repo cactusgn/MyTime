@@ -119,11 +119,10 @@ namespace Summary.Models
         public async void RefreshCategories()
         {
             List<Category> AllCategories =  await SQLCommands.GetAllCategories();
-            MenuItem root = new MenuItem() { Title="任务类别：",Id=0};
+            MenuItem root = new MenuItem() { Title="任务类别：",Id=0, IsSelected=true};
             initNode(AllCategories, root);
             RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
-            
             queryTaskModel.UpdateContextMenu();
         }
 
@@ -204,6 +203,13 @@ namespace Summary.Models
         {
             get { return bonus; }
             set { bonus = value; OnPropertyChanged(); }
+        }
+        private bool isSelected;
+
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set { isSelected = value; OnPropertyChanged(); }
         }
 
         public ObservableCollection<MenuItem> Items { get; set; }

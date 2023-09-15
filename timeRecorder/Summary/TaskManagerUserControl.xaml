@@ -27,6 +27,7 @@
             <Setter Property="Tag" Value="{Binding ElementName=myWindow}"/>
             <Setter Property="ContextMenu" Value="{StaticResource CategoryContextMenu}">
             </Setter>
+            <Setter Property="IsSelected" Value="{Binding Path=IsSelected}"></Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueMidBrush}" />

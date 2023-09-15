@@ -251,12 +251,13 @@ namespace Summary.Models
             }
             var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
             if (obj.ToString()=="up"){
-                YESNOWindow dialog = new YESNOWindow("提示", "确定向上合并时间块吗", "确定", "取消");
-                if (dialog.ShowDialog() == true)
+                var aboveItemList = currentDailyObj.Where(x => x.EndTime == selectedTimeObj.StartTime);
+                if (aboveItemList.Count() > 0)
                 {
-                    var aboveItemList = currentDailyObj.Where(x => x.EndTime == selectedTimeObj.StartTime);
-                    if(aboveItemList.Count()>0){
-                        var aboveItem = aboveItemList.First();
+                    var aboveItem = aboveItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {aboveItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
+                    {
                         var updatedStartTime = aboveItem.StartTime;
                         SelectedTimeObj.StartTime = updatedStartTime;
                         SelectedTimeObj.LastTime = SelectedTimeObj.EndTime- SelectedTimeObj.StartTime;
@@ -266,13 +267,13 @@ namespace Summary.Models
                     }
                 }
             }else{
-                YESNOWindow dialog = new YESNOWindow("提示", "确定向下合并时间块吗", "确定", "取消");
-                if (dialog.ShowDialog() == true)
+                var downItemList = currentDailyObj.Where(x => x.StartTime == selectedTimeObj.EndTime);
+                if (downItemList.Count() > 0)
                 {
-                    var downItemList = currentDailyObj.Where(x => x.StartTime == selectedTimeObj.EndTime);
-                    if (downItemList.Count() > 0)
+                    var downItem = downItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {downItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
                     {
-                        var downItem = downItemList.First();
                         var updatedEndTime = downItem.EndTime;
                         SelectedTimeObj.EndTime = updatedEndTime;
                         SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;

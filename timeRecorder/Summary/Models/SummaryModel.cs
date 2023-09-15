@@ -1,6 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
+using ScottPlot.Renderable;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -76,6 +77,7 @@ namespace Summary.Models
         public RadioButton FirstLevelRB { get; set; }
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
+        public MyCommand MergeCommand { get; set; }
         public bool RadioButtonEnabled
         {
             get
@@ -108,6 +110,7 @@ namespace Summary.Models
             TimeObjType_NoteChangedCommand = new MyCommand(TimeObjType_NoteChanged);
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
             TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
+            MergeCommand = new MyCommand(Merge);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
             SQLCommands = SqlCommands;
@@ -115,6 +118,52 @@ namespace Summary.Models
             SelectedCommand = new MyCommand(Selected);
             ResizeCommand = new MyCommand(resizeHeight);
             updateOldStudyItems();
+        }
+
+        private async void Merge(object obj)
+        {
+            var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
+            if (obj.ToString() == "up")
+            {
+                var aboveItemList = currentDailyObj.Where(x => x.EndTime == selectedTimeObj.StartTime);
+                if (aboveItemList.Count() > 0)
+                {
+                    var aboveItem = aboveItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {aboveItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
+                    {
+                        var updatedStartTime = aboveItem.StartTime;
+                        SelectedTimeObj.StartTime = updatedStartTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;
+                        SelectedTimeObj.Height = Helper.CalculateHeight(SelectedTimeObj.LastTime, height);
+                        await SQLCommands.DeleteObj(aboveItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(aboveItem);
+                    }
+                }
+            }
+            else
+            {
+                var downItemList = currentDailyObj.Where(x => x.StartTime == selectedTimeObj.EndTime);
+                if (downItemList.Count() > 0)
+                {
+                    var downItem = downItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {downItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
+                    {
+                        var updatedEndTime = downItem.EndTime;
+                        SelectedTimeObj.EndTime = updatedEndTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;
+                        SelectedTimeObj.Height = Helper.CalculateHeight(SelectedTimeObj.LastTime, height);
+                        await SQLCommands.DeleteObj(downItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(downItem);
+                    }
+                }
+            }
+            AllTimeViewObjs.Single(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+            refreshSingleDayPlot();
+            refreshSummaryPlot();
         }
 
         private  void updateOldStudyItems()

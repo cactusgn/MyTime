@@ -32,7 +32,10 @@ namespace Summary.Models
 {
     public class RecordModel : ViewModelBase
     {
+        public ComboBox TodoToday { get; set; }
+        public TextBox TodoTodayTextbox { get; set; }
         private double height;
+        
         private double rightPanelHeight;
         public double RightPanelHeight
         {
@@ -168,6 +171,9 @@ namespace Summary.Models
         public MyCommand AccumulateModeCheckChangedCommand { get; set; }
         public MyCommand MinimizeCommand { get; set; }
         public MyCommand DeleteAllCommand { get; set; }
+        public MyCommand TipTextChangeCommand { get; set; }
+        public MyCommand TipTextPreviewMouseUpCommand { get; set; }
+        public MyCommand TodoTodaySelectionChangeCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -200,6 +206,14 @@ namespace Summary.Models
         private HashSet<string> hs = new HashSet<string>();
         public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };
         public Dictionary<string,int> categoryDic = new Dictionary<string, int>();
+        private ObservableCollection<string> tipList;
+
+        public ObservableCollection<string> TipList
+        {
+            get { return tipList; }
+            set { tipList = value; OnPropertyChanged(); }
+        }
+
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
@@ -222,6 +236,9 @@ namespace Summary.Models
             ImportCommand = new MyCommand(ImportFile);
             ExportCommand = new MyCommand(ExportFile);
             MergeCommand = new MyCommand(Merge);
+            TipTextChangeCommand = new MyCommand(TipTextChange);
+            TipTextPreviewMouseUpCommand = new MyCommand(TipTextPreviewMouseUp);
+            TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             initCategoryDic();
@@ -232,8 +249,51 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+            
         }
 
+        private void TodoTodaySelectionChange(object obj)
+        {
+            if (TodoToday.SelectedValue!=null)
+            {
+                TodayText = TodoToday.SelectedValue.ToString();
+            }
+            TodoTodayTextbox.Focus();
+        }
+
+        private void TipTextPreviewMouseUp(object obj)
+        {
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            if (TodoTodayTextbox.Text==null||TodoTodayTextbox.Text=="")
+            {
+                TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+            }
+            else
+            {
+                TipList = new ObservableCollection<string>(allTasks.Where(x => (x.Type=="work"||x.Type=="invest"||x.Type=="play")&&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+            }
+            TodoToday.ItemsSource = TipList;
+            TodoToday.IsDropDownOpen=true;
+            TodoTodayTextbox.Focus();
+        }
+
+        private void TipTextChange(object obj)
+        {
+            if (TodoTodayTextbox.Text!=null)
+            {
+                List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+                if (TodoTodayTextbox.Text=="")
+                {
+                    TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+                }
+                else
+                {
+                    TipList = new ObservableCollection<string>(allTasks.Where(x => (x.Type=="work"||x.Type=="invest"||x.Type=="play")&&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+                }
+                TodoToday.ItemsSource = TipList;
+                TodoToday.IsDropDownOpen=true;
+            }
+        }
         private void initCategoryDic()
         {
             List<Category> categories = SQLCommands.GetAllCategories().Result.ToList();
@@ -782,6 +842,8 @@ namespace Summary.Models
             }
             
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
         }
         private void UpdateGridData()
         {

@@ -78,6 +78,7 @@ namespace Summary.Models
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand MergeCommand { get; set; }
+        
         public bool RadioButtonEnabled
         {
             get
@@ -119,6 +120,8 @@ namespace Summary.Models
             ResizeCommand = new MyCommand(resizeHeight);
             updateOldStudyItems();
         }
+
+       
 
         private async void Merge(object obj)
         {

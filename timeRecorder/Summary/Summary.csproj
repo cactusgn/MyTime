@@ -59,13 +59,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="bin\Debug\net6.0-windows\" />
     <Folder Include="bin\x64\Release\net6.0-windows\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bin\Debug\net6.0-windows\TimeTests.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

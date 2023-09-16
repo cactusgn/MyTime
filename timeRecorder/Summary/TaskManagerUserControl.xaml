@@ -16,6 +16,7 @@
             <MenuItem Header="修改类别" Command="{Binding EditCategoryCommand}"/>
             <!--<Separator></Separator>-->
             <MenuItem Header="删除类别" Command="{Binding DeleteCategoryCommand}"/>
+            <MenuItem Header="{Binding ShowVisibleHeader}" Command="{Binding ShowInvisibleCategoryCommand}" x:Name="ShowInvisibleCateContextMenu"/>
         </ContextMenu>
         <Style x:Key="TreeviewItemStyle"
         TargetType="TreeViewItem"
@@ -25,8 +26,8 @@
           Value="False" />
             <Setter Property="IsExpanded" Value="true" />
             <Setter Property="Tag" Value="{Binding ElementName=myWindow}"/>
-            <Setter Property="ContextMenu" Value="{StaticResource CategoryContextMenu}">
-            </Setter>
+            <Setter Property="ContextMenu" Value="{StaticResource CategoryContextMenu}"></Setter>
+            <Setter Property="Visibility" Value="{Binding Path=Visible}"></Setter>
             <Setter Property="IsSelected" Value="{Binding Path=IsSelected}"></Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
@@ -39,15 +40,16 @@
                                        DialogTheme="Inherit" 
                                        DialogClosing="DialogHost2_DialogClosing"
                                         DialogClosed="DialogHost2_DialogClosed">
-        <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+        <Grid Background="{DynamicResource MaterialDesignCardBackground}" x:Name="FrameGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="4*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
-                <!--<TextBlock Margin="10,10">任务类别：</TextBlock>-->
-                <TreeView Name="RootTreeView" ItemContainerStyle="{StaticResource TreeviewItemStyle}" PreviewMouseRightButtonUp="RootTreeView_MouseRightButtonUp"  >
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}"  >
+               
+                    <TreeView Name="RootTreeView" ItemContainerStyle="{StaticResource TreeviewItemStyle}" PreviewMouseRightButtonUp="RootTreeView_MouseRightButtonUp"  >
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectedItemChanged">
                             <i:InvokeCommandAction 
@@ -56,7 +58,7 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type model:MenuItem}" ItemsSource="{Binding Items}" >
+                        <HierarchicalDataTemplate DataType="{x:Type model:MenuItemModel}" ItemsSource="{Binding Items}" >
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse
                                 Width="10"
@@ -74,6 +76,7 @@
                     </TreeView.ItemTemplate>
                 </TreeView>
             </StackPanel>
+            </ScrollViewer>
             <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   

@@ -71,6 +71,13 @@ namespace Summary.Domain
             get { return visible; }
             set { visible = value; OnPropertyChanged(); }
         }
+        private string showInvalidCateMessage= "Collapsed";
+
+        public string ShowInvalidCateMessage
+        {
+            get { return showInvalidCateMessage; }
+            set { showInvalidCateMessage = value; OnPropertyChanged(); }
+        }
 
         public AddCategoryModel(){
         }

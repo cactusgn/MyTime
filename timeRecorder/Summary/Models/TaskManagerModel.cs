@@ -21,7 +21,7 @@ namespace Summary.Models
     {
         public TreeView RootTreeView { get; set; }
         public ContextMenu CategoryContextMenu{ get; set; }
-
+        public MenuItem ShowInvisibleCateContextMenu { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         
         public MyCommand TreeViewSelectedItemChangedCommand{ get; set; }
@@ -29,6 +29,7 @@ namespace Summary.Models
         public MyCommand EditCategoryCommand { get; set; }
         public MyCommand DeleteCategoryCommand { get; set; }
         public AddCategoryModel CategoryModel { get; set; }
+        public MyCommand ShowInvisibleCategoryCommand { get; set; }
         private string contextVisible = "Visible";
         
         public string ContextVisible
@@ -42,6 +43,15 @@ namespace Summary.Models
             get { return mainContent; }
             set { mainContent = value; OnPropertyChanged(); }
         }
+        
+        private string showVisibleHeader;
+
+        public string ShowVisibleHeader
+        {
+            get { return showVisibleHeader; }
+            set { showVisibleHeader = value; OnPropertyChanged(); }
+        }
+
         private QueryTaskModel queryTaskModel;
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;
@@ -49,15 +59,29 @@ namespace Summary.Models
             AddCategoryCommand = new MyCommand(AddCategoryClick);
             EditCategoryCommand = new MyCommand(EditCategoryClick);
             DeleteCategoryCommand = new MyCommand(DeleteCategoryClick);
+            ShowInvisibleCategoryCommand = new MyCommand(ShowInvisibleCategoryClick);
             CategoryModel = categoryModel;
             queryTaskModel =  new QueryTaskModel("", DateTime.Today.AddDays(-6), DateTime.Today, SqlCommands);
             MainContent = new QueryTaskUserControl(queryTaskModel);
+            ShowVisibleHeader = "显示隐藏类别";
+        }
+
+        private void ShowInvisibleCategoryClick(object obj)
+        {
+            if (ShowVisibleHeader == "显示隐藏类别") {
+                ShowVisibleHeader = "不显示隐藏类别";
+            }
+            else
+            {
+                ShowVisibleHeader = "显示隐藏类别";
+            }
+            RefreshCategories();
         }
 
         private async void DeleteCategoryClick(object obj)
         {
             List<Category> AllCategories = await SQLCommands.GetAllCategories();
-            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             YESNOWindow dialog = new YESNOWindow("提示", "确定删除类别" + root.Title +"及其子类别吗", "确定", "取消");
             if (dialog.ShowDialog() == true)
             {
@@ -70,7 +94,7 @@ namespace Summary.Models
 
         private void EditCategoryClick(object obj)
         {
-            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Bonus);
         }
 
@@ -84,28 +108,40 @@ namespace Summary.Models
             CategoryModel.ParentId = parentId;
             CategoryModel.NoCaption = "取消";
             CategoryModel.YesCaption = "确定";
+            CategoryModel.ShowInvalidCateMessage = "Collapsed";
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
         private void AddCategoryClick(object obj)
         {
-            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             showCategoryDialog("增加子类别",0,"",root.Color, root.Id, root.Bonus);
         }
 
         private void TreeViewSelectedItemChanged(object obj)
         {
             if (RootTreeView.SelectedItem != null){
-                MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+                MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
                 queryTaskModel.Category = root.Title=="任务类别："?"": root.Title;
             }
         }
-        public void initNode(List<Category> Categories, MenuItem currentNode)
+        public void initNode(List<Category> Categories, MenuItemModel currentNode)
         {
             var subCategories = Categories.Where(x=>x.ParentCategoryId == currentNode.Id).ToList();
             foreach(var category in subCategories) {
-                if(category.Visible){
-                    MenuItem child = new MenuItem() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId};
+                //即初始状态，不显示隐藏类别
+                if(ShowVisibleHeader == "显示隐藏类别")
+                {
+                    if (category.Visible)
+                    {
+                        MenuItemModel child = new MenuItemModel() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId };
+                        initNode(Categories, child);
+                        currentNode.Items.Add(child);
+                    }
+                }
+                else
+                {
+                    MenuItemModel child = new MenuItemModel() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId };
                     initNode(Categories, child);
                     currentNode.Items.Add(child);
                 }
@@ -119,7 +155,7 @@ namespace Summary.Models
         public async void RefreshCategories()
         {
             List<Category> AllCategories =  await SQLCommands.GetAllCategories();
-            MenuItem root = new MenuItem() { Title="任务类别：",Id=0, IsSelected=true};
+            MenuItemModel root = new MenuItemModel() { Title="任务类别：",Id=0, IsSelected=true};
             initNode(AllCategories, root);
             RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
@@ -127,15 +163,13 @@ namespace Summary.Models
         }
 
         public async void addCategory(AddCategoryModel categoryModel){
-            if(CategoryExist(categoryModel.Category).Result){
-                await showMessageBox("已存在该类型，请重新输入名称");
-                return;
-            }
+            categoryModel.ShowInvalidCateMessage="Collapsed";
+            
             await SQLCommands.AddCategory(categoryModel);
             RefreshCategories();
         }
 
-        private async Task<bool> CategoryExist(string category)
+        public async Task<bool> CategoryExist(string category)
         {
             List<Category> AllCategories = await SQLCommands.GetAllCategories();
             foreach (var item in AllCategories)
@@ -144,28 +178,44 @@ namespace Summary.Models
             }
             return false;
         }
-
+        public bool EditCheck(AddCategoryModel category)
+        {
+            var allCates =  SQLCommands.GetAllCategories().Result;
+            if (allCates.Single(x => x.Id == category.Id).Name!=category.Category)
+            {
+                if (CategoryExist(category.Category).Result)
+                {
+                    category.ShowInvalidCateMessage="Visible";
+                    return false;
+                }
+            }
+            return true;
+        }
         public async void EditCategory(AddCategoryModel category)
         {
-            if (CategoryExist(category.Category).Result)
-            {
-                await showMessageBox("已存在该类型，请重新输入名称");
-                return;
-            }
             await SQLCommands.UpdateCategory(category);
-            MenuItem root = (MenuItem)RootTreeView.SelectedItem;
+            MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
+            root.Visible = category.Visible==true?"Visible":"Collapsed";
             queryTaskModel.UpdateContextMenu();
         }
     }
-    public class MenuItem : ViewModelBase
+    public class MenuItemModel : ViewModelBase
     {
-        public MenuItem()
+        public MenuItemModel()
         {
-            this.Items = new ObservableCollection<MenuItem>();
+            this.Items = new ObservableCollection<MenuItemModel>();
         }
+        private string visible= "Visible";
+
+        public string Visible
+        {
+            get { return visible; }
+            set { visible = value; OnPropertyChanged(); }
+        }
+
         private int id;
 
         public int Id
@@ -212,6 +262,6 @@ namespace Summary.Models
             set { isSelected = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<MenuItem> Items { get; set; }
+        public ObservableCollection<MenuItemModel> Items { get; set; }
     }
 }

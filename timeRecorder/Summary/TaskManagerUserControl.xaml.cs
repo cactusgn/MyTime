@@ -1,7 +1,9 @@
-﻿using Summary.Models;
+﻿using Summary.Data;
+using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +43,7 @@ namespace Summary
             if (treeViewItem != null)
             {
                 treeViewItem.IsSelected = true;
-                if(((Models.MenuItem)treeViewItem.Header).Title == "任务类别：")
+                if(((Models.MenuItemModel)treeViewItem.Header).Title == "任务类别：")
                 {
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(1)).IsEnabled = false;
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(2)).IsEnabled = false;
@@ -49,7 +51,7 @@ namespace Summary
                 }
                 else{
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(0)).IsEnabled = true;
-                    if (((Models.MenuItem)treeViewItem.Header).Title == "invest" || ((Models.MenuItem)treeViewItem.Header).Title == "work" || ((Models.MenuItem)treeViewItem.Header).Title == "play")
+                    if (((Models.MenuItemModel)treeViewItem.Header).Title == "invest" || ((Models.MenuItemModel)treeViewItem.Header).Title == "work" || ((Models.MenuItemModel)treeViewItem.Header).Title == "play")
                     {
                         ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(1)).IsEnabled = false;
                         ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(2)).IsEnabled = false;
@@ -82,19 +84,38 @@ namespace Summary
                 return;
             var tmModel = (TaskManagerModel)this.DataContext;
             var dialogRes = tmModel.CategoryModel;
-            if(dialogRes.Category=="") {
+
+            if (dialogRes.Category=="")
+            {
                 return;
             }
-            if(dialogRes.Title=="增加子类别"&&dialogRes.Visible){
+
+            if (dialogRes.Title=="增加子类别"&&dialogRes.Visible)
+            {
+                if (tmModel.CategoryExist(dialogRes.Category).Result)
+                {
+                    dialogRes.ShowInvalidCateMessage="Visible";
+                    eventArgs.Cancel();
+                    return;
+                }
                 tmModel.addCategory(dialogRes);
-            }else if(dialogRes.Title=="修改类别"){
-                tmModel.EditCategory(dialogRes);
+            }
+            else if (dialogRes.Title=="修改类别")
+            {
+                if (tmModel.EditCheck(dialogRes))
+                {
+                    tmModel.EditCategory(dialogRes);
+                }
+                else
+                {
+                    eventArgs.Cancel();
+                }
             }
         }
 
         private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)
         {
-          
+            
         }
     }
 }

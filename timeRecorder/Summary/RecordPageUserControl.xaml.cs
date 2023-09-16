@@ -29,6 +29,8 @@ namespace Summary
             RecordModel.ThirdLevelRB = ThirdLevelRB;
             RecordModel.FirstLevelRB = FirstLevelRB;
             RecordModel.TodayObjsGrid = todayObjsGrid;
+            RecordModel.TodoToday = TodoToday;
+            RecordModel.TodoTodayTextbox = TodoTodayTextbox;
             this.DataContext = RecordModel;
             if (RecordModel.AllTimeViewObjs.Count()>0 && RecordModel.AllTimeViewObjs[0].DailyObjs != null ) { 
                 RecordModel.refreshSingleDayPlot(); 

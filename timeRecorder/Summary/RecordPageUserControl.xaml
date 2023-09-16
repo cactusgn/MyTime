@@ -43,32 +43,48 @@
             <Grid Margin="10,5" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="30"></ColumnDefinition>
+                        <ColumnDefinition Width="0"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                <TextBox DockPanel.Dock="Left" Padding="10" x:Name="TodoToday" 
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBox  Padding="10" x:Name="TodoTodayTextbox" 
     materialDesign:HintAssist.Hint="添加今天要做的事" materialDesign:HintAssist.IsFloating="False" Text="{Binding TodayText}"
-    Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:TextFieldAssist.HasClearButton="True">
-                    <TextBox.InputBindings>
-                        <!--键盘事件绑定-->
-                        <KeyBinding Command="{Binding Enter_ClickCommand}" CommandParameter="{Binding ElementName=TodoToday,Path=Text}" Key="Enter"/>
-                        <!--鼠标事件绑定-->
-                        <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
-                    </TextBox.InputBindings>
-                </TextBox>
-                    <!--<materialDesign:PopupBox Grid.Row="1"
-                               Padding="0"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               PlacementMode="{Binding ElementName=PopupBoxPlacementModeComboBox, Path=SelectedItem}"
-                               PopupElevation="{Binding ElementName=ElevationComboBox, Path=SelectedItem}"
-                               PopupHorizontalOffset="{Binding ElementName=HorizontalOffsetComboBox, Path=SelectedItem}"
-                               PopupUniformCornerRadius="{Binding ElementName=UniformCornerRadiusComboBox, Path=SelectedItem}"
-                               PopupVerticalOffset="{Binding ElementName=VerticalOffsetComboBox, Path=SelectedItem}"
-                               SnapsToDevicePixels="True"
-                               Style="{Binding ElementName=StyleComboBox, Path=SelectedItem, Converter={StaticResource ComboBoxItemToStyleConverter}}">
-                        <ContentControl ContentTemplate="{Binding ElementName=ContentComboBox, Path=SelectedItem, Converter={StaticResource ComboBoxItemToDataTemplateConverter}}" />
-                    </materialDesign:PopupBox>-->
-                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="Yellow" Width="20" Height="20" Margin="5,0,0,0">
+    Style="{StaticResource MaterialDesignOutlinedTextBox}" >
+                        <TextBox.InputBindings>
+                            <!--键盘事件绑定-->
+                            <KeyBinding Command="{Binding Enter_ClickCommand}" CommandParameter="{Binding ElementName=TodoTodayTextbox,Path=Text}" Key="Enter"/>
+                            <!--鼠标事件绑定-->
+                            <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
+                        </TextBox.InputBindings>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="TextChanged">
+                                <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TipTextChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="PreviewMouseUp">
+                                <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TipTextPreviewMouseUpCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBox>
+                    <ComboBox Grid.Row="1" Padding="0" x:Name="TodoToday"  IsEditable="True" ItemsSource="{Binding TipList}"
+                              Height="0" IsTextSearchEnabled="True" BorderBrush="AliceBlue"
+    Style="{StaticResource MaterialDesignOutlinedComboBox}" >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ComboBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                    
+                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="Yellow" Width="20" Height="20" Margin="5,0,0,0" Visibility="Collapsed">
                         
                     </TextBlock>
            </Grid>

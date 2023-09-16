@@ -3,6 +3,7 @@ using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
@@ -102,7 +103,7 @@ namespace Summary
             }
             else if (dialogRes.Title=="修改类别")
             {
-                if (tmModel.EditCheck(dialogRes))
+                if (tmModel.EditCheck(dialogRes).Result)
                 {
                     tmModel.EditCategory(dialogRes);
                 }
@@ -116,6 +117,11 @@ namespace Summary
         private void DialogHost2_DialogClosed(object sender, MaterialDesignThemes.Wpf.DialogClosedEventArgs eventArgs)
         {
             
+        }
+
+        private void RootTreeView_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            Trace.Write(sender);
         }
     }
 }

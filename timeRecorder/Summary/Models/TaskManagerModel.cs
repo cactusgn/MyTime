@@ -53,6 +53,7 @@ namespace Summary.Models
         }
 
         private QueryTaskModel queryTaskModel;
+        private List<Category> AllCategories;
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;
             TreeViewSelectedItemChangedCommand = new MyCommand(TreeViewSelectedItemChanged);
@@ -80,7 +81,7 @@ namespace Summary.Models
 
         private async void DeleteCategoryClick(object obj)
         {
-            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            AllCategories = await SQLCommands.GetAllCategories();
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             YESNOWindow dialog = new YESNOWindow("提示", "确定删除类别" + root.Title +"及其子类别吗", "确定", "取消");
             if (dialog.ShowDialog() == true)
@@ -109,8 +110,25 @@ namespace Summary.Models
             CategoryModel.NoCaption = "取消";
             CategoryModel.YesCaption = "确定";
             CategoryModel.ShowInvalidCateMessage = "Collapsed";
+            CategoryModel.ParentCategoryList = await getCategorySVs(id);
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
+        }
+        public async Task<ObservableCollection<ParentCategorySV>> getCategorySVs(int exceptId)
+        {
+            AllCategories = await SQLCommands.GetAllCategories();
+            ObservableCollection<ParentCategorySV> parentCategorySVs = new ObservableCollection<ParentCategorySV>();
+            ParentCategorySV parentCategorySV = null;
+            foreach (var category in AllCategories)
+            {
+                if (category.Id == exceptId) continue;
+                parentCategorySV = new ParentCategorySV() { 
+                    ParentCategoryId = category.Id,
+                    ParentCategoryName = category.Name
+                };
+                parentCategorySVs.Add(parentCategorySV);
+            }
+            return parentCategorySVs;
         }
         private void AddCategoryClick(object obj)
         {
@@ -154,7 +172,7 @@ namespace Summary.Models
         }
         public async void RefreshCategories()
         {
-            List<Category> AllCategories =  await SQLCommands.GetAllCategories();
+            AllCategories =  await SQLCommands.GetAllCategories();
             MenuItemModel root = new MenuItemModel() { Title="任务类别：",Id=0, IsSelected=true};
             initNode(AllCategories, root);
             RootTreeView.Items.Clear();
@@ -171,17 +189,17 @@ namespace Summary.Models
 
         public async Task<bool> CategoryExist(string category)
         {
-            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            AllCategories = await SQLCommands.GetAllCategories();
             foreach (var item in AllCategories)
             {
                 if(item.Name==category) return true;
             }
             return false;
         }
-        public bool EditCheck(AddCategoryModel category)
+        public async Task<bool> EditCheck(AddCategoryModel category)
         {
-            var allCates =  SQLCommands.GetAllCategories().Result;
-            if (allCates.Single(x => x.Id == category.Id).Name!=category.Category)
+            AllCategories = await SQLCommands.GetAllCategories();
+            if (AllCategories.Single(x => x.Id == category.Id).Name!=category.Category)
             {
                 if (CategoryExist(category.Category).Result)
                 {
@@ -198,8 +216,13 @@ namespace Summary.Models
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
-            root.Visible = category.Visible==true?"Visible":"Collapsed";
+            root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
             queryTaskModel.UpdateContextMenu();
+            if(root.ParentId != category.ParentId)
+            {
+                RefreshCategories();
+            }
+            root.ParentId = category.ParentId;
         }
     }
     public class MenuItemModel : ViewModelBase

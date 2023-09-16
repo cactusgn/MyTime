@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,6 +65,14 @@ namespace Summary.Domain
             get { return parentId; }
             set { parentId = value; OnPropertyChanged(); }
         }
+        private ObservableCollection<ParentCategorySV> parentCategoryList;
+
+        public ObservableCollection<ParentCategorySV> ParentCategoryList
+        {
+            get { return parentCategoryList; }
+            set { parentCategoryList = value; OnPropertyChanged(); }
+        }
+
         private bool visible = true;
 
         public bool Visible
@@ -78,8 +87,13 @@ namespace Summary.Domain
             get { return showInvalidCateMessage; }
             set { showInvalidCateMessage = value; OnPropertyChanged(); }
         }
-
+        
         public AddCategoryModel(){
         }
+    }
+    public class ParentCategorySV
+    {
+        public int ParentCategoryId { get; set; }
+        public string ParentCategoryName { get; set; }
     }
 }

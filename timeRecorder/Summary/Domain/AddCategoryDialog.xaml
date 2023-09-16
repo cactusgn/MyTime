@@ -26,6 +26,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Border Grid.Row="0" CornerRadius="4" >
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding Title}"></TextBlock>
@@ -50,7 +51,14 @@
                     Foreground="IndianRed"
                     VerticalAlignment="Center" Text="已存在该类名，请重新输入">
         </TextBlock>
-        <StackPanel Margin="0,8,0,0" Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="20,8,0,8">
+            <TextBlock VerticalAlignment="Center" >父类别：</TextBlock>
+            <ComboBox  VerticalAlignment="Center" Width="200" ItemsSource="{Binding ParentCategoryList}" 
+                       DisplayMemberPath="ParentCategoryName" SelectedValuePath="ParentCategoryId"
+                       SelectedValue="{Binding ParentId}">
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Margin="0,8,0,0" Grid.Row="4"  Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock VerticalAlignment="Center" Text="颜色："></TextBlock>
             <Border Background="{Binding Path=Text, ElementName=colorbox}" Width="10" Height="10"></Border>
             <TextBox Margin="5,0,10,2" x:Name="colorbox"
@@ -61,10 +69,10 @@
                        DockPanel.Dock="Top" TextAlignment="Center"
                        Text="{Binding Bonus}" Width="45" />
         </StackPanel>
-        <materialDesign:ColorPicker Grid.Row="4" x:Name="ColorPicker" Width="250" Height="100"
+        <materialDesign:ColorPicker Grid.Row="5" x:Name="ColorPicker" Width="250" Height="100"
                                     Margin="0,10" 
                                         Color="{Binding SelectedColor, Delay=25}" />
-        <Grid Grid.Row="5"
+        <Grid Grid.Row="6"
                 Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="113*"></ColumnDefinition>
@@ -77,7 +85,6 @@
                 <Button.CommandParameter>
                     <sys:Boolean>False</sys:Boolean>
                 </Button.CommandParameter>
-
             </Button>
             <Button Grid.Column="2"
               Command="{x:Static wpf:DialogHost.CloseDialogCommand}"

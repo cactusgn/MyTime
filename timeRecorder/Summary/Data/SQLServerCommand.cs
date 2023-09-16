@@ -153,9 +153,9 @@ namespace Summary.Data
                     await context.SaveChangesAsync();
                     return findTodoItem.First().Id;
                 }
-                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = DateTime.Today, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString(), CategoryId=obj.CategoryId });
+                await context.ToDos.AddAsync(new GeneratedToDoTask() { CreateDate=obj.CreatedDate, UpdatedDate = obj.CreatedDate, Note=obj.Note, Finished=obj.Finished, Type=obj.Type.ToString(), CategoryId=obj.CategoryId });
                 await context.SaveChangesAsync();
-                index = context.ToDos.First(x => x.UpdatedDate == DateTime.Today&&x.Note == obj.Note).Id;
+                index = context.ToDos.First(x => x.CreateDate == obj.CreatedDate&&x.Note == obj.Note).Id;
             }
             return index;
         }
@@ -176,10 +176,10 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x=>x.Note == obj.Note);
-                if (item!=null)
+                if (item!=null&&item.Count()>0)
                 {
                     var updateObj = item.First();
-                    updateObj.UpdatedDate = DateTime.Today;
+                    updateObj.CreateDate = DateTime.Today;
                     updateObj.Type = obj.Type.ToString();
                     updateObj.CategoryId = obj.CategoryId;
                     updateObj.Finished = obj.Finished;
@@ -192,10 +192,10 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x => x.Id == obj.Id);
-                if (item != null)
+                if (item != null&&item.Count()>0)
                 {
                     var updateObj = item.First();
-                    updateObj.UpdatedDate = DateTime.Today;
+                    updateObj.CreateDate = DateTime.Today;
                     updateObj.Type = obj.Type.ToString();
                     updateObj.CategoryId = obj.CategoryId;
                     updateObj.Finished = obj.Finished;
@@ -208,8 +208,8 @@ namespace Summary.Data
         {
             using (var context = new MytimeContext())
             {
-                var item = context.ToDos.Where(x => x.UpdatedDate==DateTime.Today&&x.Note == obj.Note);
-                if(item!=null)
+                var item = context.ToDos.Where(x => x.CreateDate==DateTime.Today&&x.Note == obj.Note);
+                if(item!=null&&item.Count()>0)
                     await item.ExecuteDeleteAsync();
             }
             return 1;

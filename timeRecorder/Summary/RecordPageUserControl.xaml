@@ -38,9 +38,9 @@
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="2*" MinWidth="280"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
-            <TextBlock Margin="10,10">Today:</TextBlock>
-            <Grid Margin="10,5" >
+        <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
+            <TextBlock DockPanel.Dock="Top" Margin="10,10">Today:</TextBlock>
+                <Grid Margin="10,5" DockPanel.Dock="Top" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="0"></ColumnDefinition>
@@ -88,7 +88,10 @@
                         
                     </TextBlock>
            </Grid>
-                <ListBox  Name="TodayListbox" ItemsSource="{Binding TodayList}" SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationAccentListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                
+                <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" 
+                         SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationAccentListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
                 
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
@@ -131,7 +134,8 @@
                     
                 </ListBox.ItemTemplate>
             </ListBox>
-        </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   

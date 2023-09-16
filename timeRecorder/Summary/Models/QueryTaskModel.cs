@@ -210,7 +210,7 @@ namespace Summary.Models
                 }
                 foreach (ToDoObj task in allTasks)
                 {
-                    if (task.Id == 0)
+                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note).Count()==0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }
@@ -317,6 +317,7 @@ namespace Summary.Models
                 List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(task.Note);
                 if (timeObjs!=null)
                 {
+                    //新建完了更新所有该note的timeObj的taskId
                     foreach (MyTime timeObj in timeObjs)
                     {
                         timeObj.type = timeObj.type==null? task.Type.ToString(): timeObj.type;

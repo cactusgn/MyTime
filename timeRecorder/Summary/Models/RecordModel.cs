@@ -901,8 +901,10 @@ namespace Summary.Models
                 hs.Remove(currentObj.Note);
                 currentObj = null;
             }
-            
         }
+
+        
+
         private void TodayListBoxSelectionChange(object obj)
         {
             if(SelectedListItem != null)

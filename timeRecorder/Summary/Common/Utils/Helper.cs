@@ -83,7 +83,7 @@ namespace Summary.Common.Utils
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTimeSpan > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, "none", lastIndex,height);
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, "none", lastIndex,height, taskId:TimeObj.taskId);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, "none");

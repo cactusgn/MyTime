@@ -519,7 +519,7 @@ namespace Summary.Models
                 Helper.UpdateColor(obj, changedType);
                 await SQLCommands.UpdateObj(obj);
             }
-            if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "invest" || changedType == "play") && curr.Note != "")
+            if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != "")
             {
                 ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId= categoryDic[changedType] };
                 var id = await SQLCommands.AddTodo(newObj);
@@ -834,11 +834,16 @@ namespace Summary.Models
             {
                 foreach (var obj in AllTodayTasks)
                 {
-                    if (obj.Type == "invest" || obj.Type == "work" || obj.Type == "play")
+                    if (Helper.mainCategories.FirstOrDefault(x=>x.Name==obj.Type, new Category() { AutoAddTask=false}).AutoAddTask)
                     {
                         if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
-                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = obj.Finished, Type = obj.Type,Id = obj.Id };
+                            ToDoObj newObj = new ToDoObj() { 
+                                CreatedDate = DateTime.Today, 
+                                Note = obj.Note, 
+                                Finished = obj.Finished, 
+                                Type = obj.Type,
+                                Id = obj.Id };
                             TodayList.Add(newObj);
                             hs.Add(obj.Note);
                         }
@@ -850,7 +855,7 @@ namespace Summary.Models
             {
                 foreach(var obj in AllTimeViewObjs[0].DailyObjs)
                 {
-                    if(obj.Type == "invest" || obj.Type == "work"||obj.Type=="play")
+                    if(Helper.mainCategories.FirstOrDefault(x => x.Name==obj.Type, new Category() { AutoAddTask=false }).AutoAddTask)
                     {
                         if (!hs.Contains(obj.Note)&& obj.Note != "")
                         {

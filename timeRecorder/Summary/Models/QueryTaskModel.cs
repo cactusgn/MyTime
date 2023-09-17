@@ -203,7 +203,7 @@ namespace Summary.Models
                 List<Category> BasicCategories = AllCategories.Where(x => x.ParentCategoryId==0).ToList();
                 if (BasicCategories.Where(x=>x.Name==Category).Count()>0)
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type}).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 else
                 {
@@ -309,6 +309,7 @@ namespace Summary.Models
             {
                 findIndex = findTask.Id;
                 findTaskCategoryId = findTask.CategoryId;
+                task.Finished = findTask.Finished;
             }
             //找不到task，就新建一个task
             if (findIndex==0)

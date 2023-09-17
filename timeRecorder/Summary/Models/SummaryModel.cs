@@ -230,7 +230,7 @@ namespace Summary.Models
 
         private async void updateOldItems()
         {
-            List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1930,1,1),DateTime.Today);
+            List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1900,1,1),DateTime.Today);
             if (AllTimeObjs != null)
             {
                 foreach (MyTime timeObj in AllTimeObjs)

@@ -184,7 +184,7 @@ namespace Summary.Models
             foreach (var task in selectedTasks) {
                 task.CategoryId = SelectedContextMenuCategoryId;
                 task.Category = allCategories.First(x=>x.Id ==SelectedContextMenuCategoryId).Name;
-                task.Type = Helper.ConvertTimeType(SelectedContextMenuType);
+                task.Type = SelectedContextMenuType;
                 await SQLCommands.UpdateTodo(task);
             }
             GetSummaryDate();
@@ -200,17 +200,18 @@ namespace Summary.Models
                 List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
                 int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
                 if (Category=="") findCategoryId=0;
-                if (Category=="invest"||Category=="rest"||Category=="work"||Category=="play")
+                List<Category> BasicCategories = AllCategories.Where(x => x.ParentCategoryId==0).ToList();
+                if (BasicCategories.Where(x=>x.Name==Category).Count()>0)
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type)}).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type}).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 else
                 {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="waste"&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = Helper.ConvertTimeType(x.First().type) }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 }
                 foreach (ToDoObj task in allTasks)
                 {
-                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note).Count()==0)
+                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&&x.Type==Category).Count()==0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }

@@ -285,7 +285,10 @@
                                     <DataGridTextColumn Header="StartTime" Binding="{Binding StartTime}" IsReadOnly="True"></DataGridTextColumn>
                                     <DataGridTextColumn Header="EndTime" Binding="{Binding EndTime}" IsReadOnly="True"></DataGridTextColumn>
                                     <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
-                                    <DataGridComboBoxColumn Header="Type" ItemsSource="{Binding Source={x:Static local:RecordModel.TimeTypes}}"
+                                    <!--<DataGridComboBoxColumn Header="Type" ItemsSource="{Binding Source={x:Static local:RecordModel.TimeTypes}}"
+                                                            SelectedItemBinding="{Binding Type,UpdateSourceTrigger=PropertyChanged}">
+                                    </DataGridComboBoxColumn>-->
+                                    <DataGridComboBoxColumn Header="Type" ItemsSource="{Binding Source={x:Static local:RecordModel.TestCategory}}"
                                                             SelectedItemBinding="{Binding Type,UpdateSourceTrigger=PropertyChanged}">
                                     </DataGridComboBoxColumn>
                                     <DataGridTextColumn Header="Note" Binding="{Binding Note,UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
@@ -303,7 +306,7 @@
         </GridSplitter>
         <DockPanel x:Name="RightPanel" Margin="0,10,0,0" Grid.Column="4" SizeChanged="RightPanel_SizeChanged">
             
-            <StackPanel DockPanel.Dock="Right" Width="100" Margin="0,-20,20,20" VerticalAlignment="Center" >
+            <StackPanel DockPanel.Dock="Right" Width="100" Margin="0,-20,20,20" VerticalAlignment="Center" x:Name="rightButtonPanel">
                 <DockPanel  Margin="10,0,10,0">
                     <Button DockPanel.Dock="Left"  Width="25" Height="25" Margin="5" Command="{Binding ResizeCommand}" CommandParameter="amplify"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
@@ -343,13 +346,7 @@
                             <materialDesign:PackIcon Kind="ArrowDown" />
                         </Button>
                     </DockPanel>
-                    <Button Background="#FFB6C1" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="invest">invest</Button>
-                <Button Background="#F08080"  Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="waste">waste</Button>
-                <Button Background="#98FB98" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="rest">rest</Button>
-                <Button Background="#FFD700" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="work">work</Button>
-                <Button Background="LightBlue" Style="{StaticResource TypeButton}" Command="{Binding UpdateTypeCommand}" CommandParameter="play">play</Button>
-
-                
+               
             </StackPanel>
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel DockPanel.Dock="Right" >

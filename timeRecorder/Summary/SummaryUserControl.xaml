@@ -36,17 +36,8 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="UseLayoutRounding" Value="True" />
         </Style>
-        <Style x:Key="TextShadow" TargetType="{x:Type TextBlock}">
-            <!--<Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect
-                                                              ShadowDepth="4"
-                                                              Direction="330"
-                                                              Color="Black"
-                                                              Opacity="0.5"
-                                                             BlurRadius="4"/>
-                </Setter.Value>
-            </Setter>-->
+        <Style x:Key="ComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+            <!--<Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>-->
         </Style>
     </UserControl.Resources>
     <Grid>
@@ -258,15 +249,12 @@
                                             </Button>
                                         </WrapPanel>
 
-                                            <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   HorizontalAlignment="Left" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}" Foreground="{DynamicResource MaterialDesignBody}">
-                                            <!--<i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <i:InvokeCommandAction 
-                                                                    CommandParameter="{Binding }"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>-->
-                                                <ComboBoxItem  Tag="none"  Foreground="{DynamicResource MaterialDesignBody}" >
+                                            <ComboBox  Margin ="5"  Grid.Column="1" Width="100" Grid.Row="4" FontWeight="Normal"   
+                                                       HorizontalAlignment="Left" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" 
+                                                       x:Name="TypeComboBox"
+                                                        SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}"
+                                                       Foreground="{DynamicResource MaterialDesignBody}">
+                                                <!--<ComboBoxItem  Tag="none"  Foreground="{DynamicResource MaterialDesignBody}" >
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                                             <i:InvokeCommandAction 
@@ -364,7 +352,7 @@
                                                        TextAlignment="Center" Text="play" Style="{StaticResource TextShadow}"/>
                                                     </StackPanel>
 
-                                                </ComboBoxItem>
+                                                </ComboBoxItem>-->
                                                
                                         </ComboBox>
 

@@ -1,6 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
+using ScottPlot.Drawing.Colormaps;
 using ScottPlot.Renderable;
 using Summary.Common;
 using Summary.Common.Utils;
@@ -11,11 +12,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace Summary.Models
 {
@@ -88,7 +92,6 @@ namespace Summary.Models
         }
         private DateTime CurrentDate { get; set; } = DateTime.Today.AddDays(1);
 
-        private Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
         private string currentSummaryRBType = "all";
         private TimeViewObj selectedTimeObj;
 
@@ -101,9 +104,10 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        public int SelectedIndex = 0;
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
-            InitVariables();
+            height = LeftPanelHeight;
             ClickOkButtonCommand = new MyCommand(clickOkButton);
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
             SingleDayRBChangedCommand = new MyCommand(SingleDayRBChanged);
@@ -118,10 +122,65 @@ namespace Summary.Models
             sampleDialogViewModel = SVM;
             SelectedCommand = new MyCommand(Selected);
             ResizeCommand = new MyCommand(resizeHeight);
-            updateOldStudyItems();
+            Helper.initColor(SqlCommands);
+            updateOldItems();
+            
         }
 
-       
+        public void initTypeCombobox()
+        {
+            int index = 0;
+            foreach (var category in Helper.mainCategories)
+            {
+                Helper.SummaryCategoryDic.Add(category.Name, index++);
+                StackPanel stackPanel = new StackPanel();
+                stackPanel.Orientation = System.Windows.Controls.Orientation.Horizontal;
+                stackPanel.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+
+                TextBlock textBlock = new TextBlock();
+                textBlock.Width = 10;
+                textBlock.Height = 10;
+                BrushConverter brushConverter = new BrushConverter();
+                textBlock.Background = (System.Windows.Media.Brush)brushConverter.ConvertFromString(category.Color);
+                textBlock.Margin = new Thickness(5, 0, 10, 0);
+                stackPanel.Children.Add(textBlock);
+
+                TextBlock textBlock2 = new TextBlock();
+                textBlock2.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                textBlock2.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                textBlock2.TextAlignment = System.Windows.TextAlignment.Center; 
+                textBlock2.Text = category.Name;
+
+                stackPanel.Children.Add(textBlock2);
+
+                ComboBoxItem item = new ComboBoxItem();
+                
+                item.Content = stackPanel;
+                item.Tag = category.Name;
+                item.PreviewMouseLeftButtonUp += Type_PreviewMouseLeftButtonUp;
+
+
+                TypeComboBox.Items.Add(item);
+            }
+        }
+
+        private async void Type_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            string a = ((ComboBoxItem)sender).Tag.ToString();
+
+            if (SelectedTimeObj.Type!=a)
+            {
+                var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                foreach (var obj in TodayAllObjectWithSameNote)
+                {
+                    obj.Type = a;
+                    Helper.UpdateColor(obj, a);
+                    await SQLCommands.UpdateObj(obj);
+                }
+                refreshSingleDayPlot();
+                refreshSummaryPlot(currentSummaryRBType);
+            }
+        }
 
         private async void Merge(object obj)
         {
@@ -169,29 +228,34 @@ namespace Summary.Models
             refreshSummaryPlot();
         }
 
-        private  void updateOldStudyItems()
+        private async void updateOldItems()
         {
-            List<MyTime> AllTimeObjs = SQLCommands.GetTimeObjsByType("study");
+            List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1930,1,1),DateTime.Today);
             if (AllTimeObjs != null)
             {
                 foreach (MyTime timeObj in AllTimeObjs)
                 {
-                    timeObj.type = "invest";
-                    SQLCommands.UpdateObj(timeObj);
+                    if (timeObj.type==null||timeObj.type.Trim()=="")
+                    {
+                        timeObj.type = "none";
+                        await SQLCommands.UpdateObj(timeObj);
+                    }
+                    if (timeObj.type.Trim()=="study")
+                    {
+                        timeObj.type = "invest";
+                        await SQLCommands.UpdateObj(timeObj);
+                    }
+                    if (timeObj.taskId == 0)
+                    {
+                        if(timeObj.type.Trim() !="none")
+                        {
+                            timeObj.taskId = Helper.categoryDic[timeObj.type.Trim()];
+                            await SQLCommands.UpdateObj(timeObj);
+                        }
+                    }
                 }
             }
         }
-        private void InitVariables()
-        {
-            colorDic.Add(TimeType.none, "#F3F3F3");
-            colorDic.Add(TimeType.invest, "#FFB6C1");
-            colorDic.Add(TimeType.waste, "#F08080");
-            colorDic.Add(TimeType.rest, "#98FB98");
-            colorDic.Add(TimeType.work, "#FFD700");
-            colorDic.Add(TimeType.play, "#ADD8E6");
-            height = LeftPanelHeight;
-        }
-
         
         private async void TextBoxLostFocus(object obj)
         {
@@ -270,6 +334,8 @@ namespace Summary.Models
         }
         
         public MyCommand SelectedCommand { get; set; }
+        public ComboBox TypeComboBox { get; internal set; }
+        public System.Windows.Style ComboBoxItemStyle { get; internal set; }
 
         private  void closeDialog()
         {
@@ -417,7 +483,7 @@ namespace Summary.Models
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
                 int taskId = findTask==null ? 0 : findTask.Id;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height, taskId: taskId);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
                 lastIndex++;
                 taskId = 0;
                 if (content2!="")
@@ -425,9 +491,9 @@ namespace Summary.Models
                     findTask = SQLCommands.QueryTodo(content2);
                     taskId =  findTask==null ? 0 : findTask.Id;
                 }
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex,height, taskId: taskId);
-                Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
-                Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex,height, taskId: taskId);
+                Helper.UpdateColor(newTimeObj1, "none");
+                Helper.UpdateColor(newTimeObj2, "none");
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);

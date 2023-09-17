@@ -31,9 +31,14 @@ namespace Summary
             RecordModel.TodayObjsGrid = todayObjsGrid;
             RecordModel.TodoToday = TodoToday;
             RecordModel.TodoTodayTextbox = TodoTodayTextbox;
+            RecordModel.RightButtonPanel = rightButtonPanel;
+            RecordModel.ButtonStyle = this.Resources["TypeButton"] as System.Windows.Style;
             this.DataContext = RecordModel;
-            if (RecordModel.AllTimeViewObjs.Count()>0 && RecordModel.AllTimeViewObjs[0].DailyObjs != null ) { 
-                RecordModel.refreshSingleDayPlot(); 
+            RecordModel.initCategoryDic();
+            RecordModel.InitTodayData();
+            if (RecordModel.AllTimeViewObjs.Count()>0 && RecordModel.AllTimeViewObjs[0].DailyObjs != null)
+            {
+                RecordModel.refreshSingleDayPlot();
             }
         }
         

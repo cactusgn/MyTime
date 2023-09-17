@@ -35,7 +35,10 @@ namespace Summary
             summaryModel.AllRB = AllRB;
             summaryModel.ThirdLevelRB = ThirdLevelRB;
             summaryModel.FirstLevelRB = FirstLevelRB;
+            summaryModel.TypeComboBox = TypeComboBox;
+            summaryModel.ComboBoxItemStyle = this.Resources["ComboBoxItemStyle"] as Style;
             this.DataContext = summaryModel;
+            summaryModel.initTypeCombobox(); 
             summaryModel.showTimeView();
         }
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -87,7 +87,35 @@ namespace Summary.Domain
             get { return showInvalidCateMessage; }
             set { showInvalidCateMessage = value; OnPropertyChanged(); }
         }
-        
+        public bool ParentEnabled
+        {
+            get
+            {
+                return ParentId!=0;
+            }
+        }
+        public string ParentVisible
+        {
+            get
+            {
+                return ParentId!=0 ? "Visible" : "Collapsed";
+            }
+        }
+        public string AutoCreateTaskVisible
+        {
+            get
+            {
+                return ParentId==0 ? "Visible": "Collapsed";
+            }
+        }
+        private bool autoCreateTask;
+
+        public bool AutoCreateTask
+        {
+            get { return autoCreateTask; }
+            set { autoCreateTask = value; OnPropertyChanged(); }
+        }
+
         public AddCategoryModel(){
         }
     }

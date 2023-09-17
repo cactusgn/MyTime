@@ -78,6 +78,8 @@ namespace Summary.Data
         public bool Visible{ get; set; }
         public int ParentCategoryId{ get; set; }
         public string Color{ get; set; }
+        [DefaultValue(true)]
+        public bool AutoAddTask { get; set; }
     }
     public class MytimeContext : DbContext
     {

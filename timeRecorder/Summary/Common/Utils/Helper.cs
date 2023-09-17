@@ -1,4 +1,5 @@
-﻿using ScottPlot;
+﻿using Microsoft.Data.SqlClient;
+using ScottPlot;
 using ScottPlot.Renderable;
 using Summary.Data;
 using Summary.Models;
@@ -23,12 +24,13 @@ namespace Summary.Common.Utils
         public static string WorkContent;
         public static bool WorkMode;
         public static bool MiniWindowShow = false;
+        public static ObservableCollection<string> TestCategory = new ObservableCollection<string>();
+        public static List<Category> mainCategories = new List<Category>();
+        public static Dictionary<string, int> categoryDic = new Dictionary<string, int>();
+        public static Dictionary<string, int> SummaryCategoryDic = new Dictionary<string, int>();
+
         //public static RecordModel recordModel;
-        public static TimeType ConvertTimeType(string type)
-        {
-            if (type.Trim()==""||type==null) return TimeType.none;
-            return (TimeType)Enum.Parse(typeof(TimeType), type);
-        }
+       
         public static string GetAppSetting(string key)
         {
             var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
@@ -81,7 +83,7 @@ namespace Summary.Common.Utils
                         TimeSpan tempStart = new TimeSpan(6, 0, 0);
                         if (startTimeSpan > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, TimeType.none, lastIndex,height);
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, "none", lastIndex,height);
                             lastIndex++;
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, "none");
@@ -111,7 +113,7 @@ namespace Summary.Common.Utils
                 TimeSpan tempEndTime = GlobalEndTimeSpan;
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, TimeType.none, lastIndex, height);
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, "none", lastIndex, height);
                     UpdateColor(startTimeObj, "none");
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
@@ -121,37 +123,42 @@ namespace Summary.Common.Utils
             }
             return AllTimeViewObjs;
         }
-        public static Dictionary<TimeType, string> colorDic = new Dictionary<TimeType, string>();
+        public static Dictionary<string, string> colorDic = new Dictionary<string, string>();
         public static void UpdateColor(TimeViewObj timeViewObj, string type)
         {
-            switch (type.ToLower())
+            if (colorDic.ContainsKey(type))
             {
-                case "invest":
-                    timeViewObj.Color = "#FFB6C1";
-                    break;
-                case "waste":
-                    timeViewObj.Color = "#F08080";
-                    break;
-                case "rest":
-                    timeViewObj.Color = "#98FB98";
-                    break;
-                case "work":
-                    timeViewObj.Color = "#FFD700";
-                    break;
-                case "none":
-                    timeViewObj.Color = "#F3F3F3";
-                    break;
-                case "play":
-                    timeViewObj.Color = "#ADD8E6";
-                    break;
+                timeViewObj.Color = colorDic[type.ToLower()];
             }
+            
+            //switch (type.ToLower())
+            //{
+            //    case "invest":
+            //        timeViewObj.Color = "#FFB6C1";
+            //        break;
+            //    case "waste":
+            //        timeViewObj.Color = "#F08080";
+            //        break;
+            //    case "rest":
+            //        timeViewObj.Color = "#98FB98";
+            //        break;
+            //    case "work":
+            //        timeViewObj.Color = "#FFD700";
+            //        break;
+            //    case "none":
+            //        timeViewObj.Color = "#F3F3F3";
+            //        break;
+            //    case "play":
+            //        timeViewObj.Color = "#ADD8E6";
+            //        break;
+            //}
         }
         public static TimeSpan getCurrentTime(){
             DateTime now = DateTime.Now;
             return new TimeSpan(now.Hour, now.Minute, now.Second);
         }
         
-        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, TimeType type, int index,double height,string viewType = "summary",int taskId=0)
+        public static TimeViewObj CreateNewTimeObj(TimeSpan startTime, TimeSpan endTime, string note, DateTime createDate, string type, int index,double height,string viewType = "summary",int taskId=0)
         {
             TimeViewObj TimeObj = new TimeViewObj();
             TimeObj.CreatedDate = createDate;
@@ -160,7 +167,7 @@ namespace Summary.Common.Utils
             TimeObj.Height = CalculateHeight(TimeObj.LastTime,height,viewType);
             TimeObj.StartTime = startTime;
             TimeObj.EndTime = endTime;
-            TimeObj.Type = type.ToString().ToLower();
+            TimeObj.Type = type.ToLower();
             TimeObj.Id = index;
             TimeObj.TaskId = taskId;
             return TimeObj;
@@ -177,26 +184,37 @@ namespace Summary.Common.Utils
         }
         public static void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
         {
-            
-            var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note = x.Key.Note, Type = x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
-            var studyItems = items.Where(x => x.Type == "invest").ToArray();
-            var wasteItems = items.Where(x => x.Type == "waste").ToArray();
-            var workItems = items.Where(x => x.Type == "work").ToArray();
-            var restItems = items.Where(x => x.Type == "rest").ToArray();
-            var playItems = items.Where(x => x.Type == "play").ToArray();
             var index = 0;
             plot.Plot.Clear();
             var plt = plot.Plot;
-            var allItemCount = studyItems.Length + wasteItems.Length + workItems.Length + restItems.Length + playItems.Length;
+            var items = AllObj.GroupBy(x => new { x.Note, x.Type }).Select(x => new ChartBar { Note = x.Key.Note, Type = x.Key.Type, Time = new TimeSpan(x.Sum(x => x.LastTime.Ticks)) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            Dictionary<string,ChartBar[]> TypeItemList = new Dictionary<string, ChartBar[]>();
+            var allItemCount = 0;
+            foreach (string type in TestCategory)
+            {
+                var timeItems = items.Where(x => x.Type == type).ToArray();
+                TypeItemList.Add(type, timeItems);
+                allItemCount += timeItems.Length;
+            }
+            //var studyItems = items.Where(x => x.Type == "invest").ToArray();
+            //var wasteItems = items.Where(x => x.Type == "waste").ToArray();
+            //var workItems = items.Where(x => x.Type == "work").ToArray();
+            //var restItems = items.Where(x => x.Type == "rest").ToArray();
+            //var playItems = items.Where(x => x.Type == "play").ToArray();
+            //var allItemCount = studyItems.Length + wasteItems.Length + workItems.Length + restItems.Length + playItems.Length;
             string[] TimeLabels = new string[allItemCount];
             string[] YLabels = new string[allItemCount];
             double[] position = new double[allItemCount];
-            addChartData(studyItems, TimeType.invest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(workItems, TimeType.work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            addChartData(playItems, TimeType.play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            
+            foreach (var TypeItems in TypeItemList)
+            {
+                addChartData(TypeItems.Value, TypeItems.Key, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            }
+            //addChartData(studyItems, TimeType.invest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            //addChartData(workItems, TimeType.work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            //addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            //addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            //addChartData(playItems, TimeType.play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
             Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
@@ -212,13 +230,13 @@ namespace Summary.Common.Utils
             plot.Render(lowQuality: false);
             plot.Refresh();
         }
-        private static void addChartData(ChartBar[] Items, TimeType type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
+        private static void addChartData(ChartBar[] Items, string type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
         {
             if (Items.Count() > 0)
             {
                 double[] itemPostion = new double[Items.Count()];
                 double[] itemValues = new double[Items.Count()];
-                initColor();
+                //initColor();
                 for (int i = 0; i < Items.Count(); i++)
                 {
                     itemPostion[i] = index + i + 1;
@@ -235,15 +253,22 @@ namespace Summary.Common.Utils
                 index = index + Items.Count();
             }
         }
-        public static void initColor(){
-            if (colorDic.Count == 0)
+        public static void initColor(ISQLCommands SqlCommands)
+        {
+            List<Category> categories = SqlCommands.GetAllCategories().Result.ToList();
+            mainCategories = categories.Where(x => x.ParentCategoryId==0).ToList();
+            TestCategory.Clear();
+            TestCategory.Add("none");
+            colorDic.Clear();
+            colorDic.Add("none", "#F3F3F3");
+            categoryDic.Clear();
+            categoryDic.Add("none", 0);
+            foreach (var category in mainCategories)
             {
-                colorDic.Add(TimeType.none, "#F3F3F3");
-                colorDic.Add(TimeType.invest, "#FFB6C1");
-                colorDic.Add(TimeType.waste, "#F08080");
-                colorDic.Add(TimeType.rest, "#98FB98");
-                colorDic.Add(TimeType.work, "#FFD700");
-                colorDic.Add(TimeType.play, "#ADD8E6");
+                //categoryDic为了后续快速获取这几个主要任务的id
+                categoryDic.Add(category.Name, category.Id);
+                colorDic.Add(category.Name, category.Color);
+                TestCategory.Add(category.Name);
             }
         }
     }

@@ -96,10 +96,10 @@ namespace Summary.Models
         private void EditCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Bonus);
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Bonus,root.AutoCreateTask);
         }
 
-        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, int bonus=20)
+        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, int bonus=20, bool autoCreateTask=true)
         {
             CategoryModel.Title = title;
             CategoryModel.Category = category;
@@ -111,6 +111,7 @@ namespace Summary.Models
             CategoryModel.YesCaption = "确定";
             CategoryModel.ShowInvalidCateMessage = "Collapsed";
             CategoryModel.ParentCategoryList = await getCategorySVs(id);
+            CategoryModel.AutoCreateTask = autoCreateTask;
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
@@ -133,7 +134,7 @@ namespace Summary.Models
         private void AddCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, root.Bonus);
+            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, root.Bonus,root.AutoCreateTask);
         }
 
         private void TreeViewSelectedItemChanged(object obj)
@@ -152,14 +153,26 @@ namespace Summary.Models
                 {
                     if (category.Visible)
                     {
-                        MenuItemModel child = new MenuItemModel() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId };
+                        MenuItemModel child = new MenuItemModel() { 
+                            Title = category.Name, 
+                            Id = category.Id, 
+                            Color = category.Color, 
+                            ParentId = category.ParentCategoryId, 
+                            AutoCreateTask=category.AutoAddTask 
+                        };
                         initNode(Categories, child);
                         currentNode.Items.Add(child);
                     }
                 }
                 else
                 {
-                    MenuItemModel child = new MenuItemModel() { Title = category.Name, Id = category.Id, Color = category.Color, ParentId = category.ParentCategoryId };
+                    MenuItemModel child = new MenuItemModel() { 
+                        Title = category.Name, 
+                        Id = category.Id, 
+                        Color = category.Color, 
+                        ParentId = category.ParentCategoryId,
+                        AutoCreateTask=category.AutoAddTask
+                    };
                     initNode(Categories, child);
                     currentNode.Items.Add(child);
                 }
@@ -216,6 +229,7 @@ namespace Summary.Models
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
+            root.AutoCreateTask = category.AutoCreateTask;
             root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
             queryTaskModel.UpdateContextMenu();
             if(root.ParentId != category.ParentId)
@@ -283,6 +297,13 @@ namespace Summary.Models
         {
             get { return isSelected; }
             set { isSelected = value; OnPropertyChanged(); }
+        }
+        private bool autoCreateTask;
+
+        public bool AutoCreateTask
+        {
+            get { return autoCreateTask; }
+            set { autoCreateTask = value; OnPropertyChanged(); }
         }
 
         public ObservableCollection<MenuItemModel> Items { get; set; }

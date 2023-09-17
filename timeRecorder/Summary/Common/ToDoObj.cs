@@ -48,15 +48,10 @@ namespace Summary.Common
               }
              set { textDecorations = value; OnPropertyChanged(); }
         }
-		private TimeType type;
-		public TimeType Type{
+		private string type;
+		public string Type{
 			get { return type; }
             set { type = value; OnPropertyChanged(); }
-        }
-        public string TypeString
-        {
-            get { return type.ToString(); }
-            set { type = Helper.ConvertTimeType(value); OnPropertyChanged(); }
         }
 		private DateTime createdDate;
 

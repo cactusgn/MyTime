@@ -8,7 +8,7 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-             Height="150"
+             Height="180"
              Width="400"
              WindowStyle="None"
              FontFamily="微软雅黑"
@@ -22,23 +22,25 @@
         <cv:TimeConverter x:Key="timeConverter"/>
         <cv:DateConverter x:Key="dateConverter"/>
     </Window.Resources>
-        <Grid Margin="16,0,16,16" >
+
+    <DockPanel>
+        <Grid Margin="16,0,16,16" DockPanel.Dock="Top" >
 
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Border x:Name="TitleRow" Grid.Row="0" CornerRadius="4" >
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding Title}"></TextBlock>
         </Border>
         <Border Grid.Row="0" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
-        <StackPanel Margin="0,8,0,0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock VerticalAlignment="Center" Text="{Binding Message}"></TextBlock>
+        <StackPanel Margin="10,10,10,0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock  VerticalAlignment="Center" Text="{Binding Message}" TextWrapping="Wrap"></TextBlock>
         </StackPanel>
-        <StackPanel Margin="0,8,0,0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"/>
-        <Grid Grid.Row="4"
-                Margin="0,16,0,0">
+    </Grid>
+        <Grid  DockPanel.Dock="Bottom" 
+            VerticalAlignment="Center"
+                Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
@@ -59,6 +61,5 @@
             </Button>
 
         </Grid>
-    </Grid>
-
-    </Window>
+    </DockPanel>
+</Window>

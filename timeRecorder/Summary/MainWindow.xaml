@@ -23,7 +23,6 @@
     <Window.Resources>
         <cv:TimeConverter x:Key="timeConverter"/>
         <cv:DateConverter x:Key="dateConverter"/>
-        <cv:TypeComboboxConverter x:Key="typeConverter"/>
         <Style x:Key="HorizontalExpanderContentTextBlock" TargetType="{x:Type TextBlock}">
             <Setter Property="Opacity" Value=".68" />
             <Setter Property="TextWrapping" Value="Wrap" />

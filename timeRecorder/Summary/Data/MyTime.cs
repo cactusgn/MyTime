@@ -56,8 +56,8 @@ namespace Summary.Data
         public DateTime CreateDate { get; set; }
         [StringLength(50), NotNull]
         public string Note { get; set; }
-        [StringLength(10), AllowNull]
-        public string Type { get; set; }
+        [NotNull]
+        public int TypeId { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int CategoryId { get; set; }

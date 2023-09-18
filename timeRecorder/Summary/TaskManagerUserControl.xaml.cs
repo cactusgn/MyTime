@@ -48,10 +48,8 @@ namespace Summary
                 {
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(1)).IsEnabled = false;
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(2)).IsEnabled = false;
-                    ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(0)).IsEnabled = false;
                 }
                 else{
-                    ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(0)).IsEnabled = true;
                     ((System.Windows.Controls.MenuItem)CategoryContextMenu.Items.GetItemAt(1)).IsEnabled = true;
                     if (((Models.MenuItemModel)treeViewItem.Header).Title == "invest" || ((Models.MenuItemModel)treeViewItem.Header).Title == "work" || ((Models.MenuItemModel)treeViewItem.Header).Title == "play")
                     {

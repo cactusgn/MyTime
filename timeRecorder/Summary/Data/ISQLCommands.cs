@@ -28,6 +28,7 @@ namespace Summary.Data
         public Task<int> UpdateTodo(GeneratedToDoTask obj);
         public Task<int> DeleteTodo(ToDoObj obj);
         public GeneratedToDoTask QueryTodo(string note);
+        public GeneratedToDoTask QueryTodo(int TaskId);
         #endregion
         #region category
         public Task<List<Category>> GetAllCategories();

@@ -130,7 +130,10 @@ namespace Summary.Models
         public void initTypeCombobox()
         {
             int index = 0;
-            foreach (var category in Helper.mainCategories)
+             List<Category> mainCategoriesWithNone = new List<Category>();
+            mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});
+            mainCategoriesWithNone.AddRange(Helper.mainCategories);
+            foreach (var category in mainCategoriesWithNone)
             {
                 Helper.SummaryCategoryDic.Add(category.Name, index++);
                 StackPanel stackPanel = new StackPanel();
@@ -171,9 +174,12 @@ namespace Summary.Models
             if (SelectedTimeObj.Type!=a)
             {
                 var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = SelectedTimeObj.Note, Finished = true, Type = a, CategoryId = Helper.categoryDic[a] };
+                var id = await SQLCommands.AddTodo(newObj);
                 foreach (var obj in TodayAllObjectWithSameNote)
                 {
                     obj.Type = a;
+                    obj.TaskId = id;
                     Helper.UpdateColor(obj, a);
                     await SQLCommands.UpdateObj(obj);
                 }
@@ -227,17 +233,35 @@ namespace Summary.Models
             refreshSingleDayPlot();
             refreshSummaryPlot();
         }
-
+        private int getTaskId(int categoryId)
+        {
+            while(Helper.allcategories.FirstOrDefault(x=>x.Id==categoryId, new Category(){ ParentCategoryId=0}).ParentCategoryId!=0){
+                categoryId = Helper.allcategories.FirstOrDefault(x => x.Id == categoryId, new Category() { ParentCategoryId = 0 }).ParentCategoryId;
+            }
+            return categoryId;
+        }
         private async void updateOldItems()
         {
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900,1,1), DateTime.Today);
+            foreach (GeneratedToDoTask task in allTasks) {
+                if(task.TypeId==0){
+                    task.TypeId = getTaskId(task.CategoryId);
+                    await SQLCommands.UpdateTodo(task);
+                }
+            }
             List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1900,1,1),DateTime.Today);
             if (AllTimeObjs != null)
             {
                 foreach (MyTime timeObj in AllTimeObjs)
                 {
-                    if (timeObj.type==null||timeObj.type.Trim()=="")
+                    if (timeObj.type==null||timeObj.type.Trim()==""|| !Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
                     {
-                        timeObj.type = "none";
+                        if(timeObj.taskId!=0){
+                            timeObj.type = Helper.mainCategories.FirstOrDefault(x => x.Id == SQLCommands.QueryTodo(timeObj.taskId).TypeId, new Category(){ Name="none"}).Name;
+                        }else{
+                            timeObj.type = "none";
+                            timeObj.taskId = 0;
+                        }
                         await SQLCommands.UpdateObj(timeObj);
                     }
                     if (timeObj.type.Trim()=="study")
@@ -245,18 +269,20 @@ namespace Summary.Models
                         timeObj.type = "invest";
                         await SQLCommands.UpdateObj(timeObj);
                     }
-                    if (timeObj.taskId == 0)
-                    {
-                        if(timeObj.type.Trim() !="none")
-                        {
-                            timeObj.taskId = Helper.categoryDic[timeObj.type.Trim()];
-                            await SQLCommands.UpdateObj(timeObj);
-                        }
-                    }
+                    //if (timeObj.taskId == 0)
+                    //{
+                    //    if(timeObj.type.Trim() !="none"&&Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
+                    //    {
+                    //        timeObj.taskId = Helper.categoryDic[timeObj.type.Trim()];
+                    //        await SQLCommands.UpdateObj(timeObj);
+                    //    }
+                    //}
                 }
             }
         }
-        
+
+     
+
         private async void TextBoxLostFocus(object obj)
         {
             var updateTimeViewObj = (TimeViewObj)obj;

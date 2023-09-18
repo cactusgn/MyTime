@@ -211,7 +211,7 @@ namespace Summary.Models
                 }
                 foreach (ToDoObj task in allTasks)
                 {
-                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&&x.Type==Category).Count()==0)
+                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&& AllCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Data.Category() { Name=""}).Name== Category).Count()==0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }

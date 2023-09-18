@@ -28,9 +28,9 @@ namespace Summary.Common.Utils
         public static List<Category> mainCategories = new List<Category>();
         public static Dictionary<string, int> categoryDic = new Dictionary<string, int>();
         public static Dictionary<string, int> SummaryCategoryDic = new Dictionary<string, int>();
-
+        public static List<Category> allcategories = new List<Category>();
         //public static RecordModel recordModel;
-       
+
         public static string GetAppSetting(string key)
         {
             var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
@@ -255,8 +255,8 @@ namespace Summary.Common.Utils
         }
         public static void initColor(ISQLCommands SqlCommands)
         {
-            List<Category> categories = SqlCommands.GetAllCategories().Result.ToList();
-            mainCategories = categories.Where(x => x.ParentCategoryId==0).ToList();
+             allcategories = SqlCommands.GetAllCategories().Result.ToList();
+            mainCategories = allcategories.Where(x => x.ParentCategoryId==0&&x.Visible).ToList();
             TestCategory.Clear();
             TestCategory.Add("none");
             colorDic.Clear();

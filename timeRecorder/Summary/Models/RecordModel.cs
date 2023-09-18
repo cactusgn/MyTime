@@ -266,13 +266,14 @@ namespace Summary.Models
         private void TipTextPreviewMouseUp(object obj)
         {
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            var ValidTasks = Helper.mainCategories.Where(x => x.AutoAddTask).Select(x=>x.Id);
             if (TodoTodayTextbox.Text==null||TodoTodayTextbox.Text=="")
             {
-                TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+                TipList = new ObservableCollection<string>(allTasks.Where(x=>ValidTasks.Contains(Helper.mainCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Category(){ Id=0}).Id)).OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
             }
             else
             {
-                TipList = new ObservableCollection<string>(allTasks.Where(x => (x.Type=="work"||x.Type=="invest"||x.Type=="play")&&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+                TipList = new ObservableCollection<string>(allTasks.Where(x => ValidTasks.Contains((Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { Id = 0 }).Id)) && x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
             }
             TodoToday.ItemsSource = TipList;
             TodoToday.IsDropDownOpen=true;
@@ -286,11 +287,11 @@ namespace Summary.Models
                 List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
                 if (TodoTodayTextbox.Text=="")
                 {
-                    TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+                    TipList = new ObservableCollection<string>(allTasks.Where(x =>Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask==true).OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
                 }
                 else
                 {
-                    TipList = new ObservableCollection<string>(allTasks.Where(x => (x.Type=="work"||x.Type=="invest"||x.Type=="play")&&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+                    TipList = new ObservableCollection<string>(allTasks.Where(x => (Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true) &&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
                 }
                 TodoToday.ItemsSource = TipList;
                 TodoToday.IsDropDownOpen=true;
@@ -528,15 +529,19 @@ namespace Summary.Models
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 hs.Add(curr.Note);
             }
-            else if (hs.Contains(curr.Note) && !(changedType == "work" || changedType == "invest" || changedType == "play"))
+            else if (hs.Contains(curr.Note) && !(Helper.mainCategories.FirstOrDefault(x => x.Name == changedType, new Category() { AutoAddTask = false }).AutoAddTask))
             {
                 var item = TodayList.Where(x => x.Note == curr.Note);
                 if (item != null && item.Count() > 0)
                 {
+                    await SQLCommands.UpdateTodo(item.First());
                     hs.Remove(curr.Note);
                     await SQLCommands.DeleteTodo(item.First());
                     TodayList.Remove(item.First());
                 }
+            }else{
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId = categoryDic[changedType] };
+                var id = await SQLCommands.AddTodo(newObj);
             }
             refreshSingleDayPlot();
         }
@@ -834,7 +839,7 @@ namespace Summary.Models
             {
                 foreach (var obj in AllTodayTasks)
                 {
-                    if (Helper.mainCategories.FirstOrDefault(x=>x.Name==obj.Type, new Category() { AutoAddTask=false}).AutoAddTask)
+                    if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask)
                     {
                         if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
@@ -842,7 +847,7 @@ namespace Summary.Models
                                 CreatedDate = DateTime.Today, 
                                 Note = obj.Note, 
                                 Finished = obj.Finished, 
-                                Type = obj.Type,
+                                Type = Helper.mainCategories.FirstOrDefault(x => x.Id == obj.TypeId, new Category() { Name = "" }).Name,
                                 Id = obj.Id };
                             TodayList.Add(newObj);
                             hs.Add(obj.Note);
@@ -871,7 +876,7 @@ namespace Summary.Models
             
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
-            TipList = new ObservableCollection<string>(allTasks.Where(x => x.Type=="work"||x.Type=="invest"||x.Type=="play").OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
+            TipList = new ObservableCollection<string>(allTasks.Where(x => Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true).OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
         }
         private void UpdateGridData()
         {

@@ -53,14 +53,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TimeTests.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    <Folder Include="bin\x64\Release\net6.0-windows\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="bin\Debug\net6.0-windows\" />
-    <Folder Include="bin\x64\Release\net6.0-windows\" />
+    <None Include="bin\Debug\net6.0-windows\TimeTests.db" />
   </ItemGroup>
 
 </Project>

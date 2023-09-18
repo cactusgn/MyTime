@@ -13,11 +13,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -71,12 +73,8 @@ namespace Summary.Models
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
         public WpfPlot SummaryPlot { get; set; }
-        public RadioButton WasteRB { get; set; }
-        public RadioButton WorkRB { get; set; }
-        public RadioButton PlayRB { get; set; }
-        public RadioButton StudyRB { get; set; }
-        public RadioButton RestRB { get; set; }
-        public RadioButton AllRB { get; set; }
+        public List<RadioButton> radioButtons { get; set; } = new List<RadioButton>();
+
         public RadioButton ThirdLevelRB { get; set; }
         public RadioButton FirstLevelRB { get; set; }
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
@@ -124,7 +122,6 @@ namespace Summary.Models
             ResizeCommand = new MyCommand(resizeHeight);
             Helper.initColor(SqlCommands);
             updateOldItems();
-            
         }
 
         public void initTypeCombobox()
@@ -133,6 +130,21 @@ namespace Summary.Models
              List<Category> mainCategoriesWithNone = new List<Category>();
             mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});
             mainCategoriesWithNone.AddRange(Helper.mainCategories);
+
+            RadioButton AllRadioButton = new RadioButton();
+            Binding BindingObj = new Binding();
+            BindingObj.Path = new PropertyPath("RadioButtonEnabled");
+            AllRadioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
+            AllRadioButton.FontSize= 14;
+            AllRadioButton.Name = "AllRB";
+            AllRadioButton.GroupName = "Type";
+            AllRadioButton.Margin = new Thickness(5, 0, 5, 0);
+            AllRadioButton.Command=SummaryRBChangedCommand;
+            AllRadioButton.CommandParameter = "All";
+            AllRadioButton.Content = "All";
+            AllRadioButton.IsChecked = true;
+            TypeRadioGroupPanel.Children.Add(AllRadioButton);
+            radioButtons.Add(AllRadioButton);
             foreach (var category in mainCategoriesWithNone)
             {
                 Helper.SummaryCategoryDic.Add(category.Name, index++);
@@ -162,8 +174,22 @@ namespace Summary.Models
                 item.Tag = category.Name;
                 item.PreviewMouseLeftButtonUp += Type_PreviewMouseLeftButtonUp;
 
-
                 TypeComboBox.Items.Add(item);
+
+                if (category.Name=="none") continue;
+                RadioButton radioButton = new RadioButton();
+                BindingObj = new Binding();
+                BindingObj.Path = new PropertyPath("RadioButtonEnabled");
+                radioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
+                radioButton.FontSize= 14;
+                radioButton.Name = category.Name+"RB";
+                radioButton.GroupName = "Type";
+                radioButton.Margin = new Thickness(5, 0, 5, 0);
+                radioButton.Command=SummaryRBChangedCommand;
+                radioButton.CommandParameter = category.Name;
+                radioButton.Content = category.Name;
+                TypeRadioGroupPanel.Children.Add(radioButton);
+                radioButtons.Add(AllRadioButton);
             }
         }
 
@@ -264,19 +290,6 @@ namespace Summary.Models
                         }
                         await SQLCommands.UpdateObj(timeObj);
                     }
-                    if (timeObj.type.Trim()=="study")
-                    {
-                        timeObj.type = "invest";
-                        await SQLCommands.UpdateObj(timeObj);
-                    }
-                    //if (timeObj.taskId == 0)
-                    //{
-                    //    if(timeObj.type.Trim() !="none"&&Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
-                    //    {
-                    //        timeObj.taskId = Helper.categoryDic[timeObj.type.Trim()];
-                    //        await SQLCommands.UpdateObj(timeObj);
-                    //    }
-                    //}
                 }
             }
         }
@@ -362,6 +375,7 @@ namespace Summary.Models
         public MyCommand SelectedCommand { get; set; }
         public ComboBox TypeComboBox { get; internal set; }
         public System.Windows.Style ComboBoxItemStyle { get; internal set; }
+        public WrapPanel TypeRadioGroupPanel { get; internal set; }
 
         private  void closeDialog()
         {
@@ -445,30 +459,12 @@ namespace Summary.Models
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(startTime, endTime,SQLCommands,height);
             SelectedTimeObj = new TimeViewObj() { Type="" };
-            AllRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (AllRB.IsChecked==true) refreshSummaryPlot("all");
-            }));
-            WorkRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (WorkRB.IsChecked==true) refreshSummaryPlot("work");
-            }));
-            StudyRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (StudyRB.IsChecked==true) refreshSummaryPlot("invest");
-            }));
-            WasteRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (WasteRB.IsChecked==true) refreshSummaryPlot("waste");
-            }));
-            RestRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (RestRB.IsChecked==true) refreshSummaryPlot("rest");
-            }));
-            PlayRB.Dispatcher.Invoke(new Action(delegate
-            {
-                if (PlayRB.IsChecked==true) refreshSummaryPlot("play");
-            }));
+            foreach(RadioButton radioButton in radioButtons) { 
+                radioButton.Dispatcher.Invoke(new Action(delegate
+                {
+                    if (radioButton.IsChecked==true) refreshSummaryPlot(radioButton.Content.ToString());
+                }));
+            }
         }
         public void resizeHeight(object a = null)
         {
@@ -509,6 +505,11 @@ namespace Summary.Models
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
                 int taskId = findTask==null ? 0 : findTask.Id;
+                if (taskId==0)
+                {
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
+                    taskId = await SQLCommands.AddTodo(newObj);
+                }
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
                 lastIndex++;
                 taskId = 0;
@@ -516,6 +517,11 @@ namespace Summary.Models
                 {
                     findTask = SQLCommands.QueryTodo(content2);
                     taskId =  findTask==null ? 0 : findTask.Id;
+                    if (taskId==0)
+                    {
+                        ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
+                        taskId = await SQLCommands.AddTodo(newObj);
+                    }
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex,height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, "none");

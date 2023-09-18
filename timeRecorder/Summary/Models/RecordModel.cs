@@ -516,7 +516,6 @@ namespace Summary.Models
             foreach (var obj in TodayAllObjectWithSameNote)
             {
                 obj.Type = changedType;
-                obj.TaskId = categoryDic[changedType];
                 Helper.UpdateColor(obj, changedType);
                 await SQLCommands.UpdateObj(obj);
             }
@@ -798,6 +797,11 @@ namespace Summary.Models
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
                 int taskId = findTask==null ? 0 : findTask.Id;
+                if (taskId==0)
+                {
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
+                    taskId = await SQLCommands.AddTodo(newObj);
+                }
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId:taskId);
                 lastIndex++;
                 taskId = 0;
@@ -805,6 +809,11 @@ namespace Summary.Models
                 {
                     findTask = SQLCommands.QueryTodo(content2);
                     taskId = findTask==null ? 0 : findTask.Id;
+                    if (taskId==0)
+                    {
+                        ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
+                        taskId = await SQLCommands.AddTodo(newObj);
+                    }
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, "none");

@@ -32,7 +32,7 @@ namespace Summary.Domain
             get { return content1; }
             set { content1 = value; OnPropertyChanged(); }
         }
-        private string content2;
+        private string content2="";
 
         public string Content2
         {

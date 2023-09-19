@@ -64,6 +64,7 @@ namespace Summary.Models
             CategoryModel = categoryModel;
             queryTaskModel =  new QueryTaskModel("", DateTime.Today.AddDays(-6), DateTime.Today, SqlCommands);
             MainContent = new QueryTaskUserControl(queryTaskModel);
+            queryTaskModel.GetSummaryDate();
             ShowVisibleHeader = "显示隐藏类别";
         }
 

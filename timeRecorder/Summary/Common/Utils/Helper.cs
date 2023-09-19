@@ -192,29 +192,19 @@ namespace Summary.Common.Utils
             var allItemCount = 0;
             foreach (string type in TestCategory)
             {
+                if (type == "none") continue;
                 var timeItems = items.Where(x => x.Type == type).ToArray();
                 TypeItemList.Add(type, timeItems);
                 allItemCount += timeItems.Length;
             }
-            //var studyItems = items.Where(x => x.Type == "invest").ToArray();
-            //var wasteItems = items.Where(x => x.Type == "waste").ToArray();
-            //var workItems = items.Where(x => x.Type == "work").ToArray();
-            //var restItems = items.Where(x => x.Type == "rest").ToArray();
-            //var playItems = items.Where(x => x.Type == "play").ToArray();
-            //var allItemCount = studyItems.Length + wasteItems.Length + workItems.Length + restItems.Length + playItems.Length;
             string[] TimeLabels = new string[allItemCount];
             string[] YLabels = new string[allItemCount];
             double[] position = new double[allItemCount];
             foreach (var TypeItems in TypeItemList)
             {
+                if (TypeItems.Key == "none") continue;
                 addChartData(TypeItems.Value, TypeItems.Key, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
             }
-            //addChartData(studyItems, TimeType.invest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            //addChartData(workItems, TimeType.work, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            //addChartData(wasteItems, TimeType.waste, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            //addChartData(restItems, TimeType.rest, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-            //addChartData(playItems, TimeType.play, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
-
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
             Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";

@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace Summary.Models
@@ -20,8 +21,8 @@ namespace Summary.Models
     public class QueryTaskModel:ViewModelBase
     {
 		private DateTime startTime = DateTime.Today.AddDays(-6);
-
-		public DateTime StartTime
+        private List<ToDoObj> allTasks = new List<ToDoObj>();
+        public DateTime StartTime
         {
 			get { return startTime; }
 			set { startTime = value;OnPropertyChanged(); }
@@ -39,7 +40,9 @@ namespace Summary.Models
         public string Category
         {
             get { return category; }
-            set { category = value;  GetSummaryDate(); }
+            set { category = value;
+                AfterClickCategory(category);
+            }
         }
 
         private bool _IsDialogOpen;
@@ -74,6 +77,7 @@ namespace Summary.Models
         public MyCommand ClickOkButtonCommand { get; set; }
         public MyCommand UpdateCategoryCommand { get; set; }
         private ObservableCollection<ToDoObj> categoryDataGridSource = new ObservableCollection<ToDoObj>();
+        public List<RadioButton> radioButtons { get; set; } = new List<RadioButton>();
         public ObservableCollection<ToDoObj> CategoryDataGridSource
         {
             get
@@ -87,17 +91,18 @@ namespace Summary.Models
             }
         }
         private List<Category> categories;
-
         public List<Category> Categories
         {
             get { return categories; }
             set { categories = value; OnPropertyChanged(); }
         }
         public MyCommand CellEditEndingCommand { get; set; }
+        public MyCommand SummaryRBChangedCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         private int SelectedContextMenuCategoryId { get; set; }
         private string SelectedContextMenuType { get; set; }
         public Dictionary<string, int> TypesDic { get; set; } = new Dictionary<string, int>();
+        public WrapPanel RBWrapPanel { get; internal set; }
 
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
@@ -108,7 +113,8 @@ namespace Summary.Models
             EndTime = endTime;
             Category = category;
             SQLCommands = sqlCommands;
-            GetSummaryDate();
+            SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
+           
         }
        
         private async void CellEditEnding(object obj)
@@ -187,56 +193,124 @@ namespace Summary.Models
                 task.Type = SelectedContextMenuType;
                 await SQLCommands.UpdateTodo(task);
             }
-            GetSummaryDate();
+            AfterClickCategory(Category);
         }
 
-        private async void GetSummaryDate()
+        public async void GetSummaryDate()
         {
             if (SQLCommands!=null)
             {
                 List<MyTime> allTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
-                List<ToDoObj> allTasks = new List<ToDoObj>();
                 List<Category> AllCategories = await SQLCommands.GetAllCategories();
                 List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
                 int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
                 if (Category=="") findCategoryId=0;
-                List<Category> BasicCategories = AllCategories.Where(x => x.ParentCategoryId==0).ToList();
-                if (BasicCategories.Where(x=>x.Name==Category).Count()>0)
-                {
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                }
-                else
-                {
+
+               
+               
+
+                //List<Category> BasicCategories = AllCategories.Where(x => x.ParentCategoryId==0).ToList();
+                //if (BasicCategories.Where(x=>x.Name==Category).Count()>0)
+                //{
+                //    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                //}
+                //else
+                //{
                     allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                }
+                //}
                 foreach (ToDoObj task in allTasks)
                 {
                     if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&& AllCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Data.Category() { Name=""}).Name== Category).Count()==0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }
-                    //if (Category!="")
-                    //{
-                        await updateTaskCategory(task, AllTasksFromDatabase, findCategoryId, AllCategories);
-                    //}
+                   
+                    await updateTaskCategory(task, AllTasksFromDatabase, findCategoryId, AllCategories);
+                    
                     if (task.Category == "" || task.Category == null)
                     {
                         task.Category = task.Type.ToString();
                     }
                 }
-                if (findCategoryId!=0)
-                {
-                    allTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
-                    
-                }
-                CalculateBonus(allTasks, AllCategories);
-                CategoryDataGridSource = new ObservableCollection<ToDoObj>(allTasks);
-                totalCost = new TimeSpan(allTasks.Sum(x => x.LastTime.Ticks));
-                TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
-                AverageCost = (totalCost/(EndTime-StartTime).Days);
-                AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
+            
+                 AfterClickCategory(Category);
+                  
+            
+            
+                //if (findCategoryId!=0)
+                //{
+                //    allTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
+                //}
+                //CalculateBonus(allTasks, AllCategories);
+                //CategoryDataGridSource = new ObservableCollection<ToDoObj>(allTasks);
+                //totalCost = new TimeSpan(allTasks.Sum(x => x.LastTime.Ticks));
+                //TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
+                //AverageCost = (totalCost/(EndTime-StartTime).Days);
+                //AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
             }
         }
+        private void AfterClickCategory(string Category){
+            int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+            if (RBWrapPanel != null)
+            {
+                RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                {
+                    RefreshRadioButtons(findCategoryId);
+                }));
+            }
+            var tempTasks = allTasks.Where(x => x.Finished == true || x.Finished == false).ToList();
+            if (findCategoryId != 0)
+            {
+                tempTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
+
+            }
+            CalculateBonus(tempTasks, Helper.allcategories);
+            CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
+            totalCost = new TimeSpan(tempTasks.Sum(x => x.LastTime.Ticks));
+            TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
+            AverageCost = (totalCost / (EndTime - StartTime).Days);
+            AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
+        }
+        private void RefreshRadioButtons(int findCategoryId)
+        {
+            if(RBWrapPanel!=null){
+                int maxDepth = getMaxDepth(1,findCategoryId);
+                radioButtons.Clear();
+                RBWrapPanel.Children.Clear();
+                for (int i = 0; i < maxDepth; i++)
+                {
+                    RadioButton AllRadioButton = new RadioButton();
+                    Binding BindingObj = new Binding();
+                    BindingObj.Path = new PropertyPath("RadioButtonEnabled");
+                    AllRadioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
+                    AllRadioButton.FontSize = 14;
+                    AllRadioButton.Name = "RB" + i.ToString();
+                    AllRadioButton.GroupName = "QueryType";
+                    AllRadioButton.Margin = new Thickness(5, 0, 5, 0);
+                    AllRadioButton.Command = SummaryRBChangedCommand;
+                    AllRadioButton.CommandParameter = i.ToString();
+                    AllRadioButton.Content = "层级" + (i + 1).ToString();
+                    if (i == 0) AllRadioButton.IsChecked = true;
+                    RBWrapPanel.Children.Add(AllRadioButton);
+                    radioButtons.Add(AllRadioButton);
+                }
+            }
+        }
+        private void SummaryRBChanged(object obj)
+        {
+            //refreshSummaryPlot(obj.ToString());
+        }
+        private int getMaxDepth(int currDepth, int findCategoryId)
+        {
+            var allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId).ToList();
+            if (allSubCategories.Count == 0) return currDepth;
+            int a = currDepth;
+            foreach(var category in allSubCategories) {
+                currDepth = Math.Max(getMaxDepth(a+1, category.Id), currDepth);
+            }
+            return currDepth;
+        }
+
         private void CalculateBonus(List<ToDoObj> allTasks, List<Category> AllCategories)
         {
             TotalBonus = 0;

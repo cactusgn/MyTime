@@ -200,7 +200,7 @@ namespace Summary.Data
                 if (item!=null&&item.Count()>0)
                 {
                     var updateObj = item.First();
-                    updateObj.CreateDate = obj.CreatedDate;
+                    updateObj.CreateDate = obj.CreatedDate>updateObj.CreateDate?obj.CreatedDate:updateObj.CreateDate;
                     updateObj.UpdatedDate = DateTime.Today;
                     updateObj.TypeId = typeid;
                     updateObj.CategoryId = obj.CategoryId;

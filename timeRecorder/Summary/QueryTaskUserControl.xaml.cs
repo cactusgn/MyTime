@@ -28,6 +28,7 @@ namespace Summary
             this.DataContext = queryTaskModel;
             queryTaskModel.UpdateCategoryMenuItem = UpdateCategoryMenuItem;
             queryTaskModel.CategoryDatagrid = CategoryDataGrid;
+            queryTaskModel.RBWrapPanel = RBWrapPanel;
         }
     }
 }

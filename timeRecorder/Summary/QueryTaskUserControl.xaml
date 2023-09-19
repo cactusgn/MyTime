@@ -7,6 +7,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
+             xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF" 
              xmlns:uc="clr-namespace:Summary.Domain" xmlns:col="clr-namespace:System.Collections;assembly=System.Collections.NonGeneric"
              d:DesignHeight="450" d:DesignWidth="1000">
     <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
@@ -124,6 +125,10 @@
                       Grid.Column="1"   
                       Width="2" Background="Silver">
                 </GridSplitter>
+                <StackPanel  Grid.Column="2" >
+                    <WrapPanel Orientation="Horizontal" x:Name="RBWrapPanel"></WrapPanel>
+                    <ScottPlot:WpfPlot x:Name="CategoryPlot" />
+                </StackPanel>
             </Grid>
 
         </Grid>

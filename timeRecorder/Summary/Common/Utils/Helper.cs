@@ -130,28 +130,6 @@ namespace Summary.Common.Utils
             {
                 timeViewObj.Color = colorDic[type.ToLower()];
             }
-            
-            //switch (type.ToLower())
-            //{
-            //    case "invest":
-            //        timeViewObj.Color = "#FFB6C1";
-            //        break;
-            //    case "waste":
-            //        timeViewObj.Color = "#F08080";
-            //        break;
-            //    case "rest":
-            //        timeViewObj.Color = "#98FB98";
-            //        break;
-            //    case "work":
-            //        timeViewObj.Color = "#FFD700";
-            //        break;
-            //    case "none":
-            //        timeViewObj.Color = "#F3F3F3";
-            //        break;
-            //    case "play":
-            //        timeViewObj.Color = "#ADD8E6";
-            //        break;
-            //}
         }
         public static TimeSpan getCurrentTime(){
             DateTime now = DateTime.Now;

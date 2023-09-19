@@ -23,43 +23,45 @@
         <cv:DateConverter x:Key="dateConverter"/>
     </Window.Resources>
 
-    <DockPanel>
+    <DockPanel >
         <Grid Margin="16,0,16,16" DockPanel.Dock="Top" >
 
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
         <Border x:Name="TitleRow" Grid.Row="0" CornerRadius="4" >
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding Title}"></TextBlock>
         </Border>
         <Border Grid.Row="0" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
-        <StackPanel Margin="10,10,10,0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock  VerticalAlignment="Center" Text="{Binding Message}" TextWrapping="Wrap"></TextBlock>
-        </StackPanel>
-    </Grid>
-        <Grid  DockPanel.Dock="Bottom" 
-            VerticalAlignment="Center"
+        <DockPanel Margin="10,10,10,0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock DockPanel.Dock="Top" VerticalAlignment="Center" Text="{Binding Message}" TextWrapping="Wrap"></TextBlock>
+        </DockPanel>
+            <Grid  DockPanel.Dock="Bottom" 
+            VerticalAlignment="Center"  Grid.Row="2"
                 Margin="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Button Click="Button_Click_1"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Click="Button_Click_1"
                IsCancel="True" Grid.Column="0" Width="100" Margin="60,0,0,0"
               Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding CancelString}">
-                <Button.CommandParameter>
-                    <system:Boolean>False</system:Boolean>
-                </Button.CommandParameter>
-            </Button>
-            <Button Grid.Column="1" Click="Button_Click"
+                    <Button.CommandParameter>
+                        <system:Boolean>False</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Grid.Column="1" Click="Button_Click"
                Width="100" Margin="0,0,60,0" IsDefault="True"
               Style="{StaticResource MaterialDesignFlatButton}" Content="{Binding ConfirmString}">
-                <Button.CommandParameter>
-                    <system:Boolean>True</system:Boolean>
-                </Button.CommandParameter>
-            </Button>
+                    <Button.CommandParameter>
+                        <system:Boolean>True</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
 
+            </Grid>
         </Grid>
+        
     </DockPanel>
 </Window>

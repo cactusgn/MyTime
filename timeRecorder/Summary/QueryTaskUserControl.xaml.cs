@@ -29,6 +29,7 @@ namespace Summary
             queryTaskModel.UpdateCategoryMenuItem = UpdateCategoryMenuItem;
             queryTaskModel.CategoryDatagrid = CategoryDataGrid;
             queryTaskModel.RBWrapPanel = RBWrapPanel;
+            queryTaskModel.CategoryPlot = CategoryPlot;
         }
     }
 }

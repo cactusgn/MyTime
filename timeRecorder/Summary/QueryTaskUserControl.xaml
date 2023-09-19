@@ -125,10 +125,11 @@
                       Grid.Column="1"   
                       Width="2" Background="Silver">
                 </GridSplitter>
-                <StackPanel  Grid.Column="2" >
-                    <WrapPanel Orientation="Horizontal" x:Name="RBWrapPanel"></WrapPanel>
-                    <ScottPlot:WpfPlot x:Name="CategoryPlot" />
-                </StackPanel>
+                <DockPanel  Grid.Column="2" >
+                    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" x:Name="RBWrapPanel" Margin="5" Height="30"></WrapPanel>
+
+                    <ScottPlot:WpfPlot DockPanel.Dock="Top" x:Name="CategoryPlot" />
+                </DockPanel>
             </Grid>
 
         </Grid>

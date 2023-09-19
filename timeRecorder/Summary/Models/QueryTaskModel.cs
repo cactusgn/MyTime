@@ -1,5 +1,6 @@
 ﻿using MaterialDesignDemo.Domain;
 using MaterialDesignThemes.Wpf;
+using ScottPlot;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -103,7 +104,8 @@ namespace Summary.Models
         private string SelectedContextMenuType { get; set; }
         public Dictionary<string, int> TypesDic { get; set; } = new Dictionary<string, int>();
         public WrapPanel RBWrapPanel { get; internal set; }
-
+        public WpfPlot CategoryPlot { get; internal set; }
+        public Dictionary<string, string> colorDic = new Dictionary<string, string>();
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -205,19 +207,7 @@ namespace Summary.Models
                 List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
                 int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
                 if (Category=="") findCategoryId=0;
-
-               
-               
-
-                //List<Category> BasicCategories = AllCategories.Where(x => x.ParentCategoryId==0).ToList();
-                //if (BasicCategories.Where(x=>x.Name==Category).Count()>0)
-                //{
-                //    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type==Category&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                //}
-                //else
-                //{
-                    allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-                //}
+                allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
                 {
                     if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&& AllCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Data.Category() { Name=""}).Name== Category).Count()==0)
@@ -232,21 +222,7 @@ namespace Summary.Models
                         task.Category = task.Type.ToString();
                     }
                 }
-            
                  AfterClickCategory(Category);
-                  
-            
-            
-                //if (findCategoryId!=0)
-                //{
-                //    allTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
-                //}
-                //CalculateBonus(allTasks, AllCategories);
-                //CategoryDataGridSource = new ObservableCollection<ToDoObj>(allTasks);
-                //totalCost = new TimeSpan(allTasks.Sum(x => x.LastTime.Ticks));
-                //TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
-                //AverageCost = (totalCost/(EndTime-StartTime).Days);
-                //AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
             }
         }
         private void AfterClickCategory(string Category){
@@ -258,7 +234,7 @@ namespace Summary.Models
                     RefreshRadioButtons(findCategoryId);
                 }));
             }
-            var tempTasks = allTasks.Where(x => x.Finished == true || x.Finished == false).ToList();
+            var tempTasks = allTasks.ToList();
             if (findCategoryId != 0)
             {
                 tempTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
@@ -270,6 +246,11 @@ namespace Summary.Models
             TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
             AverageCost = (totalCost / (EndTime - StartTime).Days);
             AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
+            if (radioButtons.Count>0)
+            {
+                radioButtons[0].IsChecked = true;
+                SummaryRBChanged(1);
+            }
         }
         private void RefreshRadioButtons(int findCategoryId)
         {
@@ -286,19 +267,109 @@ namespace Summary.Models
                     AllRadioButton.FontSize = 14;
                     AllRadioButton.Name = "RB" + i.ToString();
                     AllRadioButton.GroupName = "QueryType";
-                    AllRadioButton.Margin = new Thickness(5, 0, 5, 0);
+                    AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
                     AllRadioButton.Command = SummaryRBChangedCommand;
                     AllRadioButton.CommandParameter = i.ToString();
                     AllRadioButton.Content = "层级" + (i + 1).ToString();
-                    if (i == 0) AllRadioButton.IsChecked = true;
+                    //if (i == 0) AllRadioButton.IsChecked = true;
                     RBWrapPanel.Children.Add(AllRadioButton);
                     radioButtons.Add(AllRadioButton);
                 }
             }
         }
-        private void SummaryRBChanged(object obj)
+        private async void SummaryRBChanged(object obj)
         {
-            //refreshSummaryPlot(obj.ToString());
+            int param = int.Parse(obj.ToString());
+            var index = 0;
+            CategoryPlot.Plot.Clear();
+            var plt = CategoryPlot.Plot;
+            List<ToDoObj> plotData = allTasks.ToList();
+
+            Dictionary<int, int> typelevelDic = new Dictionary<int, int>();
+            colorDic.Clear();
+            Dictionary<string,int> NameIdDic = new Dictionary<string,int>();
+            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+            foreach (Category category in AllCategories)
+            {
+                NameIdDic.Add(category.Name, category.Id);
+                colorDic.Add(category.Name, category.Color);
+                Category tempCate = category;
+                int level = 1;
+                while(AllCategories.FirstOrDefault(x=>x.Id == tempCate.Id, new Data.Category() { ParentCategoryId=0 }).ParentCategoryId!=0)
+                {
+                    level++;
+                    tempCate = AllCategories.FirstOrDefault(x => x.Id == tempCate.ParentCategoryId, new Data.Category() { ParentCategoryId=0 });
+                }
+                typelevelDic.Add(category.Id, level);
+            }
+            typelevelDic = typelevelDic.OrderByDescending(x => x.Value).ToDictionary(x=>x.Key,x=>x.Value);
+            Dictionary<string, long> plotDataFinal = new Dictionary<string, long>();
+            foreach (var item in typelevelDic) {
+                var currentLevel = findCategoryId==0 ? 0 : typelevelDic[findCategoryId];
+                if (item.Value-currentLevel>=param)
+                {
+                    var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId==item.Key).Select(x=>x.Id).ToList();
+                    var sumLastTime = plotData.Where(x => tempSubCategories.Contains(x.CategoryId)).Sum(x => x.LastTime.Ticks);
+                    plotDataFinal.Add(AllCategories.FirstOrDefault(x => x.Id==item.Key).Name, sumLastTime);
+                }
+            }
+            List<int> allTypes = typelevelDic.Where(x => x.Value==param).Select(x => x.Key).ToList();
+            var items = plotDataFinal.Where(x=> allTypes.Contains(NameIdDic[x.Key])).Select(x => new ChartBar { Note = x.Key, Type = x.Key, Time = new TimeSpan(x.Value) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            Dictionary<string, ChartBar[]> TypeItemList = new Dictionary<string, ChartBar[]>();
+            var allItemCount = 0;
+            foreach (string type in plotDataFinal.Keys)
+            {
+                //if (type == "none") continue;
+                var timeItems = items.Where(x => x.Type == type).ToArray();
+                TypeItemList.Add(type, timeItems);
+                allItemCount += timeItems.Length;
+            }
+            string[] TimeLabels = new string[allItemCount];
+            string[] YLabels = new string[allItemCount];
+            double[] position = new double[allItemCount];
+            foreach (var TypeItems in TypeItemList)
+            {
+                if (TypeItems.Key == "none") continue;
+                addChartData(TypeItems.Value, TypeItems.Key, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            }
+            plt.YTicks(position, YLabels);
+            plt.Legend(location: Alignment.UpperRight);
+            Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+            plt.XAxis.TickLabelFormat(customFormatter);
+            plt.YAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.XAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+
+            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            // adjust axis limits so there is no padding to the left of the bar graph
+            plt.SetAxisLimits(xMin: 0);
+            CategoryPlot.Configuration.Quality = ScottPlot.Control.QualityMode.High;
+            CategoryPlot.Render(lowQuality: false);
+            CategoryPlot.Refresh();
+        }
+        private void addChartData(ChartBar[] Items, string type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
+        {
+            if (Items.Count() > 0)
+            {
+                double[] itemPostion = new double[Items.Count()];
+                double[] itemValues = new double[Items.Count()];
+                //initColor();
+                for (int i = 0; i < Items.Count(); i++)
+                {
+                    itemPostion[i] = index + i + 1;
+                    position[i + index] = index + i + 1;
+                    YLabels[i + index] = Items[i].Note;
+                    itemValues[i] = Items[i].Time.TotalSeconds;
+                    TimeLabels.Append(Items[i].Time.ToString());
+                }
+                var bar = plt.AddBar(itemValues, itemPostion, System.Drawing.ColorTranslator.FromHtml(colorDic[type]));
+                bar.Orientation = ScottPlot.Orientation.Horizontal;
+                bar.ShowValuesAboveBars = true;
+                Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+                bar.ValueFormatter = customFormatter;
+                index = index + Items.Count();
+            }
         }
         private int getMaxDepth(int currDepth, int findCategoryId)
         {

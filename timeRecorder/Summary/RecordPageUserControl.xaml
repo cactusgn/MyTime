@@ -240,14 +240,16 @@
                     <TabControl materialDesign:ColorZoneAssist.Mode="PrimaryMid"
                         Style="{StaticResource MaterialDesignFilledTabControl}">
                         <TabItem Header="当天总计" >
-                            <StackPanel VerticalAlignment="Center">
-                                <WrapPanel Margin="0,10,0,20" Orientation="Horizontal" >
+                            <DockPanel  Height="{Binding GridHeight}" >
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,10,0,20" Orientation="Horizontal" >
                                     <Label FontSize="14" Margin="0,0,10,0">Type:</Label>
                                     <RadioButton  FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType2" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
                                     <RadioButton  FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType2" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>
                                 </WrapPanel>
-                                <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
-                            </StackPanel>
+                                <DockPanel DockPanel.Dock="Top" >
+                                    <ScottPlot:WpfPlot  x:Name="SingleDayPlot" />
+                                </DockPanel>
+                            </DockPanel>
                         </TabItem>
                         <TabItem Header="列表">
                                 <DataGrid MaxHeight="{Binding GridHeight}"

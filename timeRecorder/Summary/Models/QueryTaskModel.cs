@@ -179,20 +179,20 @@ namespace Summary.Models
 
         public async void UpdateContextMenu()
         {
-            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            Helper.allcategories = await SQLCommands.GetAllCategories();
             UpdateCategoryMenuItem.Items.Clear();
             TypesDic.Clear();
-            updateSubContextMenu(AllCategories, UpdateCategoryMenuItem,0);
+            updateSubContextMenu(Helper.allcategories, UpdateCategoryMenuItem,0);
         }
         private async void UpdateCategory(object obj)
         {
             System.Collections.IList items = (System.Collections.IList)obj;
             var collection = items.Cast<ToDoObj>();
             List<ToDoObj> selectedTasks = collection.ToList();
-            List<Category> allCategories = await SQLCommands.GetAllCategories();
+            Helper.allcategories = await SQLCommands.GetAllCategories();
             foreach (var task in selectedTasks) {
                 task.CategoryId = SelectedContextMenuCategoryId;
-                task.Category = allCategories.First(x=>x.Id ==SelectedContextMenuCategoryId).Name;
+                task.Category = Helper.allcategories.First(x=>x.Id ==SelectedContextMenuCategoryId).Name;
                 task.Type = SelectedContextMenuType;
                 await SQLCommands.UpdateTodo(task);
             }
@@ -295,7 +295,9 @@ namespace Summary.Models
             Dictionary<int,string> IdNameDic = new Dictionary<int, string>();
             List<Category> AllCategories = await SQLCommands.GetAllCategories();
             int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
-            
+            IdNameDic.Add(0, "none");
+            NameIdDic.Add("none", 0);
+            colorDic.Add("none", "#F3F3F3");
             foreach (Category category in AllCategories)
             {
                 if(!category.Visible) { continue; }

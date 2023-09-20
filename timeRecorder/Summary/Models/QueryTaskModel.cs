@@ -301,7 +301,10 @@ namespace Summary.Models
                 colorDic.Add(category.Name, category.Color);
                 Category tempCate = category;
                 int level = 0;
-                while(AllCategories.FirstOrDefault(x=>x.Id == tempCate.Id, new Data.Category() { Id= findCategoryId }).Id!=findCategoryId|| AllCategories.FirstOrDefault(x => x.Id == tempCate.Id, new Data.Category() { Id = 0 }).Id != 0)
+                if (tempCate.Id == findCategoryId) {
+                    typelevelDic.Add(category.Name, level);
+                }
+                while (AllCategories.FirstOrDefault(x=>x.Id == tempCate.Id, new Data.Category() { Id= findCategoryId }).Id!=findCategoryId|| AllCategories.FirstOrDefault(x => x.Id == tempCate.Id, new Data.Category() { Id = 0 }).Id != 0)
                 {
                     level++;
                     tempCate = AllCategories.FirstOrDefault(x => x.Id == tempCate.ParentCategoryId, new Data.Category() { ParentCategoryId= findCategoryId });

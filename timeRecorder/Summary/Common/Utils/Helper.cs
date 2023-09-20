@@ -224,7 +224,7 @@ namespace Summary.Common.Utils
         public static void initColor(ISQLCommands SqlCommands)
         {
              allcategories = SqlCommands.GetAllCategories().Result.ToList();
-            mainCategories = allcategories.Where(x => x.ParentCategoryId==0&&x.Visible).ToList();
+            mainCategories = allcategories.Where(x => x.ParentCategoryId==0).ToList();
             TestCategory.Clear();
             TestCategory.Add("none");
             colorDic.Clear();

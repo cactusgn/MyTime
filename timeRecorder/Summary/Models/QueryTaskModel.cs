@@ -7,6 +7,7 @@ using Summary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
@@ -269,7 +270,7 @@ namespace Summary.Models
                     AllRadioButton.GroupName = "QueryType";
                     AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
                     AllRadioButton.Command = SummaryRBChangedCommand;
-                    AllRadioButton.CommandParameter = i.ToString();
+                    AllRadioButton.CommandParameter = (i+1).ToString();
                     AllRadioButton.Content = "层级" + (i + 1).ToString();
                     //if (i == 0) AllRadioButton.IsChecked = true;
                     RBWrapPanel.Children.Add(AllRadioButton);
@@ -283,39 +284,61 @@ namespace Summary.Models
             var index = 0;
             CategoryPlot.Plot.Clear();
             var plt = CategoryPlot.Plot;
-            List<ToDoObj> plotData = allTasks.ToList();
+            
 
-            Dictionary<int, int> typelevelDic = new Dictionary<int, int>();
+            Dictionary<string, int> typelevelDic = new Dictionary<string, int>();
             colorDic.Clear();
             Dictionary<string,int> NameIdDic = new Dictionary<string,int>();
+            Dictionary<int,string> IdNameDic = new Dictionary<int, string>();
             List<Category> AllCategories = await SQLCommands.GetAllCategories();
             int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+            
             foreach (Category category in AllCategories)
             {
+                if(!category.Visible) { continue; }
                 NameIdDic.Add(category.Name, category.Id);
+                IdNameDic.Add(category.Id, category.Name);
                 colorDic.Add(category.Name, category.Color);
                 Category tempCate = category;
-                int level = 1;
-                while(AllCategories.FirstOrDefault(x=>x.Id == tempCate.Id, new Data.Category() { ParentCategoryId=0 }).ParentCategoryId!=0)
+                int level = 0;
+                while(AllCategories.FirstOrDefault(x=>x.Id == tempCate.Id, new Data.Category() { Id= findCategoryId }).Id!=findCategoryId|| AllCategories.FirstOrDefault(x => x.Id == tempCate.Id, new Data.Category() { Id = 0 }).Id != 0)
                 {
                     level++;
-                    tempCate = AllCategories.FirstOrDefault(x => x.Id == tempCate.ParentCategoryId, new Data.Category() { ParentCategoryId=0 });
+                    tempCate = AllCategories.FirstOrDefault(x => x.Id == tempCate.ParentCategoryId, new Data.Category() { ParentCategoryId= findCategoryId });
+                    if(tempCate.Id==findCategoryId) 
+                    typelevelDic.Add(category.Name, level);
                 }
-                typelevelDic.Add(category.Id, level);
+            }
+            List<ToDoObj> plotData = allTasks.Where(x => typelevelDic.ContainsKey(x.Category)).ToList();
+            int maxDepth = getMaxDepth(1, findCategoryId);
+            foreach (ToDoObj task in plotData)
+            {
+                typelevelDic.Add("task:" + task.Note, maxDepth);
+                NameIdDic.Add("task:" + task.Note, 0);
+                colorDic.Add("task:" + task.Note, colorDic[IdNameDic[task.CategoryId]]);
             }
             typelevelDic = typelevelDic.OrderByDescending(x => x.Value).ToDictionary(x=>x.Key,x=>x.Value);
             Dictionary<string, long> plotDataFinal = new Dictionary<string, long>();
+
             foreach (var item in typelevelDic) {
-                var currentLevel = findCategoryId==0 ? 0 : typelevelDic[findCategoryId];
-                if (item.Value-currentLevel>=param)
+                if (item.Value>=param)
                 {
-                    var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId==item.Key).Select(x=>x.Id).ToList();
-                    var sumLastTime = plotData.Where(x => tempSubCategories.Contains(x.CategoryId)).Sum(x => x.LastTime.Ticks);
-                    plotDataFinal.Add(AllCategories.FirstOrDefault(x => x.Id==item.Key).Name, sumLastTime);
+                    var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId==NameIdDic[item.Key]||x.Id== NameIdDic[item.Key]).Select(x=> new { x.Id,x.Name}).ToList();
+                    long sumLastTime = 0;
+                    if (item.Value==maxDepth){
+                        sumLastTime = plotData.First(x => ("task:" + x.Note) == item.Key).LastTime.Ticks;
+                    }
+                    else{
+                        sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) + plotDataFinal.Where(x => tempSubCategories.Any(y => y.Name == x.Key)).Sum(x => x.Value);
+                    }
+                    
+                    Trace.WriteLine("cate: " + item.Key + " level: " + item.Value + " sumLastTime " + sumLastTime);
+                    plotDataFinal.Add(item.Key, sumLastTime);
                 }
             }
-            List<int> allTypes = typelevelDic.Where(x => x.Value==param).Select(x => x.Key).ToList();
-            var items = plotDataFinal.Where(x=> allTypes.Contains(NameIdDic[x.Key])).Select(x => new ChartBar { Note = x.Key, Type = x.Key, Time = new TimeSpan(x.Value) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            List<int> allTypes = typelevelDic.Where(x => x.Value==param).Select(x => NameIdDic[x.Key]).ToList();
+            plotDataFinal = plotDataFinal.Where(x => allTypes.Contains(NameIdDic[x.Key])).ToDictionary(x=>x.Key,x=>x.Value);
+            var items = plotDataFinal.Select(x => new ChartBar { Note = x.Key, Type = x.Key, Time = new TimeSpan(x.Value) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
             Dictionary<string, ChartBar[]> TypeItemList = new Dictionary<string, ChartBar[]>();
             var allItemCount = 0;
             foreach (string type in plotDataFinal.Keys)

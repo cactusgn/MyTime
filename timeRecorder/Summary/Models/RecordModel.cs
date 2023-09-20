@@ -306,6 +306,7 @@ namespace Summary.Models
             TestCategory.Add("none");
             foreach (Category category in mainCategories)
             {
+                if (!category.Visible) continue;
                 TestCategory.Add(category.Name);
                 Button button = new Button();
                 button.Content = category.Name;

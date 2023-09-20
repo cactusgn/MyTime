@@ -249,7 +249,10 @@ namespace Summary.Models
             AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
             if (radioButtons.Count>0)
             {
-                radioButtons[0].IsChecked = true;
+                RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                {
+                    radioButtons[0].IsChecked = true;
+                }));
                 SummaryRBChanged(1);
             }
         }
@@ -371,8 +374,11 @@ namespace Summary.Models
             // adjust axis limits so there is no padding to the left of the bar graph
             plt.SetAxisLimits(xMin: 0);
             CategoryPlot.Configuration.Quality = ScottPlot.Control.QualityMode.High;
-            CategoryPlot.Render(lowQuality: false);
-            CategoryPlot.Refresh();
+            RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+            {
+                CategoryPlot.Render(lowQuality: false);
+                CategoryPlot.Refresh();
+            }));
         }
         private void addChartData(ChartBar[] Items, string type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
         {

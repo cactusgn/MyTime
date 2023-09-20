@@ -99,10 +99,10 @@ namespace Summary.Models
         private void EditCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Bonus,root.AutoCreateTask);
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Visible=="Visible",root.Bonus,root.AutoCreateTask);
         }
 
-        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, int bonus=20, bool autoCreateTask=true)
+        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, bool visible, int bonus=20, bool autoCreateTask=true)
         {
             CategoryModel.Title = title;
             CategoryModel.Category = category;
@@ -115,6 +115,7 @@ namespace Summary.Models
             CategoryModel.ShowInvalidCateMessage = "Collapsed";
             CategoryModel.ParentCategoryList = await getCategorySVs(id);
             CategoryModel.AutoCreateTask = autoCreateTask;
+            CategoryModel.Visible = visible;
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
@@ -137,7 +138,7 @@ namespace Summary.Models
         private void AddCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, root.Bonus,root.AutoCreateTask);
+            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, true, root.Bonus,root.AutoCreateTask);
         }
 
         private void TreeViewSelectedItemChanged(object obj)

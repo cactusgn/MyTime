@@ -72,10 +72,12 @@ namespace Summary.Models
         {
             if (ShowVisibleHeader == "显示隐藏类别") {
                 ShowVisibleHeader = "不显示隐藏类别";
+                queryTaskModel.displayInvisibleItems = true;
             }
             else
             {
                 ShowVisibleHeader = "显示隐藏类别";
+                queryTaskModel.displayInvisibleItems = false;
             }
             RefreshCategories();
             Helper.initColor(SQLCommands);

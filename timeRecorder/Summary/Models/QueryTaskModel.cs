@@ -107,6 +107,7 @@ namespace Summary.Models
         public WrapPanel RBWrapPanel { get; internal set; }
         public WpfPlot CategoryPlot { get; internal set; }
         public Dictionary<string, string> colorDic = new Dictionary<string, string>();
+        public bool displayInvisibleItems { get; set; } = false;
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -407,7 +408,14 @@ namespace Summary.Models
         }
         private int getMaxDepth(int currDepth, int findCategoryId)
         {
-            var allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId).ToList();
+            List<Category> allSubCategories = new List<Category>();
+            if (displayInvisibleItems == true){
+                 allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId).ToList();
+            }
+            else{
+                allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId && x.Visible).ToList();
+            }
+            
             if (allSubCategories.Count == 0) return currDepth;
             int a = currDepth;
             foreach(var category in allSubCategories) {

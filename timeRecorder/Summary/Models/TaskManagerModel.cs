@@ -68,7 +68,7 @@ namespace Summary.Models
             ShowVisibleHeader = "显示隐藏类别";
         }
 
-        private async void ShowInvisibleCategoryClick(object obj)
+        private void ShowInvisibleCategoryClick(object obj)
         {
             if (ShowVisibleHeader == "显示隐藏类别") {
                 ShowVisibleHeader = "不显示隐藏类别";
@@ -78,7 +78,7 @@ namespace Summary.Models
                 ShowVisibleHeader = "显示隐藏类别";
             }
             RefreshCategories();
-            Helper.allcategories = await SQLCommands.GetAllCategories();
+            Helper.initColor(SQLCommands);
         }
 
         private async void DeleteCategoryClick(object obj)
@@ -93,7 +93,7 @@ namespace Summary.Models
                
             }
             RefreshCategories();
-            Helper.allcategories = await SQLCommands.GetAllCategories();
+            Helper.initColor(SQLCommands);
         }
 
         private void EditCategoryClick(object obj)
@@ -202,7 +202,7 @@ namespace Summary.Models
             
             await SQLCommands.AddCategory(categoryModel);
             RefreshCategories();
-            Helper.allcategories = await SQLCommands.GetAllCategories();
+            Helper.initColor(SQLCommands);
         }
 
         public async Task<bool> CategoryExist(string category)
@@ -242,9 +242,10 @@ namespace Summary.Models
                 RefreshCategories();
             }
             root.ParentId = category.ParentId;
-            Helper.allcategories = await SQLCommands.GetAllCategories();
+            Helper.initColor(SQLCommands);
         }
     }
+   
     public class MenuItemModel : ViewModelBase
     {
         public MenuItemModel()

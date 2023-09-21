@@ -182,7 +182,7 @@ namespace Summary.Models
                 BindingObj.Path = new PropertyPath("RadioButtonEnabled");
                 radioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
                 radioButton.FontSize= 14;
-                radioButton.Name = category.Name+"RB";
+                radioButton.Name = "sum" +category.Name+"RB";
                 radioButton.GroupName = "Type";
                 radioButton.Margin = new Thickness(5, 0, 5, 0);
                 radioButton.Command=SummaryRBChangedCommand;

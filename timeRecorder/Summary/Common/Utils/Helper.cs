@@ -145,7 +145,7 @@ namespace Summary.Common.Utils
             TimeObj.Height = CalculateHeight(TimeObj.LastTime,height,viewType);
             TimeObj.StartTime = startTime;
             TimeObj.EndTime = endTime;
-            TimeObj.Type = type.ToLower();
+            TimeObj.Type = Helper.mainCategories.Any(x=>x.Name==type.ToLower())?type.ToLower():"none";
             TimeObj.Id = index;
             TimeObj.TaskId = taskId;
             return TimeObj;
@@ -223,7 +223,7 @@ namespace Summary.Common.Utils
         }
         public static void initColor(ISQLCommands SqlCommands)
         {
-             allcategories = SqlCommands.GetAllCategories().Result.ToList();
+            allcategories = SqlCommands.GetAllCategories().Result.ToList();
             mainCategories = allcategories.Where(x => x.ParentCategoryId==0).ToList();
             TestCategory.Clear();
             TestCategory.Add("none");

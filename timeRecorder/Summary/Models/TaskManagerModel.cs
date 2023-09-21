@@ -162,6 +162,7 @@ namespace Summary.Models
                             Id = category.Id, 
                             Color = category.Color, 
                             ParentId = category.ParentCategoryId, 
+                            Bonus = category.BonusPerHour,
                             AutoCreateTask=category.AutoAddTask 
                         };
                         initNode(Categories, child);
@@ -175,7 +176,8 @@ namespace Summary.Models
                         Id = category.Id, 
                         Color = category.Color, 
                         ParentId = category.ParentCategoryId,
-                        AutoCreateTask=category.AutoAddTask
+                        Bonus = category.BonusPerHour,
+                        AutoCreateTask =category.AutoAddTask
                     };
                     initNode(Categories, child);
                     currentNode.Items.Add(child);

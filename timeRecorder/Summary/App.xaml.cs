@@ -33,7 +33,7 @@ namespace Summary
                         //是否有新迁移
                         if(context.Database.GetPendingMigrations().Any()){
                             //EnsureCreated和Migrate的区别是EnsureCreated在数据库不存在时也会自动创建，但如果创建后数据库有更改，则不会更新到数据库中
-                            //context.Database.EnsureCreated();
+                            context.Database.EnsureCreated();
                             context.Database.Migrate();
                         }
                     }

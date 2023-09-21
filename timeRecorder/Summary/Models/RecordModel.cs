@@ -441,6 +441,7 @@ namespace Summary.Models
             }
             InitTodayData();
             resizeHeight();
+            refreshSingleDayPlot();
         }
         private async void ImportFile(object obj)
         {

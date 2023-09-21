@@ -337,10 +337,10 @@ namespace Summary.Models
                         sumLastTime = plotData.First(x => ("task:" + x.Note) == item.Key).LastTime.Ticks;
                     }
                     else{
-                        sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) + plotDataFinal.Where(x => tempSubCategories.Any(y => y.Name == x.Key)).Sum(x => x.Value);
+                        sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
                     }
                     
-                    Trace.WriteLine("cate: " + item.Key + " level: " + item.Value + " sumLastTime " + sumLastTime);
+                    Trace.WriteLine("cate: " + item.Key + " level: " + item.Value + " sumLastTime " + new TimeSpan(sumLastTime));
                     plotDataFinal.Add(item.Key, sumLastTime);
                 }
             }

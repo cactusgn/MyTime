@@ -27,6 +27,7 @@ namespace Summary.Common.Utils
         public static ObservableCollection<string> TestCategory = new ObservableCollection<string>();
         public static List<Category> mainCategories = new List<Category>();
         public static Dictionary<string, int> categoryDic = new Dictionary<string, int>();
+        public static Dictionary< int, string> IdCategoryDic = new Dictionary<int, string>();
         public static Dictionary<string, int> SummaryCategoryDic = new Dictionary<string, int>();
         public static List<Category> allcategories = new List<Category>();
         //public static RecordModel recordModel;
@@ -229,6 +230,8 @@ namespace Summary.Common.Utils
             TestCategory.Add("none");
             colorDic.Clear();
             colorDic.Add("none", "#F3F3F3");
+            IdCategoryDic.Clear();
+            IdCategoryDic.Add(0, "none");
             categoryDic.Clear();
             categoryDic.Add("none", 0);
             foreach (var category in mainCategories)
@@ -236,6 +239,7 @@ namespace Summary.Common.Utils
                 //categoryDic为了后续快速获取这几个主要任务的id
                 categoryDic.Add(category.Name, category.Id);
                 colorDic.Add(category.Name, category.Color);
+                IdCategoryDic.Add(category.Id, category.Name);
                 TestCategory.Add(category.Name);
             }
         }

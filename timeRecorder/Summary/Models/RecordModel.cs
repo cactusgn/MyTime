@@ -260,7 +260,7 @@ namespace Summary.Models
             {
                 TodayText = TodoToday.SelectedValue.ToString();
             }
-            TodoTodayTextbox.Focus();
+            //TodoTodayTextbox.Focus();
         }
 
         private void TipTextPreviewMouseUp(object obj)
@@ -923,8 +923,15 @@ namespace Summary.Models
                 return;
             }
             if(!hs.Contains(obj.ToString())){
-                
-                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type="none",CategoryId = categoryDic["none"] };
+
+                ToDoObj newObj = null;
+                var task = SQLCommands.QueryTodo(obj.ToString());
+                if (task != null){
+                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = Helper.IdCategoryDic[task.TypeId], CategoryId = task.CategoryId };
+                }
+                else{
+                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = "none", CategoryId = categoryDic["none"] };
+                }
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());
@@ -941,7 +948,6 @@ namespace Summary.Models
             if(currentObj != null)
             {
                 TodayList.Remove(currentObj);
-                SQLCommands.DeleteTodo(currentObj);
                 hs.Remove(currentObj.Note);
                 currentObj = null;
             }

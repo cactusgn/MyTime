@@ -938,7 +938,9 @@ namespace Summary.Models
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";
-            }else{
+                TodoToday.IsDropDownOpen = false;
+            }
+            else{
                 TodayText = "";
                 await showMessageBox("已存在这个任务");
             }

@@ -386,11 +386,11 @@ namespace Summary.Models
             plt.Legend(location: Alignment.UpperRight);
             Func<double, string> customFormatter = y => double.IsNaN(y)? "0" :  $"{TimeSpan.FromSeconds(y).ToString()}";
             plt.XAxis.TickLabelFormat(customFormatter);
-            plt.YAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
-            plt.XAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.YAxis.LabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            plt.XAxis.LabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
 
-            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
-            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
             // adjust axis limits so there is no padding to the left of the bar graph
             plt.SetAxisLimits(xMin: 0);
             CategoryPlot.Configuration.Quality = ScottPlot.Control.QualityMode.High;

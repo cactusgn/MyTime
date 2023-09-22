@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -161,6 +162,26 @@ namespace Summary.Common.Utils
             }
             return lastTime/allTimeSpan*(height-100);
         }
+        public static bool CheckSysFontExisting(string fontName = "微软雅黑")
+        {
+            Font font;
+
+            try
+            {
+                font = new Font(fontName, 10);
+                if (font.Name != fontName)
+                {
+                    return false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public static void refreshPlot(IEnumerable<TimeViewObj> AllObj, WpfPlot plot)
         {
             var index = 0;
@@ -188,11 +209,11 @@ namespace Summary.Common.Utils
             plt.Legend(location: Alignment.UpperRight);
             Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
             plt.XAxis.TickLabelFormat(customFormatter);
-            plt.YAxis.LabelStyle(fontSize: 14, fontName:"Microsoft YaHei");
-            plt.XAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.YAxis.LabelStyle(fontSize: 14, fontName: CheckSysFontExisting()?"微软雅黑":"Microsoft YaHei");
+            plt.XAxis.LabelStyle(fontSize: 14, fontName: CheckSysFontExisting()?"微软雅黑":"Microsoft YaHei");
 
-            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
-            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
+            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: CheckSysFontExisting()?"微软雅黑":"Microsoft YaHei");
             // adjust axis limits so there is no padding to the left of the bar graph
             plt.SetAxisLimits(xMin: 0);
             plot.Configuration.Quality = ScottPlot.Control.QualityMode.High;

@@ -108,6 +108,9 @@ namespace Summary.Models
         public WpfPlot CategoryPlot { get; internal set; }
         public Dictionary<string, string> colorDic = new Dictionary<string, string>();
         public bool displayInvisibleItems { get; set; } = false;
+        List<Category> AllCategories = new List<Category>();
+        Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
+        Dictionary<int, string> IdNameDic = new Dictionary<int, string>();
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -282,20 +285,32 @@ namespace Summary.Models
                 }
             }
         }
+        private long GetAllSubTime(List<ToDoObj> plotData, string currcategory, long res)
+        {
+            if(!NameIdDic.ContainsKey(currcategory)) return 0;
+            var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId == NameIdDic[currcategory] ).ToList();
+            if(tempSubCategories.Count > 0) { 
+                foreach(var category in tempSubCategories) {
+                    res+=GetAllSubTime(plotData, category.Name, res);
+                }
+            }else{
+                return plotData.Where(x => x.CategoryId == NameIdDic[currcategory]).Sum(x => x.LastTime.Ticks);
+            }
+            res += plotData.Where(x => x.CategoryId == NameIdDic[currcategory]).Sum(x=>x.LastTime.Ticks);
+            return res;
+        }
         private async void SummaryRBChanged(object obj)
         {
             int param = int.Parse(obj.ToString());
             var index = 0;
             CategoryPlot.Plot.Clear();
             var plt = CategoryPlot.Plot;
-            
-
             Dictionary<string, int> typelevelDic = new Dictionary<string, int>();
             colorDic.Clear();
-            Dictionary<string,int> NameIdDic = new Dictionary<string,int>();
-            Dictionary<int,string> IdNameDic = new Dictionary<int, string>();
-            List<Category> AllCategories = await SQLCommands.GetAllCategories();
+            AllCategories = await SQLCommands.GetAllCategories();
             int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+            NameIdDic.Clear();
+            IdNameDic.Clear();
             IdNameDic.Add(0, "none");
             NameIdDic.Add("none", 0);
             colorDic.Add("none", "#F3F3F3");
@@ -332,13 +347,15 @@ namespace Summary.Models
             foreach (var item in typelevelDic) {
                 if (item.Value>=param)
                 {
+                    //parentCate=invest tempCategories=[invest, Timerecorder, learn...]
                     var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId==NameIdDic[item.Key]||x.Id== NameIdDic[item.Key]).Select(x=> new { x.Id,x.Name}).ToList();
                     long sumLastTime = 0;
                     if (item.Value==maxDepth){
                         sumLastTime = plotData.First(x => ("task:" + x.Note) == item.Key).LastTime.Ticks;
                     }
                     else{
-                        sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
+                        //sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
+                        sumLastTime = GetAllSubTime(plotData, item.Key, 0);
                     }
                     
                     plotDataFinal.Add(item.Key, sumLastTime);

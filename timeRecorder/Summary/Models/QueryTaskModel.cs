@@ -285,13 +285,14 @@ namespace Summary.Models
                 }
             }
         }
-        private long GetAllSubTime(List<ToDoObj> plotData, string currcategory, long res)
+        private long GetAllSubTime(List<ToDoObj> plotData, string currcategory)
         {
             if(!NameIdDic.ContainsKey(currcategory)) return 0;
             var tempSubCategories = AllCategories.Where(x => x.ParentCategoryId == NameIdDic[currcategory] ).ToList();
+            long res = 0;
             if(tempSubCategories.Count > 0) { 
                 foreach(var category in tempSubCategories) {
-                    res+=GetAllSubTime(plotData, category.Name, res);
+                    res+=GetAllSubTime(plotData, category.Name);
                 }
             }else{
                 return plotData.Where(x => x.CategoryId == NameIdDic[currcategory]).Sum(x => x.LastTime.Ticks);
@@ -355,7 +356,7 @@ namespace Summary.Models
                     }
                     else{
                         //sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
-                        sumLastTime = GetAllSubTime(plotData, item.Key, 0);
+                        sumLastTime = GetAllSubTime(plotData, item.Key);
                     }
                     
                     plotDataFinal.Add(item.Key, sumLastTime);

@@ -341,7 +341,6 @@ namespace Summary.Models
                         sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
                     }
                     
-                    Trace.WriteLine("cate: " + item.Key + " level: " + item.Value + " sumLastTime " + new TimeSpan(sumLastTime));
                     plotDataFinal.Add(item.Key, sumLastTime);
                 }
             }
@@ -367,7 +366,7 @@ namespace Summary.Models
             }
             plt.YTicks(position, YLabels);
             plt.Legend(location: Alignment.UpperRight);
-            Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
+            Func<double, string> customFormatter = y => double.IsNaN(y)? "0" :  $"{TimeSpan.FromSeconds(y).ToString()}";
             plt.XAxis.TickLabelFormat(customFormatter);
             plt.YAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");
             plt.XAxis.LabelStyle(fontSize: 14, fontName: "Microsoft YaHei");

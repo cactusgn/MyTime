@@ -1013,7 +1013,9 @@ namespace Summary.Models
         }
         private async void CheckChanged(object obj) {
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
-            await SQLCommands.UpdateTodo((ToDoObj)obj);
+            GeneratedToDoTask updatedObj = SQLCommands.QueryTodo(((ToDoObj)obj).Note);
+            updatedObj.Finished = ((ToDoObj)obj).Finished;
+            await SQLCommands.UpdateTodo(updatedObj);
         }
         
     }

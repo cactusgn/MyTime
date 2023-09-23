@@ -216,7 +216,8 @@ namespace Summary.Models
                 foreach (ToDoObj task in allTasks)
                 {
                     //taskid为0，或者type不等于当前category
-                    if (task.Id == 0||AllTasksFromDatabase.Where(x => x.Note==task.Note&& AllCategories.FirstOrDefault(y => y.Id==x.TypeId, new Data.Category() { Name="" }).Name== Category).Count()==0)
+                    //if (task.Id == 0||AllTasksFromDatabase.Where(x => x.Note==task.Note&& AllCategories.FirstOrDefault(y => y.Id==x.TypeId, new Data.Category() { Name="" }).Name== Category).Count()==0)
+                    if (task.Id == 0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }

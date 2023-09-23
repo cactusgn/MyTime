@@ -553,7 +553,7 @@ namespace Summary.Models
                 await SQLCommands.UpdateTodo(task);
             }
         }
-        private async void clickOkButton(object a = null)
+        public async void clickOkButton(object a = null)
         {
             if (a!=null && a.ToString() == "LastWeek")
             {

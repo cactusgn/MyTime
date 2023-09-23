@@ -720,7 +720,7 @@ namespace Summary.Models
         }
 
        
-        private GridSourceTemplate initAllTimeViewObjs()
+        public GridSourceTemplate initAllTimeViewObjs()
         {
             AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
             var currentDateTemplate = new GridSourceTemplate(DateTime.Today);

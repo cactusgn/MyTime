@@ -47,7 +47,7 @@ namespace Summary.Models
             get { return leftPanelHeight; }
             set { leftPanelHeight = value; OnPropertyChanged(); resizeHeight(); }
         }
-        private double height;
+        public double height;
         private bool _IsDialogOpen;
         public bool IsDialogOpen
         {
@@ -321,7 +321,7 @@ namespace Summary.Models
             }
         }
        
-        private void refreshSingleDayPlot()
+        public void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
             if (FirstLevelRB.IsChecked==true)
@@ -340,7 +340,7 @@ namespace Summary.Models
                 }));
             }
         }
-        private void refreshSummaryPlot(string type="all")
+        public void refreshSummaryPlot(string type="all")
         {
             var AllObjs = new ObservableCollection<TimeViewObj>();
             currentSummaryRBType = type;
@@ -393,7 +393,7 @@ namespace Summary.Models
         private void SplitButtonClick(object a = null){
             openSplitDialog();
         }
-        private async void clickOkButton(object a = null)
+        public async void clickOkButton(object a = null)
         {
             if (a!=null && a.ToString() == "LastWeek")
             {

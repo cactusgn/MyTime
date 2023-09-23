@@ -52,7 +52,7 @@ namespace Summary.Models
             set { showVisibleHeader = value; OnPropertyChanged(); }
         }
 
-        private QueryTaskModel queryTaskModel;
+        public QueryTaskModel queryTaskModel;
         private List<Category> AllCategories;
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;

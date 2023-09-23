@@ -77,6 +77,8 @@ namespace Summary.Models
             get { return colorBtnForegroundColor; }
             set { colorBtnForegroundColor = value; OnPropertyChanged(); }
         }
+        private RecordModel RecordModel;
+        private TaskManagerModel TaskManagerModel;
         public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel)
         {
             ITheme theme = _paletteHelper.GetTheme();
@@ -92,16 +94,17 @@ namespace Summary.Models
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
-            //Helper.recordModel = recordModel;
+            RecordModel = recordModel;
             Settings = new Settings(new SettingsModel());
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
+            TaskManagerModel = taskManagerModel;
             TaskManagerUserControl = new TaskManagerUserControl(taskManagerModel);
             ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
         
-        private void OpenPage(object o)
+        private  void OpenPage(object o)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
@@ -109,6 +112,8 @@ namespace Summary.Models
             //var palette = IsDarkTheme? _paletteHelper.GetTheme().PrimaryMid : _paletteHelper.GetTheme().PrimaryMid;
             if (o.ToString() == "RecordPageUserControl")
             {
+                RecordModel.InitTodayData();
+                RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;
                 ResetColor();
                 RecordBtnForegroundColor = palette.Color.ToString();
@@ -116,6 +121,24 @@ namespace Summary.Models
             else if(o.ToString() == "SummaryUserControl")
             {
                 MainContent = SummaryUserControl;
+                //refresh today's data in case it changes in record page
+                if (SummaryModel.AllTimeViewObjs.FirstOrDefault(x => x.createdDate == DateTime.Today,null)!=null&&
+                    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs.Count()>0&&
+                    RecordModel.AllTimeViewObjs.FirstOrDefault()!=null)
+                {
+                    SummaryModel.AllTimeViewObjs.Remove(SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today));
+                    var currentDailyObj = RecordModel.AllTimeViewObjs.FirstOrDefault().DailyObjs;
+                    SummaryModel.AllTimeViewObjs.Add(RecordModel.AllTimeViewObjs.FirstOrDefault());
+                    SummaryModel.SelectedTimeObj = currentDailyObj.FirstOrDefault();
+                    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+                    if(SummaryModel.height > 0)
+                    {
+                        SummaryModel.resizeHeight();
+                    }
+                    
+                    SummaryModel.refreshSingleDayPlot();
+                    SummaryModel.refreshSummaryPlot();
+                }
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();
             }else if(o.ToString() == "ColorTool")
@@ -132,6 +155,7 @@ namespace Summary.Models
             }
             else if (o.ToString() == "TaskManager")
             {
+                TaskManagerModel.queryTaskModel.clickOkButton("ThisWeek");
                 MainContent = TaskManagerUserControl;
                 ResetColor();
                 TaskBtnForegroundColor = palette.Color.ToString();

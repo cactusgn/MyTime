@@ -215,7 +215,8 @@ namespace Summary.Models
                 allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
                 {
-                    if (task.Id == 0||AllTasksFromDatabase.Where(x=>x.Note==task.Note&& AllCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Data.Category() { Name=""}).Name== Category).Count()==0)
+                    //taskid为0，或者type不等于当前category
+                    if (task.Id == 0||AllTasksFromDatabase.Where(x => x.Note==task.Note&& AllCategories.FirstOrDefault(y => y.Id==x.TypeId, new Data.Category() { Name="" }).Name== Category).Count()==0)
                     {
                        await updateTaskIndex(task, AllCategories);
                     }
@@ -243,11 +244,12 @@ namespace Summary.Models
             if (findCategoryId != 0)
             {
                 tempTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
-
             }
-            CalculateBonus(tempTasks, Helper.allcategories);
+            List<ToDoObj> allSubTasks = new List<ToDoObj>();
+            GetAllSubTask(findCategoryId, allSubTasks, allTasks);
+            CalculateBonus(allSubTasks, Helper.allcategories);
             CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
-            totalCost = new TimeSpan(tempTasks.Sum(x => x.LastTime.Ticks));
+            totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
             TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
             AverageCost = (totalCost / (EndTime - StartTime).Days);
             AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
@@ -260,6 +262,20 @@ namespace Summary.Models
                 SummaryRBChanged(1);
             }
         }
+
+        private void GetAllSubTask(int findCategoryId, List<ToDoObj> allSubTasks, List<ToDoObj> allTasks)
+        {
+            allSubTasks.AddRange(allTasks.Where(x => x.CategoryId == findCategoryId).ToList());
+            var subCategories = AllCategories.Where(x => x.ParentCategoryId == findCategoryId);
+            if (subCategories.Count() > 0)
+            {
+                foreach(Category cate in subCategories)
+                {
+                    GetAllSubTask(cate.Id, allSubTasks, allTasks);
+                }
+            }
+        }
+
         private void RefreshRadioButtons(int findCategoryId)
         {
             if(RBWrapPanel!=null){

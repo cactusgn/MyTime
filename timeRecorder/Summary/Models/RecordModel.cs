@@ -537,7 +537,7 @@ namespace Summary.Models
                 {
                     await SQLCommands.UpdateTodo(item.First());
                     hs.Remove(curr.Note);
-                    await SQLCommands.DeleteTodo(item.First());
+                    await CheckAndDeleteToDo(item.First());
                     TodayList.Remove(item.First());
                 }
             }else{
@@ -545,6 +545,14 @@ namespace Summary.Models
                 var id = await SQLCommands.AddTodo(newObj);
             }
             refreshSingleDayPlot();
+        }
+        private async Task CheckAndDeleteToDo(ToDoObj objTobeDeleted)
+        {
+            var objs = SQLCommands.GetTimeObjsByName(objTobeDeleted.Note);
+            if (objs.Count()==0)
+            {
+                await SQLCommands.DeleteTodo(objTobeDeleted);
+            }
         }
         private async void UpdateType(object a)
         {
@@ -945,12 +953,13 @@ namespace Summary.Models
                 await showMessageBox("已存在这个任务");
             }
         }
-        private void DeleteContextMenu(object obj)
+        private async void DeleteContextMenu(object obj)
         {
             if(currentObj != null)
             {
                 TodayList.Remove(currentObj);
                 hs.Remove(currentObj.Note);
+                await CheckAndDeleteToDo(currentObj);
                 currentObj = null;
             }
         }

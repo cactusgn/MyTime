@@ -199,6 +199,13 @@ namespace Summary.Models
                 task.Category = Helper.allcategories.First(x=>x.Id ==SelectedContextMenuCategoryId).Name;
                 task.Type = SelectedContextMenuType;
                 await SQLCommands.UpdateTodo(task);
+                List<MyTime> allTimeObjs =  SQLCommands.GetTimeObjsByName(task.Note);
+                //更新所有该note的timeObj的type
+                foreach (MyTime timeObj in allTimeObjs)
+                {
+                    timeObj.type =task.Type.ToString();
+                    await SQLCommands.UpdateObj(timeObj);
+                }
             }
             AfterClickCategory(Category);
         }

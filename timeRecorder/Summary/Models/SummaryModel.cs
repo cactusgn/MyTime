@@ -126,6 +126,8 @@ namespace Summary.Models
 
         public void initTypeCombobox()
         {
+            TypeComboBox.Items.Clear();
+            Helper.SummaryCategoryDic.Clear();
             int index = 0;
              List<Category> mainCategoriesWithNone = new List<Category>();
             mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});

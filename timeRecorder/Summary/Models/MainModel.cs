@@ -112,6 +112,7 @@ namespace Summary.Models
             //var palette = IsDarkTheme? _paletteHelper.GetTheme().PrimaryMid : _paletteHelper.GetTheme().PrimaryMid;
             if (o.ToString() == "RecordPageUserControl")
             {
+                RecordModel.initCategoryDic();
                 RecordModel.InitTodayData();
                 RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;
@@ -121,24 +122,26 @@ namespace Summary.Models
             else if(o.ToString() == "SummaryUserControl")
             {
                 MainContent = SummaryUserControl;
+                SummaryModel.initTypeCombobox();
                 //refresh today's data in case it changes in record page
-                if (SummaryModel.AllTimeViewObjs.FirstOrDefault(x => x.createdDate == DateTime.Today,null)!=null&&
-                    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs.Count()>0&&
-                    RecordModel.AllTimeViewObjs.FirstOrDefault()!=null)
-                {
-                    SummaryModel.AllTimeViewObjs.Remove(SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today));
-                    var currentDailyObj = RecordModel.AllTimeViewObjs.FirstOrDefault().DailyObjs;
-                    SummaryModel.AllTimeViewObjs.Add(RecordModel.AllTimeViewObjs.FirstOrDefault());
-                    SummaryModel.SelectedTimeObj = currentDailyObj.FirstOrDefault();
-                    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
-                    if(SummaryModel.height > 0)
-                    {
-                        SummaryModel.resizeHeight();
-                    }
-                    
-                    SummaryModel.refreshSingleDayPlot();
-                    SummaryModel.refreshSummaryPlot();
-                }
+                //if (SummaryModel.AllTimeViewObjs.FirstOrDefault(x => x.createdDate == DateTime.Today,null)!=null&&
+                //    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs.Count()>0&&
+                //    RecordModel.AllTimeViewObjs.FirstOrDefault()!=null)
+                //{
+                //    SummaryModel.AllTimeViewObjs.Remove(SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today));
+                //    var currentDailyObj = RecordModel.AllTimeViewObjs.FirstOrDefault().DailyObjs;
+                //    SummaryModel.AllTimeViewObjs.Add(RecordModel.AllTimeViewObjs.FirstOrDefault());
+                //    SummaryModel.SelectedTimeObj = currentDailyObj.FirstOrDefault();
+                //    SummaryModel.AllTimeViewObjs.Single(x => x.createdDate == DateTime.Today).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+                //    if(SummaryModel.height > 0)
+                //    {
+                //        SummaryModel.resizeHeight();
+                //    }
+
+                //    SummaryModel.refreshSingleDayPlot();
+                //    SummaryModel.refreshSummaryPlot();
+                //}
+                SummaryModel.showTimeView();
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();
             }else if(o.ToString() == "ColorTool")

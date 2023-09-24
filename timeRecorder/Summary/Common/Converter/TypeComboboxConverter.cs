@@ -34,7 +34,14 @@ namespace Summary.Common.Converter
                 throw new ArgumentNullException("Type is null");
             }
             int i =  int.Parse(value.ToString().Trim());
-            return Helper.SummaryCategoryDic.First(x=>x.Value==i).Key;
+            if (Helper.SummaryCategoryDic.ContainsValue(i))
+            {
+                return Helper.SummaryCategoryDic.First(x => x.Value==i).Key;
+            }
+            else{
+                return "none";
+            }
+            
         }
     }
 }

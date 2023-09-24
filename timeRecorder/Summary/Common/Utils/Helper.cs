@@ -132,6 +132,10 @@ namespace Summary.Common.Utils
             {
                 timeViewObj.Color = colorDic[type.ToLower()];
             }
+            else
+            {
+                timeViewObj.Color = colorDic["none"];
+            }
         }
         public static TimeSpan getCurrentTime(){
             DateTime now = DateTime.Now;

@@ -299,6 +299,7 @@ namespace Summary.Models
         }
         public void initCategoryDic()
         {
+            RightButtonPanel.Children.Clear();
             List<Category> categories = SQLCommands.GetAllCategories().Result.ToList();
             //categoryDic为了后续快速获取这几个主要任务的id
             List<Category> mainCategories = categories.Where(x => x.ParentCategoryId==0).ToList();

@@ -135,6 +135,12 @@ namespace Summary.Models
             mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});
             mainCategoriesWithNone.AddRange(Helper.mainCategories);
 
+            Label label = new Label();
+            label.Margin = new Thickness(10,0,10,0);
+            label.Content = "Type:";
+            label.FontSize=14;
+            TypeRadioGroupPanel.Children.Add(label);
+
             RadioButton AllRadioButton = new RadioButton();
             Binding BindingObj = new Binding();
             BindingObj.Path = new PropertyPath("RadioButtonEnabled");
@@ -364,10 +370,12 @@ namespace Summary.Models
                 }
                 else
                 {
+                    
                     foreach (var item in dailyObjs)
                     {
                         AllObjs.Add(item);
                     }
+                    AllObjs= new ObservableCollection<TimeViewObj>(AllObjs.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
                 }
             }
             SummaryPlot.Dispatcher.Invoke(new Action(delegate

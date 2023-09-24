@@ -128,6 +128,8 @@ namespace Summary.Models
         {
             TypeComboBox.Items.Clear();
             Helper.SummaryCategoryDic.Clear();
+            TypeRadioGroupPanel.Children.Clear();
+            radioButtons.Clear();
             int index = 0;
              List<Category> mainCategoriesWithNone = new List<Category>();
             mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});

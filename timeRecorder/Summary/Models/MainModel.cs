@@ -140,7 +140,7 @@ namespace Summary.Models
             }
             else if (o.ToString() == "TaskManager")
             {
-                TaskManagerModel.queryTaskModel.clickOkButton("ThisWeek");
+                TaskManagerModel.queryTaskModel.clickOkButton();
                 MainContent = TaskManagerUserControl;
                 ResetColor();
                 TaskBtnForegroundColor = palette.Color.ToString();

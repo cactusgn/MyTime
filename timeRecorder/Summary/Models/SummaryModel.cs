@@ -199,7 +199,7 @@ namespace Summary.Models
                 radioButton.CommandParameter = category.Name;
                 radioButton.Content = category.Name;
                 TypeRadioGroupPanel.Children.Add(radioButton);
-                radioButtons.Add(AllRadioButton);
+                radioButtons.Add(radioButton);
             }
         }
 

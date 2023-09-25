@@ -259,7 +259,7 @@ namespace Summary.Models
             CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
             totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
             TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
-            AverageCost = (totalCost / (EndTime - StartTime).Days);
+            AverageCost = (totalCost / ((EndTime - StartTime).Days+1));
             AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
             if (radioButtons.Count>0)
             {

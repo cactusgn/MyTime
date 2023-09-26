@@ -233,15 +233,19 @@ namespace Summary.Models
         }
         public async void EditCategory(AddCategoryModel category)
         {
+            
             await SQLCommands.UpdateCategory(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
             root.AutoCreateTask = category.AutoCreateTask;
+
+            string oldVisibleValue = root.Visible;
             root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
+
             queryTaskModel.UpdateContextMenu();
-            if(root.ParentId != category.ParentId)
+            if(root.ParentId != category.ParentId||oldVisibleValue!=root.Visible)
             {
                 RefreshCategories();
             }

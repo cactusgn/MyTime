@@ -726,6 +726,12 @@ namespace Summary.Models
                     }
                 }
             }
+            if(totalSpan.Ticks<0){
+                //new day
+                WorkStartTime = new TimeSpan();
+                InitTodayData();
+                refreshSingleDayPlot();
+            }
         }
 
        

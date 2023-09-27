@@ -121,7 +121,6 @@ namespace Summary.Models
             Category = category;
             SQLCommands = sqlCommands;
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
-           
         }
        
         private async void CellEditEnding(object obj)

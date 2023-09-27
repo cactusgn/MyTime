@@ -101,7 +101,7 @@ namespace Summary.Models
         private void EditCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.Visible=="Visible",root.Bonus,root.AutoCreateTask);
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.VisibleValue,root.Bonus,root.AutoCreateTask);
         }
 
         public async void showCategoryDialog(string title,int id, string category, string color, int parentId, bool visible, int bonus=20, bool autoCreateTask=true)
@@ -165,7 +165,8 @@ namespace Summary.Models
                             Color = category.Color, 
                             ParentId = category.ParentCategoryId, 
                             Bonus = category.BonusPerHour,
-                            AutoCreateTask=category.AutoAddTask 
+                            AutoCreateTask=category.AutoAddTask,
+                            VisibleValue= category.Visible
                         };
                         initNode(Categories, child);
                         currentNode.Items.Add(child);
@@ -179,7 +180,8 @@ namespace Summary.Models
                         Color = category.Color, 
                         ParentId = category.ParentCategoryId,
                         Bonus = category.BonusPerHour,
-                        AutoCreateTask =category.AutoAddTask
+                        AutoCreateTask =category.AutoAddTask,
+                        VisibleValue= category.Visible
                     };
                     initNode(Categories, child);
                     currentNode.Items.Add(child);
@@ -236,16 +238,15 @@ namespace Summary.Models
             
             await SQLCommands.UpdateCategory(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
+            string oldVisibleValue = root.Visible;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
             root.AutoCreateTask = category.AutoCreateTask;
-
-            string oldVisibleValue = root.Visible;
             root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
-
+            root.VisibleValue = category.Visible;
             queryTaskModel.UpdateContextMenu();
-            if(root.ParentId != category.ParentId||oldVisibleValue!=root.Visible)
+            if(root.ParentId != category.ParentId||root.Visible!=oldVisibleValue)
             {
                 RefreshCategories();
             }
@@ -260,6 +261,14 @@ namespace Summary.Models
         {
             this.Items = new ObservableCollection<MenuItemModel>();
         }
+        private bool visibleValue;
+
+        public bool VisibleValue
+        {
+            get { return visibleValue; }
+            set { visibleValue = value; OnPropertyChanged(); }
+        }
+
         private string visible= "Visible";
 
         public string Visible

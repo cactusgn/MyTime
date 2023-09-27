@@ -679,7 +679,7 @@ namespace Summary.Models
                     }
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, type, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
-                    Helper.UpdateColor(newObj, "rest");
+                    Helper.UpdateColor(newObj, type);
 
                     currentDateTemplate.DailyObjs.Add(newObj);
                 }

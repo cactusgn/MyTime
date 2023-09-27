@@ -115,8 +115,18 @@ namespace Summary.Common.Utils
                 TimeSpan tempEndTime = GlobalEndTimeSpan;
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, "none", lastIndex, height);
-                    UpdateColor(startTimeObj, "none");
+                    GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
+                    int taskId = findTask == null ? 0 : findTask.Id;
+                    string type = "none";
+                    foreach (var item in categoryDic)
+                    {
+                        if (item.Value == taskId)
+                        {
+                            type = item.Key;
+                        }
+                    }
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height);
+                    UpdateColor(startTimeObj, type);
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);
                 }

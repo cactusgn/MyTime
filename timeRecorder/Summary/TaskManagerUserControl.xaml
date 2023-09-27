@@ -48,6 +48,12 @@
             </Grid.ColumnDefinitions>
            
                 <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10,5" Visibility="Collapsed">
+                    <TextBlock >模式：</TextBlock>
+                    <RadioButton GroupName="taskMode" Margin="5,0">统计</RadioButton>
+                    <RadioButton GroupName="taskMode" Margin="5,0">计划</RadioButton>
+                </StackPanel>
+                    
                     <TreeView Name="RootTreeView" DockPanel.Dock="Top" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               AllowDrop="True" 
                               ScrollViewer.VerticalScrollBarVisibility="Auto" PreviewDragOver="RootTreeView_PreviewDragOver"

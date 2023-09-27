@@ -27,15 +27,19 @@ namespace Summary
             InitializeComponent();
             summaryModel.SingleDayPlot = SingleDayPlot;
             summaryModel.SummaryPlot = SummaryPlot;
-            summaryModel.WorkRB = WorkRB;
-            summaryModel.PlayRB = PlayRB;
-            summaryModel.StudyRB = StudyRB;
-            summaryModel.WasteRB = WasteRB;
-            summaryModel.RestRB = RestRB;
-            summaryModel.AllRB = AllRB;
+            //summaryModel.WorkRB = WorkRB;
+            //summaryModel.PlayRB = PlayRB;
+            //summaryModel.StudyRB = StudyRB;
+            //summaryModel.WasteRB = WasteRB;
+            //summaryModel.RestRB = RestRB;
+            //summaryModel.AllRB = AllRB;
             summaryModel.ThirdLevelRB = ThirdLevelRB;
             summaryModel.FirstLevelRB = FirstLevelRB;
+            summaryModel.TypeComboBox = TypeComboBox;
+            summaryModel.ComboBoxItemStyle = this.Resources["ComboBoxItemStyle"] as Style;
+            summaryModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
             this.DataContext = summaryModel;
+            summaryModel.initTypeCombobox(); 
             summaryModel.showTimeView();
         }
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -83,12 +83,20 @@ namespace Summary.Common
                 OnPropertyChanged();
             }
         }
+        private int taskId;
+
+        public int TaskId
+        {
+            get { return taskId; }
+            set { taskId = value; }
+        }
+
         public int Id{ get; set; }
     }
     public enum TimeType
     {
         none,
-        study,
+        invest,
         waste,
         rest,
         work,

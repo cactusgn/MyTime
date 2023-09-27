@@ -1,4 +1,5 @@
 ﻿using ScottPlot.MarkerShapes;
+using Summary.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -19,18 +20,11 @@ namespace Summary.Common.Converter
                 throw new ArgumentNullException("Type is null");
             }
             string type = value.ToString().Trim().ToLower();
-          
-            switch (type)
+            if (Helper.SummaryCategoryDic.ContainsKey(type))
             {
-                case "none": return 0;
-                case "study": return 1;
-                case "waste": return 2;
-                case "rest": return 3;
-                case "work": return 4;
-                case "play": return 5;
+                return Helper.SummaryCategoryDic[type];
             }
-
-            return 0;
+            return -1;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -40,17 +34,14 @@ namespace Summary.Common.Converter
                 throw new ArgumentNullException("Type is null");
             }
             int i =  int.Parse(value.ToString().Trim());
-            switch (i)
+            if (Helper.SummaryCategoryDic.ContainsValue(i))
             {
-                case 0: return "none";
-                case 1: return "study";
-                case 2: return "waste";
-                case 3: return "rest";
-                case 4: return "work";
-                case 5: return "play";
+                return Helper.SummaryCategoryDic.First(x => x.Value==i).Key;
             }
-
-            return "none";
+            else{
+                return "none";
+            }
+            
         }
     }
 }

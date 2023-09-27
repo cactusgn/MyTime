@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="Summary.QueryTaskUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:models="clr-namespace:Summary.Models"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF" 
+             xmlns:uc="clr-namespace:Summary.Domain" xmlns:col="clr-namespace:System.Collections;assembly=System.Collections.NonGeneric"
+             d:DesignHeight="450" d:DesignWidth="1000">
+    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
+                             Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
+
+        <materialDesign:DialogHost.DialogContent>
+            <!--这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字
+                 不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写
+                 也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
+
+            <uc:SampleProgressDialog ></uc:SampleProgressDialog>
+        </materialDesign:DialogHost.DialogContent>
+        <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <!--查询界面-->
+            <Border Padding="0">
+                <!--<Border.Effect>
+                        <DropShadowEffect Color="Gray" ShadowDepth="3" BlurRadius="8" Opacity="0.3" Direction="356"/>
+                    </Border.Effect>-->
+                <StackPanel   Grid.Row="0" Grid.Column="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Grid.ColumnSpan="2" Orientation="Horizontal" >
+
+                    <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" ></TextBlock>
+                    <DatePicker
+                  Width="120" Margin="10" HorizontalContentAlignment="Center"
+                  materialDesign:CalendarAssist.IsHeaderVisible="False"
+                  materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
+                    </DatePicker>
+                    <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
+
+                    <DatePicker
+                  Width="120" Margin="10"  HorizontalContentAlignment="Center"
+                  materialDesign:CalendarAssist.IsHeaderVisible="False"
+                  materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
+                    </DatePicker>
+                    <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"></Button>
+                    <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek" Foreground="Black"></Button>
+                    <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek" Foreground="Black"></Button>
+                    <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"></Button>
+                    <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"></Button>
+                    <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisWeek"
+        Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="本周">
+                        <materialDesign:PackIcon Kind="Restore" />
+                    </Button>
+
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Margin="10,5">
+                <StackPanel Orientation="Horizontal" Background="{StaticResource MaterialDesignLightSeparatorBackground}">
+                    <TextBlock>共花费时间：</TextBlock>
+                    <TextBlock x:Name="TotalCost" Text="{Binding TotalCostString}"></TextBlock>
+                    <TextBlock Margin="10,0">平均每天:</TextBlock>
+                    <TextBlock x:Name="AverageCost" Text="{Binding AverageCost}"></TextBlock>
+                    <TextBlock Margin="10,0">共获得：</TextBlock>
+                    <TextBlock x:Name="TotalBonus" Text="{Binding TotalBonus}"></TextBlock>
+                </StackPanel>
+            </Border>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="2"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <DataGrid  Margin="3"  ScrollViewer.CanContentScroll="True"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  x:Name="CategoryDataGrid"
+                                  CanUserAddRows="False"
+                                  AutoGenerateColumns="False"
+                                  HorizontalContentAlignment="Center" 
+                                  ItemsSource="{Binding CategoryDataGridSource}" IsTextSearchEnabled="True" 
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow" >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="CellEditEnding">
+                            <i:InvokeCommandAction 
+                                CommandParameter="{Binding ElementName=CategoryDataGrid,Path=SelectedItem}"
+                                Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=DataGrid}}"></i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <DataGrid.Resources>
+                        <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem x:Name="UpdateCategoryMenuItem" Header="更新类型" Command="{Binding UpdateCategoryCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                        <DataGridTextColumn Header="StartDate" Binding="{Binding CreatedDateString}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="TaskName" Binding="{Binding Note}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="LastTime" Binding="{Binding LastTime}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Bonus" Binding="{Binding Bonus}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn Header="Category"  IsReadOnly="True" Binding="{Binding Category}"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <GridSplitter HorizontalAlignment="Center"   
+                      VerticalAlignment="Stretch"   
+                      Grid.Column="1"   
+                      Width="2" Background="Silver">
+                </GridSplitter>
+                <DockPanel  Grid.Column="2" >
+                    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" x:Name="RBWrapPanel" Margin="5" Height="30"></WrapPanel>
+
+                    <ScottPlot:WpfPlot DockPanel.Dock="Top" x:Name="CategoryPlot" />
+                </DockPanel>
+            </Grid>
+
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>

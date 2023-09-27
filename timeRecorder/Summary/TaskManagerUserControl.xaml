@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="Summary.TaskManagerUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:model="clr-namespace:Summary.Models"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Name ="myWindow">
+    <UserControl.Resources>
+        <ContextMenu x:Key="CategoryContextMenu" >
+            <MenuItem Header="增加子类别" Command="{Binding AddCategoryCommand}" />
+            <MenuItem Header="修改类别" Command="{Binding EditCategoryCommand}"/>
+            <!--<Separator></Separator>-->
+            <MenuItem Header="删除类别" Command="{Binding DeleteCategoryCommand}"/>
+            <MenuItem Header="{Binding ShowVisibleHeader}" Command="{Binding ShowInvisibleCategoryCommand}" x:Name="ShowInvisibleCateContextMenu"/>
+        </ContextMenu>
+        <Style x:Key="TreeviewItemStyle"
+        TargetType="TreeViewItem"
+        BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+            <Setter
+          Property="materialDesign:TreeViewAssist.ShowSelection"
+          Value="False" />
+            <Setter Property="IsExpanded" Value="true" />
+            <Setter Property="Tag" Value="{Binding ElementName=myWindow}"/>
+            <Setter Property="ContextMenu" Value="{StaticResource CategoryContextMenu}"></Setter>
+            <Setter Property="Visibility" Value="{Binding Path=Visible}"></Setter>
+            <Setter Property="IsSelected" Value="{Binding Path=IsSelected}"></Setter>
+            <Setter Property="AllowDrop" Value="True"></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueMidBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <materialDesign:DialogHost x:Name="DialogHost2" Identifier="SubRootDialog"  
+                                       DialogTheme="Inherit" 
+                                       DialogClosing="DialogHost2_DialogClosing"
+                                        DialogClosed="DialogHost2_DialogClosed">
+        <Grid Background="{DynamicResource MaterialDesignCardBackground}" x:Name="FrameGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="4*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+           
+                <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
+                    <TreeView Name="RootTreeView" DockPanel.Dock="Top" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              AllowDrop="True" 
+                              ScrollViewer.VerticalScrollBarVisibility="Auto" PreviewDragOver="RootTreeView_PreviewDragOver"
+                              ItemContainerStyle="{StaticResource TreeviewItemStyle}" PreviewMouseRightButtonUp="RootTreeView_MouseRightButtonUp"  >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <i:InvokeCommandAction 
+                            CommandParameter="{Binding }"
+                            Command="{Binding DataContext.TreeViewSelectedItemChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeView,AncestorLevel=1}}"></i:InvokeCommandAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type model:MenuItemModel}" ItemsSource="{Binding Items}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse
+                                Width="10"
+                                Height="10"
+                                Fill="{Binding Color}"/>
+                                <TextBlock Margin="10,0" x:Name="Title" Text="{Binding Title}" />
+                            </StackPanel>
+                            <HierarchicalDataTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                </Trigger>
+                            </HierarchicalDataTemplate.Triggers>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </DockPanel>
+            <GridSplitter HorizontalAlignment="Center"   
+                      VerticalAlignment="Stretch"   
+                      Grid.Column="1"   
+                      Width="1" Background="Silver">
+            </GridSplitter>
+            <ContentPresenter Grid.Column="2" Grid.Row="0" Content="{Binding MainContent}" ></ContentPresenter>
+        </Grid>
+    </materialDesign:DialogHost>
+</UserControl>

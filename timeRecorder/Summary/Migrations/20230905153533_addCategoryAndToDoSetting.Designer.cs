@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Summary.Data;
 
@@ -10,9 +11,11 @@ using Summary.Data;
 namespace Summary.Migrations
 {
     [DbContext(typeof(MytimeContext))]
-    partial class MytimeContextModelSnapshot : ModelSnapshot
+    [Migration("20230905153533_addCategoryAndToDoSetting")]
+    partial class addCategoryAndToDoSetting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
@@ -21,9 +24,6 @@ namespace Summary.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("AutoAddTask")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("BonusPerHour")
@@ -75,8 +75,9 @@ namespace Summary.Migrations
                     b.Property<int>("ToDoTaskSettingId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TypeId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Type")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("TEXT");

@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.RightsManagement;
 using System.Text;
@@ -29,7 +31,6 @@ namespace Summary
     {
         public MainWindow(MainModel mainModel)
         {
-      
             InitializeComponent();
             this.DataContext = mainModel;
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
@@ -96,6 +97,5 @@ namespace Summary
             
         }
         
-
     }
 }

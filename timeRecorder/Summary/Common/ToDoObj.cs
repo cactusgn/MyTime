@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Summary.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,14 @@ namespace Summary.Common
 			get { return id; }
 			set { id = value; }
 		}
+        private TimeSpan lastTime;
 
-		public bool Finished
+        public TimeSpan LastTime
+        {
+            get { return lastTime; }
+            set { lastTime = value; OnPropertyChanged(); }
+        }
+        public bool Finished
 		{
 			get { return finished; }
 			set { finished = value;
@@ -41,10 +48,44 @@ namespace Summary.Common
               }
              set { textDecorations = value; OnPropertyChanged(); }
         }
-		private TimeType type;
-		public TimeType Type{
+		private string type;
+		public string Type{
 			get { return type; }
             set { type = value; OnPropertyChanged(); }
         }
+		private DateTime createdDate;
+
+		public DateTime CreatedDate
+		{
+			get { return createdDate; }
+			set { createdDate = value; OnPropertyChanged(); }
+		}
+        public string CreatedDateString{
+            get{
+                return createdDate.ToString("yyyy-MM-dd");
+            }
+        }
+        private int bonus;
+
+        public int Bonus
+        {
+            get { return bonus; }
+            set { bonus = value; OnPropertyChanged(); }
+        }
+        private string category;
+
+        public string Category
+        {
+            get { return category; }
+            set { category = value; OnPropertyChanged(); }
+        }
+        private int categoryId;
+
+        public int CategoryId
+        {
+            get { return categoryId; }
+            set { categoryId = value; OnPropertyChanged(); }
+        }
+
     }
 }

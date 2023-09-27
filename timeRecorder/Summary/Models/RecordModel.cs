@@ -3,6 +3,7 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
+using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -31,7 +32,10 @@ namespace Summary.Models
 {
     public class RecordModel : ViewModelBase
     {
+        public ComboBox TodoToday { get; set; }
+        public TextBox TodoTodayTextbox { get; set; }
         private double height;
+        
         private double rightPanelHeight;
         public double RightPanelHeight
         {
@@ -92,6 +96,7 @@ namespace Summary.Models
         public MyCommand WorkContentChangeCommand { get; set; }
         public MyCommand ImportCommand { get; set; }
         public MyCommand ExportCommand { get; set; }
+        public MyCommand MergeCommand { get; set; }
 
         public int interval { get; set; }
         public int Interval
@@ -166,6 +171,9 @@ namespace Summary.Models
         public MyCommand AccumulateModeCheckChangedCommand { get; set; }
         public MyCommand MinimizeCommand { get; set; }
         public MyCommand DeleteAllCommand { get; set; }
+        public MyCommand TipTextChangeCommand { get; set; }
+        public MyCommand TipTextPreviewMouseUpCommand { get; set; }
+        public MyCommand TodoTodaySelectionChangeCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -194,10 +202,22 @@ namespace Summary.Models
         private TimeSpan WorkStartTime = new TimeSpan();
         private TimeSpan CurrentWorkAccuTime = new TimeSpan();
         private bool DialogIsShown = false;
-
+        public static ObservableCollection<string> TestCategory = new ObservableCollection<string>();
         private HashSet<string> hs = new HashSet<string>();
-        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "study",};
-      
+        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };
+        
+        private ObservableCollection<string> tipList;
+
+        public ObservableCollection<string> TipList
+        {
+            get { return tipList; }
+            set { tipList = value; OnPropertyChanged(); }
+        }
+
+        public StackPanel RightButtonPanel { get; internal set; }
+        public System.Windows.Style ButtonStyle { get; internal set; }
+        
+
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
@@ -219,9 +239,12 @@ namespace Summary.Models
             DeleteAllCommand = new MyCommand(DeleteAll);
             ImportCommand = new MyCommand(ImportFile);
             ExportCommand = new MyCommand(ExportFile);
+            MergeCommand = new MyCommand(Merge);
+            TipTextChangeCommand = new MyCommand(TipTextChange);
+            TipTextPreviewMouseUpCommand = new MyCommand(TipTextPreviewMouseUp);
+            TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
-            InitTodayData();
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
             AccumulateModeCheck = bool.Parse(Helper.GetAppSetting("AccuMode"));
             Slogan = Helper.GetAppSetting("Slogan");
@@ -229,6 +252,118 @@ namespace Summary.Models
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
         }
+
+       
+        private void TodoTodaySelectionChange(object obj)
+        {
+            if (TodoToday.SelectedValue!=null)
+            {
+                TodayText = TodoToday.SelectedValue.ToString();
+            }
+            //TodoTodayTextbox.Focus();
+        }
+
+        private void TipTextPreviewMouseUp(object obj)
+        {
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            var ValidTasks = Helper.mainCategories.Where(x => x.AutoAddTask).Select(x=>x.Id);
+            if (TodoTodayTextbox.Text==null||TodoTodayTextbox.Text=="")
+            {
+                TipList = new ObservableCollection<string>(allTasks.Where(x=>ValidTasks.Contains(Helper.mainCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Category(){ Id=0}).Id)).OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+            }
+            else
+            {
+                TipList = new ObservableCollection<string>(allTasks.Where(x => ValidTasks.Contains((Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { Id = 0 }).Id)) && x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+            }
+            TodoToday.ItemsSource = TipList;
+            TodoToday.IsDropDownOpen=true;
+            TodoTodayTextbox.Focus();
+        }
+
+        private void TipTextChange(object obj)
+        {
+            if (TodoTodayTextbox.Text!=null)
+            {
+                List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+                if (TodoTodayTextbox.Text=="")
+                {
+                    TipList = new ObservableCollection<string>(allTasks.Where(x =>Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask==true).OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+                }
+                else
+                {
+                    TipList = new ObservableCollection<string>(allTasks.Where(x => (Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true) &&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+                }
+                TodoToday.ItemsSource = TipList;
+                TodoToday.IsDropDownOpen=true;
+            }
+        }
+        public void initCategoryDic()
+        {
+            RightButtonPanel.Children.Clear();
+            List<Category> categories = SQLCommands.GetAllCategories().Result.ToList();
+            //categoryDic为了后续快速获取这几个主要任务的id
+            List<Category> mainCategories = categories.Where(x => x.ParentCategoryId==0).ToList();
+            TestCategory.Clear();
+            TestCategory.Add("none");
+            foreach (Category category in mainCategories)
+            {
+                if (!category.Visible) continue;
+                TestCategory.Add(category.Name);
+                Button button = new Button();
+                button.Content = category.Name;
+                BrushConverter brushConverter = new BrushConverter();
+                button.Background = (Brush)brushConverter.ConvertFromString(category.Color);
+                button.Style = ButtonStyle;
+                button.Command = UpdateTypeCommand;
+                button.CommandParameter = category.Name;
+                RightButtonPanel.Children.Add(button);
+            }
+        }
+
+        private async void Merge(object obj)
+        {
+            if(selectedTimeObj == null){
+                await showMessageBox("请先选中左侧要改的时间块");
+                return;
+            }
+            var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
+            if (obj.ToString()=="up"){
+                var aboveItemList = currentDailyObj.Where(x => x.EndTime == selectedTimeObj.StartTime);
+                if (aboveItemList.Count() > 0)
+                {
+                    var aboveItem = aboveItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {aboveItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
+                    {
+                        var updatedStartTime = aboveItem.StartTime;
+                        SelectedTimeObj.StartTime = updatedStartTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime- SelectedTimeObj.StartTime;
+                        await SQLCommands.DeleteObj(aboveItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(aboveItem);
+                    }
+                }
+            }else{
+                var downItemList = currentDailyObj.Where(x => x.StartTime == selectedTimeObj.EndTime);
+                if (downItemList.Count() > 0)
+                {
+                    var downItem = downItemList.First();
+                    YESNOWindow dialog = new YESNOWindow("提示", $"确定合并时间块 {selectedTimeObj.Note} 和 {downItem.Note} 为 {selectedTimeObj.Note} 吗", "确定", "取消");
+                    if (dialog.ShowDialog() == true)
+                    {
+                        var updatedEndTime = downItem.EndTime;
+                        SelectedTimeObj.EndTime = updatedEndTime;
+                        SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;
+                        await SQLCommands.DeleteObj(downItem);
+                        await SQLCommands.UpdateObj(SelectedTimeObj);
+                        currentDailyObj.Remove(downItem);
+                    }
+                }
+            }
+            AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
+            refreshAllObjs();
+        }
+
         public static void DeleteDirectory(string directoryPath, string fileName)
         {
             //删除文件
@@ -281,7 +416,7 @@ namespace Summary.Models
             string[] lines = text.Split(new char[2] { '\r', '\n' });
             TimeSpan startTime = new TimeSpan();
             TimeSpan stopTime = new TimeSpan();
-            TimeType timeType = TimeType.none;
+            string timeType = "none";
             string comment = "";
             for (int i = 0; i < lines.Length; i++)
             {
@@ -295,7 +430,7 @@ namespace Summary.Models
                 }
                 if (lines[i].StartsWith("类型"))
                 {
-                    timeType = Helper.ConvertTimeType(lines[i].Substring(3));
+                    timeType = lines[i].Substring(3);
                 }
                 if (lines[i].StartsWith("备注"))
                 {
@@ -307,6 +442,7 @@ namespace Summary.Models
             }
             InitTodayData();
             resizeHeight();
+            refreshSingleDayPlot();
         }
         private async void ImportFile(object obj)
         {
@@ -386,26 +522,38 @@ namespace Summary.Models
                 Helper.UpdateColor(obj, changedType);
                 await SQLCommands.UpdateObj(obj);
             }
-            if (!hs.Contains(curr.Note) && (changedType == "work" || changedType == "study" || changedType == "play") && curr.Note != "")
+            if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != "")
             {
-                ToDoObj newObj = new ToDoObj() { Note = curr.Note, Finished = false, Type = Helper.ConvertTimeType(curr.Type) };
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId= categoryDic[changedType] };
                 var id = await SQLCommands.AddTodo(newObj);
                 newObj.Id = id;
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 hs.Add(curr.Note);
             }
-            else if (hs.Contains(curr.Note) && !(changedType == "work" || changedType == "study" || changedType == "play"))
+            else if (hs.Contains(curr.Note) && !(Helper.mainCategories.FirstOrDefault(x => x.Name == changedType, new Category() { AutoAddTask = false }).AutoAddTask))
             {
                 var item = TodayList.Where(x => x.Note == curr.Note);
                 if (item != null && item.Count() > 0)
                 {
+                    await SQLCommands.UpdateTodo(item.First());
                     hs.Remove(curr.Note);
-                    await SQLCommands.DeleteTodo(item.First());
+                    await CheckAndDeleteToDo(item.First());
                     TodayList.Remove(item.First());
                 }
+            }else{
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId = categoryDic[changedType] };
+                var id = await SQLCommands.AddTodo(newObj);
             }
             refreshSingleDayPlot();
+        }
+        private async Task CheckAndDeleteToDo(ToDoObj objTobeDeleted)
+        {
+            var objs = SQLCommands.GetTimeObjsByName(objTobeDeleted.Note);
+            if (objs.Count()==0)
+            {
+                await SQLCommands.DeleteTodo(objTobeDeleted);
+            }
         }
         private async void UpdateType(object a)
         {
@@ -450,16 +598,18 @@ namespace Summary.Models
                 currentDateTemplate = AllTimeViewObjs[0];
             }
             int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
-            TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(WorkContent));
-            if(type == TimeType.none)
+            string type = findPreviousType(WorkContent);
+            int taskId = 0;
+            if(type == "none")
             {
                 var item = TodayList.Where(x => x.Note==WorkContent);
                 if (item!=null&&item.Count()>0)
                 {
                     type = item.First().Type;
+                    taskId = item.First().Id;
                 }
             }
-            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record");
+            var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record", taskId);
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, type.ToString());
             currentDateTemplate.DailyObjs.Add(newObj);
@@ -504,8 +654,10 @@ namespace Summary.Models
                         restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
                     }
                 }
-                TimeType type = (TimeType)Enum.Parse(typeof(TimeType), findPreviousType(restCon));
-                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record");
+                string type = findPreviousType(restCon);
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
+                int taskId = findTask==null? 0:findTask.Id;
+                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
                 Helper.UpdateColor(newObj, type.ToString());
                 AllTimeViewObjs[0].DailyObjs.Add(newObj);
@@ -515,9 +667,19 @@ namespace Summary.Models
                 var currentDateTemplate = initAllTimeViewObjs();
                 if (Helper.getCurrentTime() > Helper.GlobalStartTimeSpan)
                 {
-                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, TimeType.rest, 1, height, "record");
+                    GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
+                    int taskId = findTask==null ? 0 : findTask.Id;
+                    string type = "none";
+                    foreach(var item in categoryDic)
+                    {
+                        if(item.Value == taskId)
+                        {
+                            type = item.Key;
+                        }
+                    }
+                    var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, type, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
-                    Helper.UpdateColor(newObj, "rest");
+                    Helper.UpdateColor(newObj, type);
 
                     currentDateTemplate.DailyObjs.Add(newObj);
                 }
@@ -564,10 +726,16 @@ namespace Summary.Models
                     }
                 }
             }
+            if(totalSpan.Ticks<0){
+                //new day
+                WorkStartTime = new TimeSpan();
+                InitTodayData();
+                refreshSingleDayPlot();
+            }
         }
 
        
-        private GridSourceTemplate initAllTimeViewObjs()
+        public GridSourceTemplate initAllTimeViewObjs()
         {
             AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
             var currentDateTemplate = new GridSourceTemplate(DateTime.Today);
@@ -644,11 +812,29 @@ namespace Summary.Models
             {
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
+                int taskId = findTask==null ? 0 : findTask.Id;
+                if (taskId==0)
+                {
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
+                    taskId = await SQLCommands.AddTodo(newObj);
+                }
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId:taskId);
                 lastIndex++;
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, TimeType.none, lastIndex, height);
-                Helper.UpdateColor(newTimeObj1, TimeType.none.ToString());
-                Helper.UpdateColor(newTimeObj2, TimeType.none.ToString());
+                taskId = 0;
+                if (content2!="")
+                {
+                    findTask = SQLCommands.QueryTodo(content2);
+                    taskId = findTask==null ? 0 : findTask.Id;
+                    if (taskId==0)
+                    {
+                        ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
+                        taskId = await SQLCommands.AddTodo(newObj);
+                    }
+                }
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
+                Helper.UpdateColor(newTimeObj1, "none");
+                Helper.UpdateColor(newTimeObj2, "none");
                 
                 currentDailyObj.Add(newTimeObj1);
                 currentDailyObj.Add(newTimeObj2);
@@ -669,37 +855,42 @@ namespace Summary.Models
             TimeViewObj myTimeView = (TimeViewObj)obj;
             SelectedTimeObj = myTimeView;
         }
-        private async void InitTodayData()
+        public async void InitTodayData()
         {
             AllTimeViewObjs = await Helper.BuildTimeViewObj(DateTime.Today, DateTime.Today, SQLCommands, height,"record");
             UpdateGridData();
-            var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today);
-            //加载todayTaks里的work,study,play时间块
+            var AllTodayTasks = SQLCommands.GetTasks(DateTime.Today, DateTime.Today);
+            //加载todayTaks里的work,invest,play时间块
             if (AllTodayTasks.Count() > 0)
             {
                 foreach (var obj in AllTodayTasks)
                 {
-                    if (obj.Type == "study" || obj.Type == "work" || obj.Type == "play")
+                    if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask)
                     {
                         if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
-                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = obj.Finished, Type = Helper.ConvertTimeType(obj.Type),Id = obj.Id };
+                            ToDoObj newObj = new ToDoObj() { 
+                                CreatedDate = DateTime.Today, 
+                                Note = obj.Note, 
+                                Finished = obj.Finished, 
+                                Type = Helper.mainCategories.FirstOrDefault(x => x.Id == obj.TypeId, new Category() { Name = "" }).Name,
+                                Id = obj.Id };
                             TodayList.Add(newObj);
                             hs.Add(obj.Note);
                         }
                     }
                 }
             }
-            //把DailyObj里的work，study，play时间块加入到todaylist
+            //把DailyObj里的work，invest，play时间块加入到todaylist
             if (AllTimeViewObjs.Count() > 0 && AllTimeViewObjs[0].DailyObjs != null)
             {
                 foreach(var obj in AllTimeViewObjs[0].DailyObjs)
                 {
-                    if(obj.Type == "study" || obj.Type == "work"||obj.Type=="play")
+                    if(Helper.mainCategories.FirstOrDefault(x => x.Name==obj.Type, new Category() { AutoAddTask=false }).AutoAddTask)
                     {
                         if (!hs.Contains(obj.Note)&& obj.Note != "")
                         {
-                            ToDoObj newObj = new ToDoObj() { Note = obj.Note, Finished = false, Type=Helper.ConvertTimeType(obj.Type) };
+                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=obj.Type, CategoryId = categoryDic[obj.Type] };
                             var id = await SQLCommands.AddTodo(newObj);
                             newObj.Id = id;
                             TodayList.Add(newObj);
@@ -710,6 +901,8 @@ namespace Summary.Models
             }
             
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
+            TipList = new ObservableCollection<string>(allTasks.Where(x => Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true).OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
         }
         private void UpdateGridData()
         {
@@ -745,29 +938,41 @@ namespace Summary.Models
                 return;
             }
             if(!hs.Contains(obj.ToString())){
-                ToDoObj newObj = new ToDoObj() { Note = obj.ToString(), Finished = false, Type=TimeType.work };
+
+                ToDoObj newObj = null;
+                var task = SQLCommands.QueryTodo(obj.ToString());
+                if (task != null){
+                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = Helper.IdCategoryDic[task.TypeId], CategoryId = task.CategoryId };
+                }
+                else{
+                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = "none", CategoryId = categoryDic["none"] };
+                }
                 var index = await SQLCommands.AddTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 TodayText = "";
-            }else{
+                TodoToday.IsDropDownOpen = false;
+            }
+            else{
                 TodayText = "";
                 await showMessageBox("已存在这个任务");
             }
         }
-        private void DeleteContextMenu(object obj)
+        private async void DeleteContextMenu(object obj)
         {
             if(currentObj != null)
             {
                 TodayList.Remove(currentObj);
-                SQLCommands.DeleteTodo(currentObj);
                 hs.Remove(currentObj.Note);
+                await CheckAndDeleteToDo(currentObj);
                 currentObj = null;
             }
-            
         }
+
+        
+
         private void TodayListBoxSelectionChange(object obj)
         {
             if(SelectedListItem != null)
@@ -824,7 +1029,9 @@ namespace Summary.Models
         }
         private async void CheckChanged(object obj) {
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
-            await SQLCommands.UpdateTodo((ToDoObj)obj);
+            GeneratedToDoTask updatedObj = SQLCommands.QueryTodo(((ToDoObj)obj).Note);
+            updatedObj.Finished = ((ToDoObj)obj).Finished;
+            await SQLCommands.UpdateTodo(updatedObj);
         }
         
     }

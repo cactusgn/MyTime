@@ -41,8 +41,8 @@
                     </TextBlock>
                 </DockPanel>
                 <Border  Grid.Row="1" Background="White" >
-                    <TextBlock Grid.Row="1" Text="{Binding WorkContent}" HorizontalAlignment="Center" 
-                       Foreground="{StaticResource MaterialDesignLightForeground}" TextWrapping="Wrap" TextAlignment="Center"
+                    <TextBlock Grid.Row="1" Text="{Binding WorkContent}" HorizontalAlignment="Center" TextWrapping="NoWrap"
+                       Foreground="{StaticResource MaterialDesignLightForeground}" TextAlignment="Center"
                        VerticalAlignment="Center">
                     </TextBlock>
                 </Border>

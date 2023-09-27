@@ -22,6 +22,7 @@
                Grid.Row="2"
                Margin="0,6,0,0"
                Padding="15"
+               TextWrapping="Wrap"
                FontSize="14" Cursor=""/>
     <Button Grid.Row="3"
             Margin="16,16,16,0"

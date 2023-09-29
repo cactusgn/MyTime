@@ -124,6 +124,7 @@ namespace Summary.Models
             {
                 MainContent = SummaryUserControl;
                 SummaryModel.initTypeCombobox();
+                SummaryModel.RefreshSingleDayRadioButtons();
                 SummaryModel.showTimeView();
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();

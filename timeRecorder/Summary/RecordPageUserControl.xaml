@@ -242,8 +242,7 @@
                         <TabItem Header="当天总计" >
                             <DockPanel  Height="{Binding GridHeight}" >
                                 <WrapPanel DockPanel.Dock="Top" Margin="0,10,0,20" Orientation="Horizontal" x:Name="TypeRadioGroupPanel">
-                                    <!--<RadioButton  FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType2" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
-                                    <RadioButton  FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType2" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>-->
+                                 
                                 </WrapPanel>
                                 <DockPanel DockPanel.Dock="Top" >
                                     <ScottPlot:WpfPlot  x:Name="SingleDayPlot" />

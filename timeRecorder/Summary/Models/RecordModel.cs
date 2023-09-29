@@ -264,25 +264,9 @@ namespace Summary.Models
             showTextBoxTimer.Start();//启动计时
         }
 
-        private async void SummaryRBChanged(object obj)
+        private  void SummaryRBChanged(object obj)
         {
-            List<ToDoObj> allTasks = new List<ToDoObj>();
-            allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
-            //update Category and Task
-            foreach (ToDoObj task in allTasks)
-            {
-                var findTask = SQLCommands.QueryTodo(task.Note);
-                if (findTask != null)
-                {
-                    task.Category =  IdNameDic[findTask.CategoryId];
-                    task.CategoryId= findTask.CategoryId;
-                }
-                else
-                {
-                    task.CategoryId = categoryDic[task.Type];
-                }
-            }
-            await Helper.RBChanged(obj, SingleDayPlot, SQLCommands, "", allTasks);
+            refreshSingleDayPlot();
         }
 
         public void RefreshRadioButtons()

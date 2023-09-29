@@ -32,7 +32,8 @@ namespace Summary
             summaryModel.ComboBoxItemStyle = this.Resources["ComboBoxItemStyle"] as Style;
             summaryModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
             this.DataContext = summaryModel;
-            summaryModel.initTypeCombobox(); 
+            summaryModel.initTypeCombobox();
+            summaryModel.RefreshSingleDayRadioButtons();
             summaryModel.showTimeView();
         }
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)

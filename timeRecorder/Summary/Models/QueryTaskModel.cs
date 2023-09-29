@@ -107,7 +107,6 @@ namespace Summary.Models
         public WrapPanel RBWrapPanel { get; internal set; }
         public WpfPlot CategoryPlot { get; internal set; }
         public Dictionary<string, string> colorDic = new Dictionary<string, string>();
-        List<Category> AllCategories = new List<Category>();
         
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
@@ -212,9 +211,9 @@ namespace Summary.Models
             if (SQLCommands!=null)
             {
                 List<MyTime> allTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
-                List<Category> AllCategories = await SQLCommands.GetAllCategories();
+                Helper.allcategories = await SQLCommands.GetAllCategories();
                 List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
-                int findCategoryId = AllCategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+                int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
                 if (Category=="") findCategoryId=0;
                 allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
@@ -223,10 +222,10 @@ namespace Summary.Models
                     //if (task.Id == 0||AllTasksFromDatabase.Where(x => x.Note==task.Note&& AllCategories.FirstOrDefault(y => y.Id==x.TypeId, new Data.Category() { Name="" }).Name== Category).Count()==0)
                     if (task.Id == 0)
                     {
-                       await updateTaskIndex(task, AllCategories);
+                       await updateTaskIndex(task);
                     }
                    
-                    await updateTaskCategory(task, AllTasksFromDatabase, findCategoryId, AllCategories);
+                    await updateTaskCategory(task, AllTasksFromDatabase, findCategoryId);
                     
                     if (task.Category == "" || task.Category == null)
                     {
@@ -252,7 +251,7 @@ namespace Summary.Models
             }
             List<ToDoObj> allSubTasks = new List<ToDoObj>();
             GetAllSubTask(findCategoryId, allSubTasks, allTasks);
-            CalculateBonus(allSubTasks, Helper.allcategories);
+            CalculateBonus(allSubTasks);
             CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
             totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
             TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
@@ -271,7 +270,7 @@ namespace Summary.Models
         private void GetAllSubTask(int findCategoryId, List<ToDoObj> allSubTasks, List<ToDoObj> allTasks)
         {
             allSubTasks.AddRange(allTasks.Where(x => x.CategoryId == findCategoryId).ToList());
-            var subCategories = AllCategories.Where(x => x.ParentCategoryId == findCategoryId);
+            var subCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId);
             if (subCategories.Count() > 0)
             {
                 foreach(Category cate in subCategories)
@@ -312,20 +311,20 @@ namespace Summary.Models
            await Helper.RBChanged(obj, CategoryPlot, SQLCommands, category, allTasks);
         }
       
-        private void CalculateBonus(List<ToDoObj> allTasks, List<Category> AllCategories)
+        private void CalculateBonus(List<ToDoObj> allTasks)
         {
             TotalBonus = 0;
             foreach (var task in allTasks)
             {
                 int bonus = 0;
-                var categoryItem = AllCategories.FirstOrDefault(x => x.Name == task.Category);
+                var categoryItem = Helper.allcategories.FirstOrDefault(x => x.Name == task.Category);
                 if (categoryItem != null)
                 {
                     bonus = categoryItem.BonusPerHour;
                 }
                 if (bonus==0)
                 {
-                    categoryItem = AllCategories.FirstOrDefault(x => x.Name == task.Type.ToString());
+                    categoryItem = Helper.allcategories.FirstOrDefault(x => x.Name == task.Type.ToString());
                     if (categoryItem!= null)
                     {
                         bonus = categoryItem.BonusPerHour;
@@ -335,14 +334,8 @@ namespace Summary.Models
                 TotalBonus = TotalBonus + task.Bonus;
             }
         }
-        private async Task updateTaskCategory(ToDoObj task, List<GeneratedToDoTask> AllTasks, int findCategoryId, List<Category> AllCategories)
+        private async Task updateTaskCategory(ToDoObj task, List<GeneratedToDoTask> AllTasks, int findCategoryId)
         {
-            //if(findCategoryId == 0)
-            //{
-                
-            //}
-            //else
-            //{
                 var findTask = AllTasks.Where(x => x.Note == task.Note).FirstOrDefault();
                 if (findTask != null)
                 {
@@ -355,7 +348,7 @@ namespace Summary.Models
                     }
                     else
                     {
-                        var findCategory = AllCategories.FirstOrDefault(x => x.Id == findTask.CategoryId);
+                        var findCategory = Helper.allcategories.FirstOrDefault(x => x.Id == findTask.CategoryId);
                         if (findCategory != null)
                         {
                             task.Category = findCategory.Name;
@@ -364,15 +357,13 @@ namespace Summary.Models
                 }
                 else
                 {
-                    findCategoryId = AllCategories.FirstOrDefault(x => x.Name==task.Type.ToString(), new Data.Category()).Id;
+                    findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name==task.Type.ToString(), new Data.Category()).Id;
                     task.CategoryId = findCategoryId;
                     task.Category = task.Type.ToString();
                     await SQLCommands.UpdateTodo(task);
                 }
-            //}
-            
         }
-        private async Task updateTaskIndex(ToDoObj task, List<Category> AllCategories)
+        private async Task updateTaskIndex(ToDoObj task)
         {
 
             //找到当前note对应的taskID
@@ -418,7 +409,7 @@ namespace Summary.Models
             //task的categoryId还是0，就改成type的ID
             if (task.CategoryId == 0)
             {
-                int categoryId = AllCategories.FirstOrDefault(x => x.Name == task.Type.ToString(), new Data.Category()).Id;
+                int categoryId = Helper.allcategories.FirstOrDefault(x => x.Name == task.Type.ToString(), new Data.Category()).Id;
                 task.CategoryId = categoryId;
                 task.Category = task.Type.ToString();
                 await SQLCommands.UpdateTodo(task);
@@ -472,9 +463,9 @@ namespace Summary.Models
             IsDialogOpen=true;
         }
 
-        internal async void RestoreDeleteCategoryToParentCategory(int id, List<Category> AllCategories)
+        internal async void RestoreDeleteCategoryToParentCategory(int id)
         {
-            Category curr = AllCategories.Where(x=>x.Id == id).FirstOrDefault();
+            Category curr = Helper.allcategories.Where(x=>x.Id == id).FirstOrDefault();
            
             List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
             var AllTasksOfDeleteCategory = AllTasksFromDatabase.Where(x => x.CategoryId == id);

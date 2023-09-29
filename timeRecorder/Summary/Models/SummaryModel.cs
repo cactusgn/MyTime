@@ -139,6 +139,9 @@ namespace Summary.Models
                 for (int i = 0; i < maxDepth; i++)
                 {
                     RadioButton AllRadioButton = new RadioButton();
+                    Binding BindingObj = new Binding();
+                    BindingObj.Path = new PropertyPath("SelectedTimeObj.IsEnabled");
+                    AllRadioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
                     AllRadioButton.FontSize = 14;
                     AllRadioButton.Name = "RB" + i.ToString();
                     AllRadioButton.GroupName = "SingleDayType";

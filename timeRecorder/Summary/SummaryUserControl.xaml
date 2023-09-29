@@ -254,106 +254,6 @@
                                                        x:Name="TypeComboBox"
                                                         SelectedIndex="{Binding SelectedTimeObj.Type,Converter={StaticResource typeConverter}}"
                                                        Foreground="{DynamicResource MaterialDesignBody}">
-                                                <!--<ComboBoxItem  Tag="none"  Foreground="{DynamicResource MaterialDesignBody}" >
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                            <i:InvokeCommandAction 
-                                                                    CommandParameter="none"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="LightGray" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="none" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-
-                                                </ComboBoxItem>
-                                                <ComboBoxItem  Tag="invest" Foreground="{DynamicResource MaterialDesignBody}" >
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                            <i:InvokeCommandAction 
-                                                                    CommandParameter="invest"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="pink" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="invest" Style="{StaticResource TextShadow}">
-                                                        </TextBlock>
-                                                    </StackPanel>
-
-                                                </ComboBoxItem>
-                                                <ComboBoxItem  Tag="waste" Foreground="{DynamicResource MaterialDesignBody}">
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                            <i:InvokeCommandAction 
-                                                                    CommandParameter="waste"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="OrangeRed" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="waste" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-
-                                                </ComboBoxItem>
-                                                <ComboBoxItem  Tag="rest" Foreground="{DynamicResource MaterialDesignBody}">
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                        <i:InvokeCommandAction 
-                                                                    CommandParameter="rest"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="LightGreen" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="rest" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-                                                
-                                            </ComboBoxItem>
-                                                
-                                                <ComboBoxItem  Tag="work" Foreground="{DynamicResource MaterialDesignBody}">
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                        <i:InvokeCommandAction 
-                                                                    CommandParameter="work"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="yellow" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="work" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-                                                   
-                                            </ComboBoxItem>
-                                                
-                                                <ComboBoxItem  Tag="play"  Foreground="{DynamicResource MaterialDesignBody}" >
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                            <i:InvokeCommandAction 
-                                                                    CommandParameter="play"
-                                                                    Command="{Binding DataContext.TimeObjType_SelectionChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=1}}"></i:InvokeCommandAction>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-                                                        <TextBlock Background="LightBlue" Width="10" Height="10" Margin="5,0,10,0"></TextBlock>
-                                                        <TextBlock HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Center"
-                                                       TextAlignment="Center" Text="play" Style="{StaticResource TextShadow}"/>
-                                                    </StackPanel>
-
-                                                </ComboBoxItem>-->
-                                               
                                         </ComboBox>
 
 
@@ -380,7 +280,7 @@
                               HorizontalAlignment="Stretch"
                               Header="单日"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <StackPanel>
-                                        <WrapPanel Margin="10" Orientation="Horizontal" >
+                                            <WrapPanel Margin="10" Orientation="Horizontal"  x:Name="SingleDayTypeRadioGroupPanel">
                                             <Label FontSize="14" Margin="10,0">Type:</Label>
                                                 <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
                                                 <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>

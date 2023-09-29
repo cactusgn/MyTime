@@ -72,12 +72,12 @@ namespace Summary.Models
         {
             if (ShowVisibleHeader == "显示隐藏类别") {
                 ShowVisibleHeader = "不显示隐藏类别";
-                queryTaskModel.displayInvisibleItems = true;
+                Helper.displayInvisibleItems = true;
             }
             else
             {
                 ShowVisibleHeader = "显示隐藏类别";
-                queryTaskModel.displayInvisibleItems = false;
+                Helper.displayInvisibleItems = false;
             }
             RefreshCategories();
             Helper.initColor(SQLCommands);
@@ -92,10 +92,10 @@ namespace Summary.Models
             {
                 queryTaskModel.RestoreDeleteCategoryToParentCategory(root.Id, AllCategories);
                 await SQLCommands.DeleteCategory(root.Id);
-               
+                queryTaskModel.clickOkButton();
+                RefreshCategories();
+                Helper.initColor(SQLCommands);
             }
-            RefreshCategories();
-            Helper.initColor(SQLCommands);
         }
 
         private void EditCategoryClick(object obj)

@@ -114,6 +114,7 @@ namespace Summary.Models
             {
                 RecordModel.initCategoryDic();
                 RecordModel.InitTodayData();
+                RecordModel.RefreshRadioButtons();
                 RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;
                 ResetColor();

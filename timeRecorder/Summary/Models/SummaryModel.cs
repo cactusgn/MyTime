@@ -388,6 +388,7 @@ namespace Summary.Models
         public ComboBox TypeComboBox { get; internal set; }
         public System.Windows.Style ComboBoxItemStyle { get; internal set; }
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
+        public WrapPanel SingleDayTypeRadioGroupPanel { get; internal set; }
 
         private  void closeDialog()
         {

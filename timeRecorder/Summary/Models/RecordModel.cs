@@ -21,6 +21,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
@@ -53,6 +54,9 @@ namespace Summary.Models
                 gridHeight = value; OnPropertyChanged();
             }
         }
+        /// <summary>
+        /// TodayList is left panel's todolist's data source
+        /// </summary>
         private ObservableCollection<ToDoObj> todayList = new ObservableCollection<ToDoObj>();
         public ObservableCollection<ToDoObj> TodayList{
         get { 
@@ -147,6 +151,9 @@ namespace Summary.Models
             get { return allTimeViewObjs; }
             set { allTimeViewObjs = value; OnPropertyChanged(); }
         }
+        /// <summary>
+        /// todayDailyObj is right panel's data source
+        /// </summary>
         private ObservableCollection<TimeViewObj> todayDailyObj;
 
         public ObservableCollection<TimeViewObj> TodayDailyObj
@@ -174,6 +181,7 @@ namespace Summary.Models
         public MyCommand TipTextChangeCommand { get; set; }
         public MyCommand TipTextPreviewMouseUpCommand { get; set; }
         public MyCommand TodoTodaySelectionChangeCommand { get; set; }
+        public MyCommand SummaryRBChangedCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -216,7 +224,9 @@ namespace Summary.Models
 
         public StackPanel RightButtonPanel { get; internal set; }
         public System.Windows.Style ButtonStyle { get; internal set; }
-        
+        public WrapPanel TypeRadioGroupPanel { get; internal set; }
+
+        public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
 
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
@@ -243,6 +253,7 @@ namespace Summary.Models
             TipTextChangeCommand = new MyCommand(TipTextChange);
             TipTextPreviewMouseUpCommand = new MyCommand(TipTextPreviewMouseUp);
             TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
+            SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
@@ -253,7 +264,59 @@ namespace Summary.Models
             showTextBoxTimer.Start();//启动计时
         }
 
-       
+        private async void SummaryRBChanged(object obj)
+        {
+            List<ToDoObj> allTasks = new List<ToDoObj>();
+            allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+            //update Category and Task
+            foreach (ToDoObj task in allTasks)
+            {
+                var findTask = SQLCommands.QueryTodo(task.Note);
+                if (findTask != null)
+                {
+                    task.Category =  IdNameDic[findTask.CategoryId];
+                    task.CategoryId= findTask.CategoryId;
+                }
+                else
+                {
+                    task.CategoryId = categoryDic[task.Type];
+                }
+            }
+            await Helper.RBChanged(obj, SingleDayPlot, SQLCommands, "", allTasks);
+        }
+
+        public void RefreshRadioButtons()
+        {
+            if (TypeRadioGroupPanel!=null)
+            {
+                TypeRadioGroupPanel.Children.Clear();
+                Label label = new Label();
+                label.Margin = new Thickness(10, 0, 10, 0);
+                label.Content = "Type:";
+                label.FontSize=14;
+                TypeRadioGroupPanel.Children.Add(label);
+                int maxDepth = Helper.getMaxDepth(1, 0);
+                RadioButtons.Clear();
+                for (int i = 0; i < maxDepth; i++)
+                {
+                    RadioButton AllRadioButton = new RadioButton();
+                    AllRadioButton.FontSize = 14;
+                    AllRadioButton.Name = "RB" + i.ToString();
+                    AllRadioButton.GroupName = "SingleDayType2";
+                    AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
+                    AllRadioButton.Command = SummaryRBChangedCommand;
+                    AllRadioButton.CommandParameter = (i+1).ToString();
+                    AllRadioButton.Content = "层级" + (i + 1).ToString();
+                    //if (i == 0) AllRadioButton.IsChecked = true;
+                    TypeRadioGroupPanel.Children.Add(AllRadioButton);
+                    RadioButtons.Add(AllRadioButton);
+                }
+                if (RadioButtons.Count()>0)
+                {
+                    RadioButtons[0].IsChecked = true;
+                }
+            }
+        }
         private void TodoTodaySelectionChange(object obj)
         {
             if (TodoToday.SelectedValue!=null)
@@ -915,22 +978,48 @@ namespace Summary.Models
         public void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == DateTime.Today).DailyObjs;
-            if (FirstLevelRB.IsChecked == true)
+            foreach (RadioButton radioButton in RadioButtons)
             {
-                var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
-                FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+                radioButton.Dispatcher.Invoke(new Action(async delegate
                 {
-                    Helper.refreshPlot(AllObj2, SingleDayPlot);
+                    if (radioButton.IsChecked==true)
+                    {
+                        List<ToDoObj> allTasks = new List<ToDoObj>();
+                        allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        //update Category and Task
+                        foreach (ToDoObj task in allTasks)
+                        {
+                            var findTask = SQLCommands.QueryTodo(task.Note);
+                            if (findTask != null)
+                            {
+                                task.Category =  IdNameDic[findTask.CategoryId];
+                                task.CategoryId= findTask.CategoryId;
+                            }
+                            else
+                            {
+                                task.CategoryId = categoryDic[task.Type];
+                            }
+                        }
+                        await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);
+                    }
+                      
                 }));
             }
-            if (ThirdLevelRB.IsChecked == true)
-            {
-                ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
-                {
-                    Helper.refreshPlot(AllObj, SingleDayPlot);
-                }));
-            }
-
+            //if (FirstLevelRB.IsChecked == true)
+            //{
+            //    var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
+            //    FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+            //    {
+            //        Helper.refreshPlot(AllObj2, SingleDayPlot);
+            //    }));
+            //}
+            //if (ThirdLevelRB.IsChecked == true)
+            //{
+            //    ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
+            //    {
+            //        Helper.refreshPlot(AllObj, SingleDayPlot);
+            //    }));
+            //}
         }
         private async void Enter_Click(object obj)
         {

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
 namespace Summary.Common.Utils
@@ -31,8 +32,153 @@ namespace Summary.Common.Utils
         public static Dictionary< int, string> IdCategoryDic = new Dictionary<int, string>();
         public static Dictionary<string, int> SummaryCategoryDic = new Dictionary<string, int>();
         public static List<Category> allcategories = new List<Category>();
+        public static bool displayInvisibleItems = false;
+        public static Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
+        public static Dictionary<int, string> IdNameDic = new Dictionary<int, string>();
         //public static RecordModel recordModel;
+        public static int getMaxDepth(int currDepth, int findCategoryId)
+        {
+            List<Category> allSubCategories = new List<Category>();
+            if (Helper.displayInvisibleItems == true)
+            {
+                allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId).ToList();
+            }
+            else
+            {
+                allSubCategories = Helper.allcategories.Where(x => x.ParentCategoryId == findCategoryId && x.Visible).ToList();
+            }
 
+            if (allSubCategories.Count == 0) return currDepth;
+            int a = currDepth;
+            foreach (var category in allSubCategories)
+            {
+                currDepth = Math.Max(getMaxDepth(a+1, category.Id), currDepth);
+            }
+            return currDepth;
+        }
+        public static long GetAllSubTime(List<ToDoObj> plotData, string currcategory)
+        {
+            if (!Helper.NameIdDic.ContainsKey(currcategory)) return 0;
+            var tempSubCategories = allcategories.Where(x => x.ParentCategoryId == Helper.NameIdDic[currcategory]).ToList();
+            long res = 0;
+            if (tempSubCategories.Count > 0)
+            {
+                foreach (var category in tempSubCategories)
+                {
+                    res+=GetAllSubTime(plotData, category.Name);
+                }
+            }
+            else
+            {
+                return plotData.Where(x => x.CategoryId == Helper.NameIdDic[currcategory]).Sum(x => x.LastTime.Ticks);
+            }
+            res += plotData.Where(x => x.CategoryId == Helper.NameIdDic[currcategory]).Sum(x => x.LastTime.Ticks);
+            return res;
+        }
+        public static async Task RBChanged(object obj, WpfPlot CategoryPlot, ISQLCommands SQLCommands,string Category, List<ToDoObj> allTasks)
+        {
+            int param = int.Parse(obj.ToString());
+            var index = 0;
+            CategoryPlot.Plot.Clear();
+            var plt = CategoryPlot.Plot;
+            Dictionary<string, int> typelevelDic = new Dictionary<string, int>();
+            colorDic.Clear();
+            allcategories = await SQLCommands.GetAllCategories();
+            int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+            NameIdDic.Clear();
+            IdNameDic.Clear();
+            IdNameDic.Add(0, "none");
+            NameIdDic.Add("none", 0);
+            colorDic.Add("none", "#F3F3F3");
+            foreach (Category category in allcategories)
+            {
+                if (!category.Visible) { continue; }
+                NameIdDic.Add(category.Name, category.Id);
+                IdNameDic.Add(category.Id, category.Name);
+                colorDic.Add(category.Name, category.Color);
+                Category tempCate = category;
+                int level = 0;
+                if (tempCate.Id == findCategoryId)
+                {
+                    typelevelDic.Add(category.Name, level);
+                }
+                while (allcategories.FirstOrDefault(x => x.Id == tempCate.Id, new Data.Category() { Id= findCategoryId }).Id!=findCategoryId|| allcategories.FirstOrDefault(x => x.Id == tempCate.Id, new Data.Category() { Id = 0 }).Id != 0)
+                {
+                    level++;
+                    tempCate = allcategories.FirstOrDefault(x => x.Id == tempCate.ParentCategoryId, new Data.Category() { ParentCategoryId= findCategoryId });
+                    if (tempCate.Id==findCategoryId)
+                        typelevelDic.Add(category.Name, level);
+                }
+            }
+            List<ToDoObj> plotData = allTasks.Where(x => typelevelDic.ContainsKey(x.Category)).ToList();
+            int maxDepth = Helper.getMaxDepth(1, findCategoryId);
+            foreach (ToDoObj task in plotData)
+            {
+                typelevelDic.Add("task:" + task.Note, maxDepth);
+                NameIdDic.Add("task:" + task.Note, 0);
+                colorDic.Add("task:" + task.Note, colorDic[IdNameDic[task.CategoryId]]);
+            }
+            typelevelDic = typelevelDic.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            Dictionary<string, long> plotDataFinal = new Dictionary<string, long>();
+
+            foreach (var item in typelevelDic)
+            {
+                if (item.Value>=param)
+                {
+                    //parentCate=invest tempCategories=[invest, Timerecorder, learn...]
+                    var tempSubCategories = allcategories.Where(x => x.ParentCategoryId==NameIdDic[item.Key]||x.Id== NameIdDic[item.Key]).Select(x => new { x.Id, x.Name }).ToList();
+                    long sumLastTime = 0;
+                    if (item.Value==maxDepth)
+                    {
+                        sumLastTime = plotData.First(x => ("task:" + x.Note) == item.Key).LastTime.Ticks;
+                    }
+                    else
+                    {
+                        //sumLastTime = plotData.Where(x => tempSubCategories.Any(y => y.Id == x.CategoryId)).Sum(x => x.LastTime.Ticks) ;
+                        sumLastTime = GetAllSubTime(plotData, item.Key);
+                    }
+
+                    plotDataFinal.Add(item.Key, sumLastTime);
+                }
+            }
+            List<int> allTypes = typelevelDic.Where(x => x.Value==param).Select(x => NameIdDic[x.Key]).ToList();
+            plotDataFinal = plotDataFinal.Where(x => allTypes.Contains(NameIdDic[x.Key])).ToDictionary(x => x.Key, x => x.Value);
+            var items = plotDataFinal.Select(x => new ChartBar { Note = x.Key, Type = x.Key, Time = new TimeSpan(x.Value) }).OrderBy(x => x.Type).ThenByDescending(x => x.Time);
+            Dictionary<string, ChartBar[]> TypeItemList = new Dictionary<string, ChartBar[]>();
+            var allItemCount = 0;
+            foreach (string type in plotDataFinal.Keys)
+            {
+                //if (type == "none") continue;
+                var timeItems = items.Where(x => x.Type == type).ToArray();
+                TypeItemList.Add(type, timeItems);
+                allItemCount += timeItems.Length;
+            }
+            string[] TimeLabels = new string[allItemCount];
+            string[] YLabels = new string[allItemCount];
+            double[] position = new double[allItemCount];
+            foreach (var TypeItems in TypeItemList)
+            {
+                if (TypeItems.Key == "none") continue;
+                addChartData(TypeItems.Value, TypeItems.Key, ref position, ref YLabels, ref TimeLabels, ref plt, ref index);
+            }
+            plt.YTicks(position, YLabels);
+            plt.Legend(location: Alignment.UpperRight);
+            Func<double, string> customFormatter = y => double.IsNaN(y) ? "0" : $"{TimeSpan.FromSeconds(y).ToString()}";
+            plt.XAxis.TickLabelFormat(customFormatter);
+            plt.YAxis.LabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            plt.XAxis.LabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+
+            plt.YAxis.TickLabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            plt.XAxis.TickLabelStyle(fontSize: 14, fontName: Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei");
+            // adjust axis limits so there is no padding to the left of the bar graph
+            plt.SetAxisLimits(xMin: 0);
+            CategoryPlot.Configuration.Quality = ScottPlot.Control.QualityMode.High;
+            CategoryPlot.Dispatcher.Invoke(new Action(delegate
+            {
+                CategoryPlot.Render(lowQuality: false);
+                CategoryPlot.Refresh();
+            }));
+        }
         public static string GetAppSetting(string key)
         {
             var cfg = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);

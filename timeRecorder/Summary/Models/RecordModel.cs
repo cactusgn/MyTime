@@ -436,14 +436,35 @@ namespace Summary.Models
         }
         private async void ExportFile(object obj)
         {
+            
             if(File.Exists(Helper.GetAppSetting("OutputDirectory")+ "\\time_record.txt"))
             {
-                deleteFile(Helper.GetAppSetting("OutputDirectory"));
+                try
+                {
+                    deleteFile(Helper.GetAppSetting("OutputDirectory"));
+                }
+                catch (Exception)
+                {
+
+                    await showMessageBox("删除旧记录时出错，请检查导出目录是否存在");
+                    return;
+                }
+                
             }
             if (!Directory.Exists(Helper.GetAppSetting("OutputDirectory")))
             {
-                Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+                try
+                {
+                    Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+                }
+                catch (Exception)
+                {
+
+                    await showMessageBox("创建导出目录时出错，请检查导出目录是否存在");
+                    return;
+                }
             }
+            
             for (int i = 0; i < TodayDailyObj.Count; i++)
             {
                 addText("开始时间：" + TodayDailyObj[i].StartTime);

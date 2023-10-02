@@ -18,6 +18,7 @@ namespace Summary.Data
         public Task<int> UpdateObj(MyTime obj);
         public Task<int> AddObj(TimeViewObj obj);
         public Task<int> DeleteObj(TimeViewObj obj);
+        public Task<int> DeleteObj(MyTime obj);
         public Task<int> DeleteObjByDate(DateTime date);
         #endregion
 

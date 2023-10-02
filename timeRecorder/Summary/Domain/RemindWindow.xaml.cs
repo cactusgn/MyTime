@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Summary.Common.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace Summary.Domain
             {
                 Titile = title,
                 Message = message,
-                InputText = "休息"
+                InputText = Helper.RestContent
             };
             TitleRow.MouseMove += (s, e) =>
             {

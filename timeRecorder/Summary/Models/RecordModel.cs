@@ -716,7 +716,8 @@ namespace Summary.Models
                 var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x => x.StartTime).LastOrDefault();
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
                 var restCon = Helper.RestContent;
-                if ( WorkStartTime - lastViewObj.EndTime > new TimeSpan(0,2,0)){
+                if ( WorkStartTime - lastViewObj.EndTime > Helper.intervalRemindTimeSpan)
+                {
                     RemindWindow rw = new RemindWindow();
                     if(rw.ShowDialog()==true){
                         restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
@@ -997,7 +998,7 @@ namespace Summary.Models
                             var findTask = SQLCommands.QueryTodo(task.Note);
                             if (findTask != null)
                             {
-                                task.Category =  IdNameDic[findTask.CategoryId];
+                                task.Category =  IdCategoryDic[findTask.CategoryId];
                                 task.CategoryId= findTask.CategoryId;
                             }
                             else

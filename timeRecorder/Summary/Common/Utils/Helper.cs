@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
@@ -19,9 +20,10 @@ namespace Summary.Common.Utils
 {
     public static class Helper
     {
-        public const string RestContent = "休息";
+        public static string RestContent ="";
         public static TimeSpan GlobalStartTimeSpan = new TimeSpan(6, 0, 0);
         public static TimeSpan GlobalEndTimeSpan = new TimeSpan(23, 59, 59);
+        public static TimeSpan intervalRemindTimeSpan = new TimeSpan(0,2,0);
         public static TimeSpan TickTime;
         public static string WorkContent;
         public static bool WorkMode;
@@ -34,7 +36,6 @@ namespace Summary.Common.Utils
         public static List<Category> allcategories = new List<Category>();
         public static bool displayInvisibleItems = false;
         public static Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
-        public static Dictionary<int, string> IdNameDic = new Dictionary<int, string>();
         //public static RecordModel recordModel;
         public static int getMaxDepth(int currDepth, int findCategoryId)
         {
@@ -86,15 +87,15 @@ namespace Summary.Common.Utils
             allcategories = await SQLCommands.GetAllCategories();
             int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
             NameIdDic.Clear();
-            IdNameDic.Clear();
-            IdNameDic.Add(0, "none");
+            IdCategoryDic.Clear();
+            IdCategoryDic.Add(0, "none");
             NameIdDic.Add("none", 0);
             colorDic.Add("none", "#F3F3F3");
             foreach (Category category in allcategories)
             {
                 if (!category.Visible) { continue; }
                 NameIdDic.Add(category.Name, category.Id);
-                IdNameDic.Add(category.Id, category.Name);
+                IdCategoryDic.Add(category.Id, category.Name);
                 colorDic.Add(category.Name, category.Color);
                 Category tempCate = category;
                 int level = 0;
@@ -116,7 +117,7 @@ namespace Summary.Common.Utils
             {
                 typelevelDic.Add("task:" + task.Note, maxDepth);
                 NameIdDic.Add("task:" + task.Note, 0);
-                colorDic.Add("task:" + task.Note, colorDic[IdNameDic[task.CategoryId]]);
+                colorDic.Add("task:" + task.Note, colorDic[IdCategoryDic[task.CategoryId]]);
             }
             typelevelDic = typelevelDic.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
             Dictionary<string, long> plotDataFinal = new Dictionary<string, long>();
@@ -196,6 +197,7 @@ namespace Summary.Common.Utils
             DateTime currentDate = startTime;
             ObservableCollection<GridSourceTemplate> AllTimeViewObjs = new ObservableCollection<GridSourceTemplate>();
             List<MyTime> allTimeData = await SQLCommands.GetAllTimeObjs(startTime, endTime);
+
             while (allTimeData!=null && currentDate <= endTime)
             {
                 int lastIndex = 1;
@@ -228,21 +230,39 @@ namespace Summary.Common.Utils
                     {
                         firstTimeObj = false;
                         //Add first time object
-                        TimeSpan tempStart = new TimeSpan(6, 0, 0);
+                        TimeSpan tempStart = Helper.GlobalStartTimeSpan;
                         if (startTimeSpan > tempStart)
                         {
-                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, "none", lastIndex,height, taskId:TimeObj.taskId);
-                            lastIndex++;
+                            //if cannot find
+                            GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
+                            int taskId = findTask==null ? 0 : findTask.Id;
+                            string type = IdCategoryDic[findTask.TypeId];
+                            TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, type, lastIndex,height, taskId: taskId);
                             await SQLCommands.AddObj(startTimeObj);
-                            UpdateColor(startTimeObj, "none");
+                            UpdateColor(startTimeObj, type);
                             currentDateTemplate.DailyObjs.Add(startTimeObj);
                         }
+                        else if(startTimeSpan < tempStart)
+                        {
+                            //split first time obj into 2 time objs, delete the item and add the second time obj to the view
+                            TimeViewObj firstSplitItem = CreateNewTimeObj(startTimeSpan, tempStart, TimeObj.note, currentDate, TimeObj.type, lastIndex, height, taskId: TimeObj.taskId);
+                            await SQLCommands.AddObj(firstSplitItem);
+                            UpdateColor(firstSplitItem, TimeObj.type);
+                            TimeViewObj secondSplitItem = CreateNewTimeObj(tempStart, TimeObj.endTime, TimeObj.note, currentDate, TimeObj.type, lastIndex, height, taskId: TimeObj.taskId);
+                            await SQLCommands.AddObj(secondSplitItem);
+                            UpdateColor(secondSplitItem, TimeObj.type);
+                            await SQLCommands.DeleteObj(TimeObj);
+                            currentDateTemplate.DailyObjs.Add(firstSplitItem);
+                            currentDateTemplate.DailyObjs.Add(secondSplitItem);
+                            continue;
+                        }
+                        //if they are equal, don't do anything. Directly add the obj
                     }
                     if (TimeObj.type==null)
                     {
                         TimeObj.type = "";
                     }
-                    if (startTimeSpan>=new TimeSpan(6, 0, 0))
+                    if (startTimeSpan>=Helper.GlobalStartTimeSpan)
                     {
                         timeViewObj.CreatedDate = currentDate;
                         timeViewObj.LastTime = TimeObj.endTime-TimeObj.startTime;
@@ -262,16 +282,9 @@ namespace Summary.Common.Utils
                 if (endTimeSpan < tempEndTime && currentDate<DateTime.Today)
                 {
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
-                    int taskId = findTask == null ? 0 : findTask.Id;
-                    string type = "none";
-                    foreach (var item in categoryDic)
-                    {
-                        if (item.Value == taskId)
-                        {
-                            type = item.Key;
-                        }
-                    }
-                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height);
+                    int taskId = findTask==null ? 0 : findTask.Id;
+                    string type = IdCategoryDic[findTask.TypeId];
+                    TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height, taskId: taskId);
                     UpdateColor(startTimeObj, type);
                     await SQLCommands.AddObj(startTimeObj);
                     currentDateTemplate.DailyObjs.Add(startTimeObj);

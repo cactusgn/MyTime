@@ -93,9 +93,9 @@ namespace Summary.Models
             }
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
+            Settings = new Settings(new SettingsModel());
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             RecordModel = recordModel;
-            Settings = new Settings(new SettingsModel());
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
             TaskManagerModel = taskManagerModel;

@@ -699,6 +699,11 @@ namespace Summary.Models
         }
         public async Task<bool> StartClickMethod()
         {
+            if (DateTime.Now.TimeOfDay <Helper.GlobalStartTimeSpan)
+            {
+                await showMessageBox("未到设定起始记录时间，请到设置页面重新设置起始记录时间");
+                return false;
+            }
             Helper.WorkMode = true;
             if (WorkContent==null||WorkContent == "")
             {
@@ -723,8 +728,9 @@ namespace Summary.Models
                         restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
                     }
                 }
-                string type = findPreviousType(restCon);
+                
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
+                string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
                 int taskId = findTask==null? 0:findTask.Id;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
@@ -738,14 +744,7 @@ namespace Summary.Models
                 {
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                     int taskId = findTask==null ? 0 : findTask.Id;
-                    string type = "none";
-                    foreach(var item in categoryDic)
-                    {
-                        if(item.Value == taskId)
-                        {
-                            type = item.Key;
-                        }
-                    }
+                    string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, type, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, type);
@@ -972,6 +971,7 @@ namespace Summary.Models
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
             TipList = new ObservableCollection<string>(allTasks.Where(x => Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true).OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
+            resizeHeight();
         }
         private void UpdateGridData()
         {
@@ -1011,21 +1011,6 @@ namespace Summary.Models
                       
                 }));
             }
-            //if (FirstLevelRB.IsChecked == true)
-            //{
-            //    var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
-            //    FirstLevelRB.Dispatcher.Invoke(new Action(delegate
-            //    {
-            //        Helper.refreshPlot(AllObj2, SingleDayPlot);
-            //    }));
-            //}
-            //if (ThirdLevelRB.IsChecked == true)
-            //{
-            //    ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
-            //    {
-            //        Helper.refreshPlot(AllObj, SingleDayPlot);
-            //    }));
-            //}
         }
         private async void Enter_Click(object obj)
         {
@@ -1114,7 +1099,7 @@ namespace Summary.Models
         {
             if (AllTimeViewObjs != null && AllTimeViewObjs[0].DailyObjs.Count>0)
             {
-                TimeSpan allTimeSpan = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.EndTime).Last().EndTime - new TimeSpan(6, 0, 0);
+                TimeSpan allTimeSpan = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.EndTime).Last().EndTime - Helper.GlobalStartTimeSpan;
                 return lastTime/allTimeSpan*(height-95);
             }
             else

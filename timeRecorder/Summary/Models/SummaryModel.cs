@@ -384,7 +384,7 @@ namespace Summary.Models
                             var findTask = SQLCommands.QueryTodo(task.Note);
                             if (findTask != null)
                             {
-                                task.Category =  Helper.IdNameDic[findTask.CategoryId];
+                                task.Category =  Helper.IdCategoryDic[findTask.CategoryId];
                                 task.CategoryId= findTask.CategoryId;
                             }
                             else

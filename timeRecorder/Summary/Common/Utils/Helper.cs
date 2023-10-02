@@ -215,12 +215,13 @@ namespace Summary.Common.Utils
                     currentDateTemplate.Color = "#008080";
                 }
                 TimeSpan endTimeSpan = GlobalStartTimeSpan;
-                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.startTime>=endTimeSpan).OrderBy(s => s.startTime).ToList<MyTime>();
+                List<MyTime> currentDateData = allTimeData.Where(x => x.createDate==currentDate&&x.endTime>GlobalStartTimeSpan).OrderBy(s => s.startTime).ToList<MyTime>();
                 bool firstTimeObj = true;
                 if (currentDateData.Count>0)
                 {
                     lastIndex = currentDateData.Max(x => x.currentIndex)+1;
                 }
+                
                 foreach (MyTime TimeObj in currentDateData)
                 {
                     TimeViewObj timeViewObj = new TimeViewObj();
@@ -236,7 +237,7 @@ namespace Summary.Common.Utils
                             //if cannot find
                             GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                             int taskId = findTask==null ? 0 : findTask.Id;
-                            string type = IdCategoryDic[findTask.TypeId];
+                            string type = IdCategoryDic[findTask!=null?findTask.TypeId:0];
                             TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, type, lastIndex,height, taskId: taskId);
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, type);
@@ -252,7 +253,6 @@ namespace Summary.Common.Utils
                             await SQLCommands.AddObj(secondSplitItem);
                             UpdateColor(secondSplitItem, TimeObj.type);
                             await SQLCommands.DeleteObj(TimeObj);
-                            currentDateTemplate.DailyObjs.Add(firstSplitItem);
                             currentDateTemplate.DailyObjs.Add(secondSplitItem);
                             continue;
                         }
@@ -283,7 +283,7 @@ namespace Summary.Common.Utils
                 {
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                     int taskId = findTask==null ? 0 : findTask.Id;
-                    string type = IdCategoryDic[findTask.TypeId];
+                    string type = IdCategoryDic[findTask!=null?findTask.TypeId:0];
                     TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height, taskId: taskId);
                     UpdateColor(startTimeObj, type);
                     await SQLCommands.AddObj(startTimeObj);
@@ -327,10 +327,10 @@ namespace Summary.Common.Utils
         }
         public static double CalculateHeight(TimeSpan lastTime, double height, string viewType = "summary")
         {
-            TimeSpan allTimeSpan = new TimeSpan(18, 0, 0);
+            TimeSpan allTimeSpan = GlobalEndTimeSpan-GlobalStartTimeSpan;
             if (viewType == "record")
             {
-                allTimeSpan = Helper.getCurrentTime() - new TimeSpan(6, 0, 0);
+                allTimeSpan = Helper.getCurrentTime() - GlobalStartTimeSpan;
                 return lastTime/allTimeSpan*(height-90);
             }
             return lastTime/allTimeSpan*(height-100);
@@ -428,7 +428,7 @@ namespace Summary.Common.Utils
             IdCategoryDic.Add(0, "none");
             categoryDic.Clear();
             categoryDic.Add("none", 0);
-            foreach (var category in mainCategories)
+            foreach (var category in allcategories)
             {
                 //categoryDic为了后续快速获取这几个主要任务的id
                 categoryDic.Add(category.Name, category.Id);

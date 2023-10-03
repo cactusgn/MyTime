@@ -21,6 +21,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
@@ -53,6 +54,9 @@ namespace Summary.Models
                 gridHeight = value; OnPropertyChanged();
             }
         }
+        /// <summary>
+        /// TodayList is left panel's todolist's data source
+        /// </summary>
         private ObservableCollection<ToDoObj> todayList = new ObservableCollection<ToDoObj>();
         public ObservableCollection<ToDoObj> TodayList{
         get { 
@@ -147,6 +151,9 @@ namespace Summary.Models
             get { return allTimeViewObjs; }
             set { allTimeViewObjs = value; OnPropertyChanged(); }
         }
+        /// <summary>
+        /// todayDailyObj is right panel's data source
+        /// </summary>
         private ObservableCollection<TimeViewObj> todayDailyObj;
 
         public ObservableCollection<TimeViewObj> TodayDailyObj
@@ -174,6 +181,7 @@ namespace Summary.Models
         public MyCommand TipTextChangeCommand { get; set; }
         public MyCommand TipTextPreviewMouseUpCommand { get; set; }
         public MyCommand TodoTodaySelectionChangeCommand { get; set; }
+        public MyCommand SummaryRBChangedCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -216,7 +224,9 @@ namespace Summary.Models
 
         public StackPanel RightButtonPanel { get; internal set; }
         public System.Windows.Style ButtonStyle { get; internal set; }
-        
+        public WrapPanel TypeRadioGroupPanel { get; internal set; }
+
+        public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
 
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
@@ -243,6 +253,7 @@ namespace Summary.Models
             TipTextChangeCommand = new MyCommand(TipTextChange);
             TipTextPreviewMouseUpCommand = new MyCommand(TipTextPreviewMouseUp);
             TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
+            SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
@@ -253,7 +264,43 @@ namespace Summary.Models
             showTextBoxTimer.Start();//启动计时
         }
 
-       
+        private  void SummaryRBChanged(object obj)
+        {
+            refreshSingleDayPlot();
+        }
+
+        public void RefreshRadioButtons()
+        {
+            if (TypeRadioGroupPanel!=null)
+            {
+                TypeRadioGroupPanel.Children.Clear();
+                Label label = new Label();
+                label.Margin = new Thickness(10, 0, 10, 0);
+                label.Content = "Type:";
+                label.FontSize=14;
+                TypeRadioGroupPanel.Children.Add(label);
+                int maxDepth = Helper.getMaxDepth(1, 0);
+                RadioButtons.Clear();
+                for (int i = 0; i < maxDepth; i++)
+                {
+                    RadioButton AllRadioButton = new RadioButton();
+                    AllRadioButton.FontSize = 14;
+                    AllRadioButton.Name = "RB" + i.ToString();
+                    AllRadioButton.GroupName = "SingleDayType2";
+                    AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
+                    AllRadioButton.Command = SummaryRBChangedCommand;
+                    AllRadioButton.CommandParameter = (i+1).ToString();
+                    AllRadioButton.Content = "层级" + (i + 1).ToString();
+                    //if (i == 0) AllRadioButton.IsChecked = true;
+                    TypeRadioGroupPanel.Children.Add(AllRadioButton);
+                    RadioButtons.Add(AllRadioButton);
+                }
+                if (RadioButtons.Count()>0)
+                {
+                    RadioButtons[0].IsChecked = true;
+                }
+            }
+        }
         private void TodoTodaySelectionChange(object obj)
         {
             if (TodoToday.SelectedValue!=null)
@@ -389,14 +436,35 @@ namespace Summary.Models
         }
         private async void ExportFile(object obj)
         {
+            
             if(File.Exists(Helper.GetAppSetting("OutputDirectory")+ "\\time_record.txt"))
             {
-                deleteFile(Helper.GetAppSetting("OutputDirectory"));
+                try
+                {
+                    deleteFile(Helper.GetAppSetting("OutputDirectory"));
+                }
+                catch (Exception)
+                {
+
+                    await showMessageBox("删除旧记录时出错，请检查导出目录是否存在");
+                    return;
+                }
+                
             }
             if (!Directory.Exists(Helper.GetAppSetting("OutputDirectory")))
             {
-                Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+                try
+                {
+                    Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+                }
+                catch (Exception)
+                {
+
+                    await showMessageBox("创建导出目录时出错，请检查导出目录是否存在");
+                    return;
+                }
             }
+            
             for (int i = 0; i < TodayDailyObj.Count; i++)
             {
                 addText("开始时间：" + TodayDailyObj[i].StartTime);
@@ -554,6 +622,11 @@ namespace Summary.Models
             {
                 await SQLCommands.DeleteTodo(objTobeDeleted);
             }
+            else
+            {
+                objTobeDeleted.CreatedDate = objs.FirstOrDefault().createDate;
+                await SQLCommands.UpdateTodo(objTobeDeleted);
+            }
         }
         private async void UpdateType(object a)
         {
@@ -631,6 +704,11 @@ namespace Summary.Models
         }
         public async Task<bool> StartClickMethod()
         {
+            if (DateTime.Now.TimeOfDay <Helper.GlobalStartTimeSpan)
+            {
+                await showMessageBox("未到设定起始记录时间，请到设置页面重新设置起始记录时间");
+                return false;
+            }
             Helper.WorkMode = true;
             if (WorkContent==null||WorkContent == "")
             {
@@ -648,14 +726,16 @@ namespace Summary.Models
                 var lastViewObj = AllTimeViewObjs[0].DailyObjs.OrderBy(x => x.StartTime).LastOrDefault();
                 int lastIndex = AllTimeViewObjs[0].DailyObjs.Max(x => x.Id)+1;
                 var restCon = Helper.RestContent;
-                if ( WorkStartTime - lastViewObj.EndTime > new TimeSpan(0,2,0)){
+                if ( WorkStartTime - lastViewObj.EndTime > Helper.intervalRemindTimeSpan)
+                {
                     RemindWindow rw = new RemindWindow();
                     if(rw.ShowDialog()==true){
                         restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
                     }
                 }
-                string type = findPreviousType(restCon);
+                
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
+                string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
                 int taskId = findTask==null? 0:findTask.Id;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
@@ -669,14 +749,7 @@ namespace Summary.Models
                 {
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                     int taskId = findTask==null ? 0 : findTask.Id;
-                    string type = "none";
-                    foreach(var item in categoryDic)
-                    {
-                        if(item.Value == taskId)
-                        {
-                            type = item.Key;
-                        }
-                    }
+                    string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, type, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, type);
@@ -903,6 +976,7 @@ namespace Summary.Models
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
             TipList = new ObservableCollection<string>(allTasks.Where(x => Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true).OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());
+            resizeHeight();
         }
         private void UpdateGridData()
         {
@@ -915,22 +989,33 @@ namespace Summary.Models
         public void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == DateTime.Today).DailyObjs;
-            if (FirstLevelRB.IsChecked == true)
+            foreach (RadioButton radioButton in RadioButtons)
             {
-                var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
-                FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+                radioButton.Dispatcher.Invoke(new Action(async delegate
                 {
-                    Helper.refreshPlot(AllObj2, SingleDayPlot);
+                    if (radioButton.IsChecked==true)
+                    {
+                        List<ToDoObj> allTasks = new List<ToDoObj>();
+                        allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        //update Category and Task
+                        foreach (ToDoObj task in allTasks)
+                        {
+                            var findTask = SQLCommands.QueryTodo(task.Note);
+                            if (findTask != null)
+                            {
+                                task.Category =  IdCategoryDic[findTask.CategoryId];
+                                task.CategoryId= findTask.CategoryId;
+                            }
+                            else
+                            {
+                                task.CategoryId = categoryDic[task.Type];
+                            }
+                        }
+                        await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);
+                    }
+                      
                 }));
             }
-            if (ThirdLevelRB.IsChecked == true)
-            {
-                ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
-                {
-                    Helper.refreshPlot(AllObj, SingleDayPlot);
-                }));
-            }
-
         }
         private async void Enter_Click(object obj)
         {
@@ -1019,7 +1104,7 @@ namespace Summary.Models
         {
             if (AllTimeViewObjs != null && AllTimeViewObjs[0].DailyObjs.Count>0)
             {
-                TimeSpan allTimeSpan = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.EndTime).Last().EndTime - new TimeSpan(6, 0, 0);
+                TimeSpan allTimeSpan = AllTimeViewObjs[0].DailyObjs.OrderBy(x=>x.EndTime).Last().EndTime - Helper.GlobalStartTimeSpan;
                 return lastTime/allTimeSpan*(height-95);
             }
             else

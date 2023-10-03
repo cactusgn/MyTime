@@ -131,6 +131,18 @@ namespace Summary.Data
                 return 1;
             }
         }
+        public async Task<int> DeleteObj(MyTime obj)
+        {
+            using (var context = new MytimeContext())
+            {
+                var item = context.MyTime.Where(x => x.currentIndex == obj.currentIndex && x.createDate == obj.createDate);
+                if (item.Count()>0)
+                {
+                    await item.ExecuteDeleteAsync();
+                }
+                return 1;
+            }
+        }
         public async Task<int> DeleteObjByDate(DateTime date)
         {
             using (var context = new MytimeContext())
@@ -200,7 +212,7 @@ namespace Summary.Data
                 if (item!=null&&item.Count()>0)
                 {
                     var updateObj = item.First();
-                    updateObj.CreateDate = obj.CreatedDate>updateObj.CreateDate?obj.CreatedDate:updateObj.CreateDate;
+                    updateObj.CreateDate = obj.CreatedDate>updateObj.CreateDate?updateObj.CreateDate: obj.CreatedDate;
                     updateObj.UpdatedDate = DateTime.Today;
                     updateObj.TypeId = typeid;
                     updateObj.CategoryId = obj.CategoryId;

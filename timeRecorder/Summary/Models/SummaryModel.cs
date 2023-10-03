@@ -80,6 +80,7 @@ namespace Summary.Models
         public SampleDialogViewModel sampleDialogViewModel { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand MergeCommand { get; set; }
+        public List<RadioButton> SingleDayRadioButtons = new List<RadioButton>();
         
         public bool RadioButtonEnabled
         {
@@ -123,7 +124,41 @@ namespace Summary.Models
             Helper.initColor(SqlCommands);
             updateOldItems();
         }
-
+        public void RefreshSingleDayRadioButtons()
+        {
+            if (SingleDayTypeRadioGroupPanel!=null)
+            {
+                SingleDayTypeRadioGroupPanel.Children.Clear();
+                Label label = new Label();
+                label.Margin = new Thickness(10, 0, 10, 0);
+                label.Content = "Type:";
+                label.FontSize=14;
+                SingleDayTypeRadioGroupPanel.Children.Add(label);
+                int maxDepth = Helper.getMaxDepth(1, 0);
+                SingleDayRadioButtons.Clear();
+                for (int i = 0; i < maxDepth; i++)
+                {
+                    RadioButton AllRadioButton = new RadioButton();
+                    Binding BindingObj = new Binding();
+                    BindingObj.Path = new PropertyPath("SelectedTimeObj.IsEnabled");
+                    AllRadioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
+                    AllRadioButton.FontSize = 14;
+                    AllRadioButton.Name = "RB" + i.ToString();
+                    AllRadioButton.GroupName = "SingleDayType";
+                    AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
+                    AllRadioButton.Command = SingleDayRBChangedCommand;
+                    AllRadioButton.CommandParameter = (i+1).ToString();
+                    AllRadioButton.Content = "层级" + (i + 1).ToString();
+                    //if (i == 0) AllRadioButton.IsChecked = true;
+                    SingleDayTypeRadioGroupPanel.Children.Add(AllRadioButton);
+                    SingleDayRadioButtons.Add(AllRadioButton);
+                }
+                if (SingleDayRadioButtons.Count()>0)
+                {
+                    SingleDayRadioButtons[0].IsChecked = true;
+                }
+            }
+        }
         public void initTypeCombobox()
         {
             TypeComboBox.Items.Clear();
@@ -333,20 +368,33 @@ namespace Summary.Models
        
         public void refreshSingleDayPlot()
         {
-            var AllObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
-            if (FirstLevelRB.IsChecked==true)
+            var TodayDailyObj = allTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
+
+           foreach (RadioButton radioButton in SingleDayRadioButtons)
             {
-                var AllObj2 = (AllObj.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime=new TimeSpan(x.Sum(x => x.LastTime.Ticks)),Type =x.Key,CreatedDate=SelectedTimeObj.CreatedDate, Note=x.Key }));
-                FirstLevelRB.Dispatcher.Invoke(new Action(delegate
+                radioButton.Dispatcher.Invoke(new Action(async delegate
                 {
-                    Helper.refreshPlot(AllObj2, SingleDayPlot);
-                }));
-            }
-            if (ThirdLevelRB.IsChecked==true)
-            {
-                ThirdLevelRB.Dispatcher.Invoke(new Action(delegate
-                {
-                    Helper.refreshPlot(AllObj, SingleDayPlot);
+                    if (radioButton.IsChecked==true)
+                    {
+                        List<ToDoObj> allTasks = new List<ToDoObj>();
+                        allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        //update Category and Task
+                        foreach (ToDoObj task in allTasks)
+                        {
+                            var findTask = SQLCommands.QueryTodo(task.Note);
+                            if (findTask != null)
+                            {
+                                task.Category =  Helper.IdCategoryDic[findTask.CategoryId];
+                                task.CategoryId= findTask.CategoryId;
+                            }
+                            else
+                            {
+                                task.CategoryId = Helper.categoryDic[task.Type];
+                            }
+                        }
+                        await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);
+                    }
+                      
                 }));
             }
         }
@@ -388,6 +436,7 @@ namespace Summary.Models
         public ComboBox TypeComboBox { get; internal set; }
         public System.Windows.Style ComboBoxItemStyle { get; internal set; }
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
+        public WrapPanel SingleDayTypeRadioGroupPanel { get; internal set; }
 
         private  void closeDialog()
         {

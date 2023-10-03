@@ -38,7 +38,7 @@
             <TextBlock VerticalAlignment="Center" Text="请输入休息期间做的事："></TextBlock>
         </StackPanel>
         <StackPanel Margin="0,8,0,0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBox x:Name="InputTextBox" Width="300" TextAlignment="Center" VerticalAlignment="Center"  materialDesign:HintAssist.Hint="休息"></TextBox>
+            <TextBox x:Name="InputTextBox" Width="300" TextAlignment="Center" VerticalAlignment="Center"  materialDesign:HintAssist.Hint="{Binding InputText}"></TextBox>
         </StackPanel>
         <Grid Grid.Row="4"
                 Margin="0,16,0,0">

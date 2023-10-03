@@ -93,9 +93,9 @@ namespace Summary.Models
             }
             _paletteHelper.SetTheme(theme);
             OpenPageCommand = new MyCommand(OpenPage);
+            Settings = new Settings(new SettingsModel());
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             RecordModel = recordModel;
-            Settings = new Settings(new SettingsModel());
             SummaryModel = summaryModel;
             SummaryUserControl = new SummaryUserControl(summaryModel);
             TaskManagerModel = taskManagerModel;
@@ -114,6 +114,7 @@ namespace Summary.Models
             {
                 RecordModel.initCategoryDic();
                 RecordModel.InitTodayData();
+                RecordModel.RefreshRadioButtons();
                 RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;
                 ResetColor();
@@ -123,6 +124,7 @@ namespace Summary.Models
             {
                 MainContent = SummaryUserControl;
                 SummaryModel.initTypeCombobox();
+                SummaryModel.RefreshSingleDayRadioButtons();
                 SummaryModel.showTimeView();
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();

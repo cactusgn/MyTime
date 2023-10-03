@@ -53,7 +53,6 @@ namespace Summary.Models
         }
 
         public QueryTaskModel queryTaskModel;
-        private List<Category> AllCategories;
         public TaskManagerModel(ISQLCommands SqlCommands, AddCategoryModel categoryModel) {
             SQLCommands = SqlCommands;
             TreeViewSelectedItemChangedCommand = new MyCommand(TreeViewSelectedItemChanged);
@@ -72,12 +71,12 @@ namespace Summary.Models
         {
             if (ShowVisibleHeader == "显示隐藏类别") {
                 ShowVisibleHeader = "不显示隐藏类别";
-                queryTaskModel.displayInvisibleItems = true;
+                Helper.displayInvisibleItems = true;
             }
             else
             {
                 ShowVisibleHeader = "显示隐藏类别";
-                queryTaskModel.displayInvisibleItems = false;
+                Helper.displayInvisibleItems = false;
             }
             RefreshCategories();
             Helper.initColor(SQLCommands);
@@ -85,17 +84,17 @@ namespace Summary.Models
 
         private async void DeleteCategoryClick(object obj)
         {
-            AllCategories = await SQLCommands.GetAllCategories();
+            Helper.allcategories = await SQLCommands.GetAllCategories();
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             YESNOWindow dialog = new YESNOWindow("提示", "确定删除类别" + root.Title +"及其子类别吗", "确定", "取消");
             if (dialog.ShowDialog() == true)
             {
-                queryTaskModel.RestoreDeleteCategoryToParentCategory(root.Id, AllCategories);
+                queryTaskModel.RestoreDeleteCategoryToParentCategory(root.Id);
                 await SQLCommands.DeleteCategory(root.Id);
-               
+                queryTaskModel.clickOkButton();
+                RefreshCategories();
+                Helper.initColor(SQLCommands);
             }
-            RefreshCategories();
-            Helper.initColor(SQLCommands);
         }
 
         private void EditCategoryClick(object obj)
@@ -123,10 +122,10 @@ namespace Summary.Models
         }
         public async Task<ObservableCollection<ParentCategorySV>> getCategorySVs(int exceptId)
         {
-            AllCategories = await SQLCommands.GetAllCategories();
+            Helper.allcategories = await SQLCommands.GetAllCategories();
             ObservableCollection<ParentCategorySV> parentCategorySVs = new ObservableCollection<ParentCategorySV>();
             ParentCategorySV parentCategorySV = null;
-            foreach (var category in AllCategories)
+            foreach (var category in Helper.allcategories)
             {
                 if (category.Id == exceptId) continue;
                 parentCategorySV = new ParentCategorySV() { 
@@ -195,9 +194,9 @@ namespace Summary.Models
         }
         public async void RefreshCategories()
         {
-            AllCategories =  await SQLCommands.GetAllCategories();
+            Helper.allcategories =  await SQLCommands.GetAllCategories();
             MenuItemModel root = new MenuItemModel() { Title="任务类别：",Id=0, IsSelected=true};
-            initNode(AllCategories, root);
+            initNode(Helper.allcategories, root);
             RootTreeView.Items.Clear();
             RootTreeView.Items.Add(root);
             queryTaskModel.UpdateContextMenu();
@@ -213,8 +212,8 @@ namespace Summary.Models
 
         public async Task<bool> CategoryExist(string category)
         {
-            AllCategories = await SQLCommands.GetAllCategories();
-            foreach (var item in AllCategories)
+            Helper.allcategories = await SQLCommands.GetAllCategories();
+            foreach (var item in Helper.allcategories)
             {
                 if(item.Name==category) return true;
             }
@@ -222,8 +221,8 @@ namespace Summary.Models
         }
         public async Task<bool> EditCheck(AddCategoryModel category)
         {
-            AllCategories = await SQLCommands.GetAllCategories();
-            if (AllCategories.Single(x => x.Id == category.Id).Name!=category.Category)
+            Helper.allcategories = await SQLCommands.GetAllCategories();
+            if (Helper.allcategories.Single(x => x.Id == category.Id).Name!=category.Category)
             {
                 if (CategoryExist(category.Category).Result)
                 {
@@ -235,6 +234,7 @@ namespace Summary.Models
         }
         public async void EditCategory(AddCategoryModel category)
         {
+            
             await SQLCommands.UpdateCategory(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             string oldVisibleValue = root.Visible;

@@ -26,16 +26,16 @@ namespace Summary
         {
             InitializeComponent();
             RecordModel.SingleDayPlot = SingleDayPlot;
-            RecordModel.ThirdLevelRB = ThirdLevelRB;
-            RecordModel.FirstLevelRB = FirstLevelRB;
             RecordModel.TodayObjsGrid = todayObjsGrid;
             RecordModel.TodoToday = TodoToday;
             RecordModel.TodoTodayTextbox = TodoTodayTextbox;
             RecordModel.RightButtonPanel = rightButtonPanel;
+            RecordModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
             RecordModel.ButtonStyle = this.Resources["TypeButton"] as System.Windows.Style;
             this.DataContext = RecordModel;
             RecordModel.initCategoryDic();
             RecordModel.InitTodayData();
+            RecordModel.RefreshRadioButtons();
             if (RecordModel.AllTimeViewObjs.Count()>0 && RecordModel.AllTimeViewObjs[0].DailyObjs != null)
             {
                 RecordModel.refreshSingleDayPlot();

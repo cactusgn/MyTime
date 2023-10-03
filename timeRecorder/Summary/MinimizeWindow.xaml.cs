@@ -85,7 +85,9 @@ namespace Summary
                                     recordModel.StartbtnEnabled = true;
                                     model.WorkContent = Helper.GetAppSetting("Slogan");
                                     DialogIsShown = false;
-                                }else{
+                                }
+                                else
+                                {
                                     DialogIsShown = false;
                                 }
                             }
@@ -123,6 +125,11 @@ namespace Summary
                 recordModel.EndbtnEnabled = false;
                 recordModel.StartbtnEnabled = true;
                 model.WorkContent = Helper.GetAppSetting("Slogan");
+            }
+            model.WorkFontSize = 16;
+            while (model.WorkFontSize>0&& model.WorkContent.Length*model.WorkFontSize>200)
+            {
+                model.WorkFontSize-=1;
             }
         }
     }

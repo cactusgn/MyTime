@@ -7,6 +7,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Common\icons\countdown_128px_1224986_easyicon.net.ico</ApplicationIcon>
+    <AssemblyName>TimeRecorder</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,6 +55,7 @@
 
   <ItemGroup>
     <Folder Include="bin\x64\Release\net6.0-windows\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

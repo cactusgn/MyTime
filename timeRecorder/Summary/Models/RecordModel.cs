@@ -622,6 +622,11 @@ namespace Summary.Models
             {
                 await SQLCommands.DeleteTodo(objTobeDeleted);
             }
+            else
+            {
+                objTobeDeleted.CreatedDate = objs.FirstOrDefault().createDate;
+                await SQLCommands.UpdateTodo(objTobeDeleted);
+            }
         }
         private async void UpdateType(object a)
         {

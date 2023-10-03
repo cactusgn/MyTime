@@ -78,6 +78,12 @@ namespace Summary
                     ((MiniModel)minimizeWindow.DataContext).ToggleIcon = "Play";
                     ((MiniModel)minimizeWindow.DataContext).WorkContent = Helper.GetAppSetting("Slogan");
                 }
+                var model = ((MiniModel)minimizeWindow.DataContext);
+                model.WorkFontSize = 16;
+                while (model.WorkFontSize>0&& model.WorkContent.Length*model.WorkFontSize>210)
+                {
+                    model.WorkFontSize-=1;
+                }
                 minimizeWindow.Show();
             };
             ColorZone.MouseDoubleClick += (s, e) =>

@@ -11,8 +11,8 @@ using Summary.Data;
 namespace Summary.Migrations
 {
     [DbContext(typeof(MytimeContext))]
-    [Migration("20230905153533_addCategoryAndToDoSetting")]
-    partial class addCategoryAndToDoSetting
+    [Migration("20231002133417_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,9 @@ namespace Summary.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoAddTask")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("BonusPerHour")
@@ -75,9 +78,8 @@ namespace Summary.Migrations
                     b.Property<int>("ToDoTaskSettingId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Type")
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT");
+                    b.Property<int>("TypeId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("TEXT");

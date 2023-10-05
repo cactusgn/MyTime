@@ -689,6 +689,10 @@ namespace Summary.Models
             refreshAllObjs();
             //reset rest start time
             WorkStartTime = Helper.getCurrentTime();
+            if(Helper.getCurrentTime()>=new TimeSpan(23, 59, 58))
+            {
+                WorkStartTime = new TimeSpan(0, 0, 0);
+            }
         }
         private void calculateAccuTime()
         {

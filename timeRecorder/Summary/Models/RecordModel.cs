@@ -316,11 +316,11 @@ namespace Summary.Models
             var ValidTasks = Helper.mainCategories.Where(x => x.AutoAddTask).Select(x=>x.Id);
             if (TodoTodayTextbox.Text==null||TodoTodayTextbox.Text=="")
             {
-                TipList = new ObservableCollection<string>(allTasks.Where(x=>ValidTasks.Contains(Helper.mainCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Category(){ Id=0}).Id)).OrderByDescending(x => x.CreateDate).Take(10).Select(x => x.Note).Distinct().ToList());
+                TipList = new ObservableCollection<string>(allTasks.Where(x=>ValidTasks.Contains(Helper.mainCategories.FirstOrDefault(y=>y.Id==x.TypeId,new Category(){ Id=0}).Id)).OrderByDescending(x => x.UpdatedDate).Take(10).Select(x => x.Note).Distinct().ToList());
             }
             else
             {
-                TipList = new ObservableCollection<string>(allTasks.Where(x => ValidTasks.Contains((Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { Id = 0 }).Id)) && x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
+                TipList = new ObservableCollection<string>(allTasks.Where(x => ValidTasks.Contains((Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { Id = 0 }).Id)) && x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.UpdatedDate).Select(x => x.Note).Distinct().ToList());
             }
             TodoToday.ItemsSource = TipList;
             TodoToday.IsDropDownOpen=true;

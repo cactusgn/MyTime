@@ -739,7 +739,8 @@ namespace Summary.Models
                 }
                 
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
-                string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
+                int typeId = findTask!=null?findTask.TypeId:0;
+                string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
                 int taskId = findTask==null? 0:findTask.Id;
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
@@ -1005,14 +1006,16 @@ namespace Summary.Models
                         foreach (ToDoObj task in allTasks)
                         {
                             var findTask = SQLCommands.QueryTodo(task.Note);
-                            if (findTask != null)
+                            if (findTask != null&&IdCategoryDic.ContainsKey(findTask.CategoryId))
                             {
                                 task.Category =  IdCategoryDic[findTask.CategoryId];
                                 task.CategoryId= findTask.CategoryId;
                             }
-                            else
+                            else if (categoryDic.ContainsKey(task.Type))
                             {
                                 task.CategoryId = categoryDic[task.Type];
+                            }else{
+                                task.CategoryId = 0;
                             }
                         }
                         await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);
@@ -1031,7 +1034,7 @@ namespace Summary.Models
                 ToDoObj newObj = null;
                 var task = SQLCommands.QueryTodo(obj.ToString());
                 if (task != null){
-                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = Helper.IdCategoryDic[task.TypeId], CategoryId = task.CategoryId };
+                    newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = Helper.IdCategoryDic.ContainsKey(task.TypeId)? Helper.IdCategoryDic[task.TypeId]:"none", CategoryId = task.CategoryId };
                 }
                 else{
                     newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = "none", CategoryId = categoryDic["none"] };

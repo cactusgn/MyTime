@@ -382,14 +382,16 @@ namespace Summary.Models
                         foreach (ToDoObj task in allTasks)
                         {
                             var findTask = SQLCommands.QueryTodo(task.Note);
-                            if (findTask != null)
+                            if (findTask != null&&Helper.IdCategoryDic.ContainsKey(findTask.CategoryId))
                             {
                                 task.Category =  Helper.IdCategoryDic[findTask.CategoryId];
                                 task.CategoryId= findTask.CategoryId;
                             }
-                            else
+                            else if(Helper.categoryDic.ContainsKey(task.Type))
                             {
                                 task.CategoryId = Helper.categoryDic[task.Type];
+                            }else{
+                                task.CategoryId = 0;
                             }
                         }
                         await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);

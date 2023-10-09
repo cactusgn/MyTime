@@ -1,4 +1,5 @@
-﻿using MaterialDesignDemo.Domain;
+﻿using MaterialDesignColors.Recommended;
+using MaterialDesignDemo.Domain;
 using MaterialDesignThemes.Wpf;
 using ScottPlot;
 using Summary.Common;
@@ -17,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Summary.Models
 {
@@ -100,6 +102,7 @@ namespace Summary.Models
         }
         public MyCommand CellEditEndingCommand { get; set; }
         public MyCommand SummaryRBChangedCommand { get; set; }
+        public MyCommand UpdateViewModeCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         private int SelectedContextMenuCategoryId { get; set; }
         private string SelectedContextMenuType { get; set; }
@@ -107,19 +110,52 @@ namespace Summary.Models
         public WrapPanel RBWrapPanel { get; internal set; }
         public WpfPlot CategoryPlot { get; internal set; }
         public Dictionary<string, string> colorDic = new Dictionary<string, string>();
+        private string tableViewVisible = "Visible";
+
+        public string TableViewVisible
+        {
+            get { return tableViewVisible; }
+            set { tableViewVisible = value; OnPropertyChanged();}
+        }
+        private string squareViewVisible= "Collapsed";
+
+        public string SquareViewVisible
+        {
+            get { return squareViewVisible; }
+            set { squareViewVisible = value; OnPropertyChanged();}
+        }
+        private ObservableCollection<TimeSumView>  wrapDataSource;
         
+        public ObservableCollection<TimeSumView> WrapDataSource
+        {
+            get { return wrapDataSource; }
+            set { wrapDataSource = value; OnPropertyChanged();}
+        }
+        List<MyTime> SummaryAllTimeObjs = new List<MyTime>();
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
             UpdateCategoryCommand = new MyCommand(UpdateCategory);
             CellEditEndingCommand = new MyCommand(CellEditEnding);
+            UpdateViewModeCommand = new MyCommand(UpdateViewMode);
             StartTime = startTime;
             EndTime = endTime;
             Category = category;
             SQLCommands = sqlCommands;
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
         }
-       
+
+        private void UpdateViewMode(object obj)
+        {
+            if(TableViewVisible=="Visible"){
+                TableViewVisible = "Collapsed";
+                SquareViewVisible = "Visible";
+            }else{
+                TableViewVisible = "Visible";
+                SquareViewVisible = "Collapsed";
+            }
+        }
+
         private async void CellEditEnding(object obj)
         {
             //update note or type
@@ -210,16 +246,16 @@ namespace Summary.Models
         {
             if (SQLCommands!=null)
             {
-                List<MyTime> allTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
+                SummaryAllTimeObjs = await SQLCommands.GetAllTimeObjs(StartTime, EndTime);
                 Helper.allcategories = await SQLCommands.GetAllCategories();
                 List<GeneratedToDoTask> AllTasksFromDatabase = SQLCommands.GetTasks(new DateTime(1900,1,1), EndTime);
                 int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
-                if (Category=="") findCategoryId=0;
-                allTasks = allTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                if (Category=="") {
+                    findCategoryId=0;
+                }
+                allTasks = SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
                 {
-                    //taskid为0，或者type不等于当前category
-                    //if (task.Id == 0||AllTasksFromDatabase.Where(x => x.Note==task.Note&& AllCategories.FirstOrDefault(y => y.Id==x.TypeId, new Data.Category() { Name="" }).Name== Category).Count()==0)
                     if (task.Id == 0)
                     {
                        await updateTaskIndex(task);
@@ -251,6 +287,22 @@ namespace Summary.Models
             }
             List<ToDoObj> allSubTasks = new List<ToDoObj>();
             GetAllSubTask(findCategoryId, allSubTasks, allTasks);
+            PaletteHelper _paletteHelper = new PaletteHelper();
+            ITheme theme = _paletteHelper.GetTheme();
+            var palette =  _paletteHelper.GetTheme().PrimaryMid;
+            Color mainColor = palette.Color;
+            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
+            DateTime createDate = startTime;
+            while(createDate<=endTime){
+                if(!WrapDataSource.Any(x=>x.Date==createDate)){
+                    WrapDataSource.Add(new TimeSumView(){ Date=createDate,Hour=new TimeSpan(0), Color=Color.FromArgb(1,mainColor.R,mainColor.G, mainColor.B).ToString()});
+                }else{
+                    var item = WrapDataSource.First(x=>x.Date==createDate);
+                    item.Color = Color.FromArgb((byte)(item.Hour.TotalSeconds/(new TimeSpan(9,0,0)).TotalSeconds*255),mainColor.R,mainColor.G, mainColor.B).ToString();
+                }
+                createDate = createDate.AddDays(1);
+            }
+            WrapDataSource = new ObservableCollection<TimeSumView>(WrapDataSource.OrderBy(x=>x.Date));
             CalculateBonus(allSubTasks);
             CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
             totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
@@ -476,6 +528,16 @@ namespace Summary.Models
         }
     }
 
-   
+    public class TimeSumView{
+        public TimeSpan Hour { get; set; }
+        public string Color { get; set; }
+        public DateTime Date{ get;set;}
+
+        public string DateString
+        {
+            get { return Date.ToShortDateString(); }
+        }
+
+    }
 }
  

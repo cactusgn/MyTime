@@ -80,7 +80,7 @@ namespace Summary
                 }
                 var model = ((MiniModel)minimizeWindow.DataContext);
                 model.WorkFontSize = 16;
-                while (model.WorkFontSize>0&& model.WorkContent.Length*model.WorkFontSize>210)
+                while (model.WorkFontSize>0&& Helper.getTextSize(model.WorkContent,model.WorkFontSize)>210)
                 {
                     model.WorkFontSize-=1;
                 }

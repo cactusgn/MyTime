@@ -3,6 +3,7 @@ using Summary.Domain;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,7 +102,7 @@ namespace Summary
                 model.ToggleIcon = "Play";
             }
         }
-
+        
         private async void toggleBtn_Click(object sender, RoutedEventArgs e)
         {
             var model = (MiniModel)(this.DataContext);
@@ -127,7 +128,7 @@ namespace Summary
                 model.WorkContent = Helper.GetAppSetting("Slogan");
             }
             model.WorkFontSize = 16;
-            while (model.WorkFontSize>0&& model.WorkContent.Length*model.WorkFontSize>200)
+            while (model.WorkFontSize>0&& Helper.getTextSize(model.WorkContent,model.WorkFontSize)>200)
             {
                 model.WorkFontSize-=1;
             }

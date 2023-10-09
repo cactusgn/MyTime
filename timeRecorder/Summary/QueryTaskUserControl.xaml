@@ -58,7 +58,13 @@
                 ToolTip="本周">
                         <materialDesign:PackIcon Kind="Restore" />
                     </Button>
-
+                    <Button Width="25" Height="25" Margin="10"  Command="{Binding UpdateViewModeCommand}" 
+        Background="{DynamicResource PrimaryHueMidBrush}"
+                                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+                ToolTip="切换视图">
+                        <materialDesign:PackIcon Kind="SwapVertical" />
+                    </Button>
                 </StackPanel>
             </Border>
             <Border Grid.Row="1" Margin="10,5">
@@ -77,8 +83,9 @@
                     <ColumnDefinition Width="2"></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <DataGrid  Margin="3"  ScrollViewer.CanContentScroll="True"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                
+                <DataGrid Visibility="{Binding TableViewVisible}"  Margin="3"  ScrollViewer.CanContentScroll="True"
+                         Grid.Column="0"         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                   x:Name="CategoryDataGrid"
                                   CanUserAddRows="False"
@@ -120,6 +127,33 @@
                         <DataGridTextColumn Header="Category"  IsReadOnly="True" Binding="{Binding Category}"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="0" Visibility="{Binding SquareViewVisible}">
+                <DockPanel 
+                           
+                           ScrollViewer.CanContentScroll="True">
+                        <ItemsControl ItemsSource="{Binding WrapDataSource}" DockPanel.Dock="Top" Margin="5" >
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                    <WrapPanel HorizontalAlignment="Center">
+                                    </WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="70" Height="70" 
+                                           Margin="5"
+                                           Background="{Binding Color}">
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock FontSize="13" Text="{Binding DateString}" Padding="4"></TextBlock>
+                                            <TextBlock FontSize="13" Text="{Binding Hour}" Padding="4"></TextBlock>
+                                        </StackPanel>
+                                   
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DockPanel>
+                </ScrollViewer>
                 <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   

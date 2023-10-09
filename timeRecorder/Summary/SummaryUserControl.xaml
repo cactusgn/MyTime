@@ -134,7 +134,6 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-
                                             <StackPanel Orientation="Vertical" Width="100">
 
                                                 <Border  Margin="0,5,0,1"  CornerRadius="6" >

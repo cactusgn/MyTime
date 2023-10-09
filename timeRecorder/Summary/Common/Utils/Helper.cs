@@ -8,12 +8,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace Summary.Common.Utils
@@ -117,7 +120,12 @@ namespace Summary.Common.Utils
             {
                 typelevelDic.Add("task:" + task.Note, maxDepth);
                 NameIdDic.Add("task:" + task.Note, 0);
-                colorDic.Add("task:" + task.Note, colorDic[IdCategoryDic[task.CategoryId]]);
+                if(IdCategoryDic.ContainsKey(task.CategoryId)&&colorDic.ContainsKey(IdCategoryDic[task.CategoryId])){
+                    colorDic.Add("task:" + task.Note, colorDic[IdCategoryDic[task.CategoryId]]);
+                }
+                else{
+                    colorDic.Add("task:" + task.Note, colorDic["none"]);
+                }
             }
             typelevelDic = typelevelDic.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
             Dictionary<string, long> plotDataFinal = new Dictionary<string, long>();
@@ -237,7 +245,8 @@ namespace Summary.Common.Utils
                             //if cannot find
                             GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                             int taskId = findTask==null ? 0 : findTask.Id;
-                            string type = IdCategoryDic[findTask!=null?findTask.TypeId:0];
+                            int typeId = findTask!=null?findTask.TypeId:0;
+                            string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
                             TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, type, lastIndex,height, taskId: taskId);
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, type);
@@ -283,7 +292,8 @@ namespace Summary.Common.Utils
                 {
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                     int taskId = findTask==null ? 0 : findTask.Id;
-                    string type = IdCategoryDic[findTask!=null?findTask.TypeId:0];
+                    int typeId = findTask!=null?findTask.TypeId:0;
+                    string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
                     TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height, taskId: taskId);
                     UpdateColor(startTimeObj, type);
                     await SQLCommands.AddObj(startTimeObj);
@@ -393,6 +403,9 @@ namespace Summary.Common.Utils
             plot.Render(lowQuality: false);
             plot.Refresh();
         }
+        public static System.Drawing.Color ConvertColorFromString(string colorString){
+            return System.Drawing.ColorTranslator.FromHtml(colorString);
+        }
         private static void addChartData(ChartBar[] Items, string type, ref double[] position, ref string[] YLabels, ref string[] TimeLabels, ref Plot plt, ref int index)
         {
             if (Items.Count() > 0)
@@ -408,7 +421,7 @@ namespace Summary.Common.Utils
                     itemValues[i] = Items[i].Time.TotalSeconds;
                     TimeLabels.Append(Items[i].Time.ToString());
                 }
-                var bar = plt.AddBar(itemValues, itemPostion, System.Drawing.ColorTranslator.FromHtml(colorDic[type]));
+                var bar = plt.AddBar(itemValues, itemPostion, System.Drawing.ColorTranslator.FromHtml(colorDic.ContainsKey(type)?colorDic[type]:colorDic["none"]));
                 bar.Orientation = ScottPlot.Orientation.Horizontal;
                 bar.ShowValuesAboveBars = true;
                 Func<double, string> customFormatter = y => $"{TimeSpan.FromSeconds(y).ToString()}";
@@ -420,6 +433,7 @@ namespace Summary.Common.Utils
         {
             allcategories = SqlCommands.GetAllCategories().Result.ToList();
             mainCategories = allcategories.Where(x => x.ParentCategoryId==0).ToList();
+            //TestCategory是为了动态显示category button在record界面上
             TestCategory.Clear();
             TestCategory.Add("none");
             colorDic.Clear();
@@ -436,6 +450,18 @@ namespace Summary.Common.Utils
                 IdCategoryDic.Add(category.Id, category.Name);
                 TestCategory.Add(category.Name);
             }
+        }
+        public static double getTextSize(string text,float fontsize)
+        {   
+            string fontName = Helper.CheckSysFontExisting() ? "微软雅黑" : "Microsoft YaHei";
+            FormattedText formattedText = new FormattedText(
+                                                text,
+                                                CultureInfo.GetCultureInfo("en-us"),
+                                                FlowDirection.LeftToRight,
+                                                new Typeface(fontName),
+                                                fontsize,
+                                                System.Windows.Media.Brushes.Black);
+            return formattedText.Width;
         }
     }
 }

@@ -140,7 +140,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="70" Height="70" 
+                                <Border Width="80" Height="80" 
                                            Margin="5"
                                            Background="{Binding Color}">
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

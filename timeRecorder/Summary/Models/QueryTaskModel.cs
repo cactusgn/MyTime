@@ -293,12 +293,17 @@ namespace Summary.Models
             Color mainColor = palette.Color;
             WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
             DateTime createDate = startTime;
+            TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);
+            if (WrapDataSource.Count>0)
+            {
+                maxTimeSpanInDS = WrapDataSource.Max(x => x.Hour);
+            }
             while(createDate<=endTime){
                 if(!WrapDataSource.Any(x=>x.Date==createDate)){
                     WrapDataSource.Add(new TimeSumView(){ Date=createDate,Hour=new TimeSpan(0), Color=Color.FromArgb(1,mainColor.R,mainColor.G, mainColor.B).ToString()});
                 }else{
                     var item = WrapDataSource.First(x=>x.Date==createDate);
-                    item.Color = Color.FromArgb((byte)(item.Hour.TotalSeconds/(new TimeSpan(9,0,0)).TotalSeconds*255),mainColor.R,mainColor.G, mainColor.B).ToString();
+                    item.Color = Color.FromArgb((byte)(item.Hour.TotalSeconds/maxTimeSpanInDS.TotalSeconds*255),mainColor.R,mainColor.G, mainColor.B).ToString();
                 }
                 createDate = createDate.AddDays(1);
             }

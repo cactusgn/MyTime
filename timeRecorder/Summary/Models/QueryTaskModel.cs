@@ -256,7 +256,7 @@ namespace Summary.Models
                 allTasks = SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
                 {
-                    if (task.Id == 0)
+                    if (task.Id == 0||!AllTasksFromDatabase.Any(x=>x.Id==task.Id))
                     {
                        await updateTaskIndex(task);
                     }
@@ -266,6 +266,54 @@ namespace Summary.Models
                     if (task.Category == "" || task.Category == null)
                     {
                         task.Category = task.Type.ToString();
+                    }
+                }
+                //check again if some time objs are created on second day while the task is created on previous day
+                foreach (MyTime TimeObj in SummaryAllTimeObjs)
+                {
+                    if (TimeObj.taskId==0||!AllTasksFromDatabase.Any(x => x.Id==TimeObj.taskId))
+                    {
+                        GeneratedToDoTask findTask = SQLCommands.QueryTodo(TimeObj.note);
+
+                        int findIndex = 0;
+                        if (findTask != null)
+                        {
+                            findIndex = findTask.Id;
+                        }
+                        //找不到task，就新建一个task
+                        if (findIndex==0)
+                        {
+                            ToDoObj taskToDo = new ToDoObj()
+                            {
+                                CreatedDate = TimeObj.createDate,
+                                Note = TimeObj.note,
+                                Type = TimeObj.type,
+                                CategoryId = Helper.categoryDic.ContainsKey(TimeObj.type) ? Helper.categoryDic[TimeObj.type] : 0
+                            };
+                            findIndex =  await SQLCommands.AddTodo(taskToDo);
+                            taskToDo.Id = findIndex;
+                            List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(taskToDo.Note);
+                            if (timeObjs!=null)
+                            {
+                                //新建完了更新所有该note的timeObj的taskId
+                                foreach (MyTime timeObj in timeObjs)
+                                {
+                                    timeObj.taskId = findIndex;
+                                    await SQLCommands.UpdateObj(timeObj);
+                                }
+                            }
+                            AllTasksFromDatabase.Add(new GeneratedToDoTask() { Id = taskToDo.Id});
+                        }
+                        else
+                        {
+                            List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(TimeObj.note);
+                            foreach (MyTime timeObj in timeObjs)
+                            {
+                                timeObj.taskId = findIndex;
+                                timeObj.type = timeObj.type.Trim();
+                                await SQLCommands.UpdateObj(timeObj);
+                            }
+                        }
                     }
                 }
                  AfterClickCategory(Category);
@@ -291,7 +339,7 @@ namespace Summary.Models
             ITheme theme = _paletteHelper.GetTheme();
             var palette =  _paletteHelper.GetTheme().PrimaryMid;
             Color mainColor = palette.Color;
-            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
+            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
             DateTime createDate = startTime;
             TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);
             if (WrapDataSource.Count>0)

@@ -338,7 +338,7 @@ namespace Summary.Models
             PaletteHelper _paletteHelper = new PaletteHelper();
             ITheme theme = _paletteHelper.GetTheme();
             var palette =  _paletteHelper.GetTheme().PrimaryMid;
-            Color mainColor = palette.Color;
+            Color mainColor = Color.FromRgb((byte)Math.Max(palette.Color.R-50,0), (byte)Math.Max(palette.Color.G-50, 0), (byte)Math.Max(palette.Color.B-50, 0));
             WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
             DateTime createDate = startTime;
             TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);

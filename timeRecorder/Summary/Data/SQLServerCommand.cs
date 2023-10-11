@@ -157,6 +157,9 @@ namespace Summary.Data
             int index = 1;
             using (var context = new MytimeContext())
             {
+                if(string.IsNullOrEmpty(obj.Note)){
+                    obj.Note = "休息";
+                }
                 var findTodoItem = context.ToDos.Where(x => x.Note == obj.Note);
                 if (findTodoItem.Count()>0)
                 {

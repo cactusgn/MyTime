@@ -65,7 +65,7 @@ namespace Summary
                 {
                     dialogRes.ShowTip = "Hidden";
                 }
-                if (dialogRes.Content1=="")
+                if (String.IsNullOrEmpty(dialogRes.Content1))
                 {
                     eventArgs.Cancel();
                     return;

@@ -943,7 +943,7 @@ namespace Summary.Models
             {
                 foreach (var obj in AllTodayTasks)
                 {
-                    if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask)
+                    if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask||obj.TypeId==0)
                     {
                         if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {

@@ -219,7 +219,7 @@ namespace Summary.Data
                     updateObj.CreateDate = obj.CreatedDate<updateObj.CreateDate?updateObj.CreateDate: obj.CreatedDate;
                     updateObj.UpdatedDate = DateTime.Today;
                     updateObj.TypeId = typeid;
-                    updateObj.CategoryId = obj.CategoryId;
+                    updateObj.CategoryId = obj.CategoryId!=0?obj.CategoryId:updateObj.CategoryId!=0? updateObj.CategoryId:typeid;
                     updateObj.Finished = obj.Finished;
                 }
                 await context.SaveChangesAsync();

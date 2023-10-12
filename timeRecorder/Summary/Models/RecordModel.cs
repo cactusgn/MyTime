@@ -1030,16 +1030,17 @@ namespace Summary.Models
                 return;
             }
             if(!hs.Contains(obj.ToString())){
-
+                var index = 0;
                 ToDoObj newObj = null;
                 var task = SQLCommands.QueryTodo(obj.ToString());
                 if (task != null){
                     newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = Helper.IdCategoryDic.ContainsKey(task.TypeId)? Helper.IdCategoryDic[task.TypeId]:"none", CategoryId = task.CategoryId };
+                    index = await SQLCommands.UpdateTodo(newObj);
                 }
                 else{
                     newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = "none", CategoryId = categoryDic["none"] };
+                    index = await SQLCommands.AddTodo(newObj);
                 }
-                var index = await SQLCommands.UpdateTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());
                 TodayList.Add(newObj);

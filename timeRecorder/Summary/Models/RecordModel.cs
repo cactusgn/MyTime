@@ -1039,7 +1039,7 @@ namespace Summary.Models
                 else{
                     newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.ToString(), Finished = false, Type = "none", CategoryId = categoryDic["none"] };
                 }
-                var index = await SQLCommands.AddTodo(newObj);
+                var index = await SQLCommands.UpdateTodo(newObj);
                 newObj.Id = index;
                 hs.Add(obj.ToString());
                 TodayList.Add(newObj);

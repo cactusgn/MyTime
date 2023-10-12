@@ -206,6 +206,8 @@ namespace Summary.Data
             }
             return typeid;
         }
+        //测试：1. 在todaylist增加一个已存在的task，需要更新createdDate为今天
+        //2. 在todaylist删除一个今天没有记录的task，需要更新createdDate为之前的createdDate
         public async Task<int> UpdateTodo(ToDoObj obj)
         {
             using (var context = new MytimeContext())
@@ -215,8 +217,7 @@ namespace Summary.Data
                 if (item!=null&&item.Count()>0)
                 {
                     var updateObj = item.First();
-                    //改为最后一次创建的createDate，方便todaylist获取最新的task
-                    updateObj.CreateDate = obj.CreatedDate<updateObj.CreateDate?updateObj.CreateDate: obj.CreatedDate;
+                    updateObj.CreateDate = obj.CreatedDate;
                     updateObj.UpdatedDate = DateTime.Today;
                     updateObj.TypeId = typeid;
                     updateObj.CategoryId = obj.CategoryId!=0?obj.CategoryId:updateObj.CategoryId!=0? updateObj.CategoryId:typeid;

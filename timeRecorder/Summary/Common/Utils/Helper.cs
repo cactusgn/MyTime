@@ -281,7 +281,7 @@ namespace Summary.Common.Utils
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim()=="" ? "none" : TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
-                        UpdateColor(timeViewObj, TimeObj.type.Trim().ToLower());
+                        UpdateColor(timeViewObj, TimeObj.type.Trim());
                     }
                     currentDateTemplate.DailyObjs.Add(timeViewObj);
                 }
@@ -309,7 +309,7 @@ namespace Summary.Common.Utils
         {
             if (colorDic.ContainsKey(type))
             {
-                timeViewObj.Color = colorDic[type.ToLower()];
+                timeViewObj.Color = colorDic[type];
             }
             else
             {
@@ -330,7 +330,7 @@ namespace Summary.Common.Utils
             TimeObj.Height = CalculateHeight(TimeObj.LastTime,height,viewType);
             TimeObj.StartTime = startTime;
             TimeObj.EndTime = endTime;
-            TimeObj.Type = Helper.mainCategories.Any(x=>x.Name==type.ToLower())?type.ToLower():"none";
+            TimeObj.Type = Helper.mainCategories.Any(x=>x.Name==type)?type:"none";
             TimeObj.Id = index;
             TimeObj.TaskId = taskId;
             return TimeObj;

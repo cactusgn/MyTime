@@ -132,6 +132,7 @@ namespace Summary.Models
             set { wrapDataSource = value; OnPropertyChanged();}
         }
         List<MyTime> SummaryAllTimeObjs = new List<MyTime>();
+        private bool HasChoosenCategory = false;
         public QueryTaskModel(string category, DateTime startTime, DateTime endTime, ISQLCommands sqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -197,20 +198,25 @@ namespace Summary.Models
 
         private void updateCurrentSelectedType(object sender, RoutedEventArgs e)
         {
+            //each time will change type, but not every time will task change category id
             System.Windows.Controls.MenuItem item = (System.Windows.Controls.MenuItem)sender;
             SelectedContextMenuType = (string)item.Tag;
-            if (TypesDic.ContainsKey(item.Tag.ToString())) {
-                SelectedContextMenuCategoryId = TypesDic[item.Tag.ToString()];
-            }
-            else
-            {
-                SelectedContextMenuCategoryId = 0;
+            if(!HasChoosenCategory){
+                if (TypesDic.ContainsKey(item.Tag.ToString())) {
+                    SelectedContextMenuCategoryId = TypesDic[item.Tag.ToString()];
+                }
+                else
+                {
+                    SelectedContextMenuCategoryId = 0;
+                }
+                HasChoosenCategory = true;
             }
         }
 
         private void updateCurrentSelectedCategory(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.MenuItem item = (System.Windows.Controls.MenuItem)sender;
+            HasChoosenCategory = true;
             if (TypesDic.ContainsKey(item.Tag.ToString())) {
                 SelectedContextMenuCategoryId = TypesDic[item.Tag.ToString()];
             }

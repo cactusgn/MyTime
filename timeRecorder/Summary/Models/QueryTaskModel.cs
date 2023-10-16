@@ -320,55 +320,66 @@ namespace Summary.Models
             }
         }
         private void AfterClickCategory(string Category){
-            int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
-            if (RBWrapPanel != null)
-            {
-                RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+            if(RBWrapPanel!=null){
+                int findCategoryId = Helper.allcategories.FirstOrDefault(x => x.Name == Category, new Data.Category()).Id;
+                if (RBWrapPanel != null)
                 {
-                    RefreshRadioButtons(findCategoryId);
-                }));
-            }
-            var tempTasks = allTasks.ToList();
-            if (findCategoryId != 0)
-            {
-                tempTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
-            }
-            List<ToDoObj> allSubTasks = new List<ToDoObj>();
-            GetAllSubTask(findCategoryId, allSubTasks, allTasks);
-            PaletteHelper _paletteHelper = new PaletteHelper();
-            ITheme theme = _paletteHelper.GetTheme();
-            var palette =  _paletteHelper.GetTheme().PrimaryMid;
-            Color mainColor = Color.FromRgb((byte)Math.Max(palette.Color.R-50,0), (byte)Math.Max(palette.Color.G-50, 0), (byte)Math.Max(palette.Color.B-50, 0));
-            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>(y.endTime-y.startTime).Ticks))}).OrderBy(x=>x.Date));
-            DateTime createDate = startTime;
-            TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);
-            if (WrapDataSource.Count>0)
-            {
-                maxTimeSpanInDS = WrapDataSource.Max(x => x.Hour);
-            }
-            while(createDate<=endTime){
-                if(!WrapDataSource.Any(x=>x.Date==createDate)){
-                    WrapDataSource.Add(new TimeSumView(){ Date=createDate,Hour=new TimeSpan(0), Color=Color.FromArgb(1,mainColor.R,mainColor.G, mainColor.B).ToString()});
-                }else{
-                    var item = WrapDataSource.First(x=>x.Date==createDate);
-                    item.Color = Color.FromArgb((byte)(item.Hour.TotalSeconds/maxTimeSpanInDS.TotalSeconds*255),mainColor.R,mainColor.G, mainColor.B).ToString();
+                    RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                    {
+                        RefreshRadioButtons(findCategoryId);
+                    }));
                 }
-                createDate = createDate.AddDays(1);
-            }
-            WrapDataSource = new ObservableCollection<TimeSumView>(WrapDataSource.OrderBy(x=>x.Date));
-            CalculateBonus(allSubTasks);
-            CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
-            totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
-            TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
-            AverageCost = (totalCost / ((EndTime - StartTime).Days+1));
-            AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
-            if (radioButtons.Count>0)
-            {
+                var tempTasks = allTasks.ToList();
+                if (findCategoryId != 0)
+                {
+                    tempTasks = allTasks.Where(x => x.CategoryId == findCategoryId).ToList();
+                }
+                List<ToDoObj> allSubTasks = new List<ToDoObj>();
+                GetAllSubTask(findCategoryId, allSubTasks, allTasks);
+                PaletteHelper _paletteHelper = new PaletteHelper();
+                ITheme theme = _paletteHelper.GetTheme();
+                var palette =  _paletteHelper.GetTheme().PrimaryMid;
+                Color mainColor = Color.FromRgb((byte)Math.Max(palette.Color.R-50,0), (byte)Math.Max(palette.Color.G-50, 0), (byte)Math.Max(palette.Color.B-50, 0));
+                WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>(y.endTime-y.startTime).Ticks))}).OrderBy(x=>x.Date));
+                DateTime createDate = startTime;
+                TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);
+                if (WrapDataSource.Count>0)
+                {
+                    maxTimeSpanInDS = WrapDataSource.Max(x => x.Hour);
+                }
+                while(createDate<=endTime){
+                    if(!WrapDataSource.Any(x=>x.Date==createDate)){
+                         RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                        {
+                            WrapDataSource.Add(new TimeSumView(){ Date=createDate,Hour=new TimeSpan(0), Color=Color.FromArgb(1,mainColor.R,mainColor.G, mainColor.B).ToString()});
+                        }));
+                    }else{
+                        RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                        {
+                            var item = WrapDataSource.First(x=>x.Date==createDate);
+                            item.Color = Color.FromArgb((byte)(item.Hour.TotalSeconds/maxTimeSpanInDS.TotalSeconds*255),mainColor.R,mainColor.G, mainColor.B).ToString();
+                        }));
+                    }
+                    createDate = createDate.AddDays(1);
+                }
                 RBWrapPanel.Dispatcher.Invoke(new Action(delegate
                 {
-                    radioButtons[0].IsChecked = true;
+                    WrapDataSource = new ObservableCollection<TimeSumView>(WrapDataSource.OrderBy(x=>x.Date));
                 }));
-                SummaryRBChanged(1);
+                CalculateBonus(allSubTasks);
+                CategoryDataGridSource = new ObservableCollection<ToDoObj>(tempTasks);
+                totalCost = new TimeSpan(allSubTasks.Sum(x => x.LastTime.Ticks));
+                TotalCostString = $"{totalCost.TotalHours.ToString("0.00")}h";
+                AverageCost = (totalCost / ((EndTime - StartTime).Days+1));
+                AverageCost = TimeSpan.FromMinutes((int)AverageCost.TotalMinutes);
+                if (radioButtons.Count>0)
+                {
+                    RBWrapPanel.Dispatcher.Invoke(new Action(delegate
+                    {
+                        radioButtons[0].IsChecked = true;
+                    }));
+                    SummaryRBChanged(1);
+                }
             }
         }
 

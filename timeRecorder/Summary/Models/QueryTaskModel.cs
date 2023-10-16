@@ -199,6 +199,13 @@ namespace Summary.Models
         {
             System.Windows.Controls.MenuItem item = (System.Windows.Controls.MenuItem)sender;
             SelectedContextMenuType = (string)item.Tag;
+            if (TypesDic.ContainsKey(item.Tag.ToString())) {
+                SelectedContextMenuCategoryId = TypesDic[item.Tag.ToString()];
+            }
+            else
+            {
+                SelectedContextMenuCategoryId = 0;
+            }
         }
 
         private void updateCurrentSelectedCategory(object sender, RoutedEventArgs e)

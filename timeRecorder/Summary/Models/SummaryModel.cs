@@ -400,16 +400,16 @@ namespace Summary.Models
                 }));
             }
         }
-        public void refreshSummaryPlot(string type="all")
+        public void refreshSummaryPlot(string type="All")
         {
             var AllObjs = new ObservableCollection<TimeViewObj>();
             currentSummaryRBType = type;
             foreach (var GridTemplate in allTimeViewObjs)
             {
                 var dailyObjs = GridTemplate.DailyObjs;
-                if (type.ToLower() != "all"&&dailyObjs!=null)
+                if (type != "All"&&dailyObjs!=null)
                 {
-                    var filteredObjs = dailyObjs.Where(x => (x.Type!=null && x.Type.ToLower()==type.ToLower())).OrderBy(e => e.LastTime);
+                    var filteredObjs = dailyObjs.Where(x => (x.Type!=null && x.Type==type)).OrderBy(e => e.LastTime);
                     if (filteredObjs!=null)
                     {
                         foreach (var item in filteredObjs)

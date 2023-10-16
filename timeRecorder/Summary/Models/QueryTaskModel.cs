@@ -253,7 +253,7 @@ namespace Summary.Models
                 if (Category=="") {
                     findCategoryId=0;
                 }
-                allTasks = SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                allTasks = SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null).OrderBy(x => x.createDate).GroupBy(x => new { x.note }).Select(x => new ToDoObj() { CreatedDate = x.First().createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => (x.endTime-x.startTime).Ticks)), Id = x.First().taskId, Type = x.First().type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                 foreach (ToDoObj task in allTasks)
                 {
                     if (task.Id == 0||!AllTasksFromDatabase.Any(x=>x.Id==task.Id))
@@ -339,7 +339,7 @@ namespace Summary.Models
             ITheme theme = _paletteHelper.GetTheme();
             var palette =  _paletteHelper.GetTheme().PrimaryMid;
             Color mainColor = Color.FromRgb((byte)Math.Max(palette.Color.R-50,0), (byte)Math.Max(palette.Color.G-50, 0), (byte)Math.Max(palette.Color.B-50, 0));
-            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>y.lastTime.Ticks))}).OrderBy(x=>x.Date));
+            WrapDataSource = new ObservableCollection<TimeSumView>(SummaryAllTimeObjs.Where(x => x.createDate>=startTime&&x.createDate<=endTime&&x.type!= null&&x.type!="none"&&x.note!=null&&allSubTasks.Any(t=>t.Id==x.taskId&&x.note==t.Note)).GroupBy(x=>new{x.createDate}).Select(x=>new TimeSumView(){ Date=x.Key.createDate, Hour=new TimeSpan(x.Sum(y=>(y.endTime-y.startTime).Ticks))}).OrderBy(x=>x.Date));
             DateTime createDate = startTime;
             TimeSpan maxTimeSpanInDS = new TimeSpan(9, 0, 0);
             if (WrapDataSource.Count>0)

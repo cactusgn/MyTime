@@ -19,7 +19,7 @@ namespace Summary.Common.Converter
             {
                 throw new ArgumentNullException("Type is null");
             }
-            string type = value.ToString().Trim().ToLower();
+            string type = value.ToString().Trim();
             if (Helper.SummaryCategoryDic.ContainsKey(type))
             {
                 return Helper.SummaryCategoryDic[type];

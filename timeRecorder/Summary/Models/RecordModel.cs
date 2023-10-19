@@ -590,7 +590,7 @@ namespace Summary.Models
                 Helper.UpdateColor(obj, changedType);
                 await SQLCommands.UpdateObj(obj);
             }
-            if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != "")
+            if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != ""&&curr.Type!="none")
             {
                 ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId= categoryDic[changedType] };
                 var id = await SQLCommands.AddTodo(newObj);
@@ -609,7 +609,7 @@ namespace Summary.Models
                     await CheckAndDeleteToDo(item.First());
                     TodayList.Remove(item.First());
                 }
-            }else{
+            }else if(curr.Type!="none"){
                 ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId = categoryDic[changedType] };
                 var id = await SQLCommands.AddTodo(newObj);
             }
@@ -891,13 +891,17 @@ namespace Summary.Models
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x => x.Id) +1;
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
+                string type = "none";
                 int taskId = findTask==null ? 0 : findTask.Id;
                 if (taskId==0)
                 {
                     ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
                     taskId = await SQLCommands.AddTodo(newObj);
+                }else{
+                    if(Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
+                        type = Helper.IdCategoryDic[findTask.TypeId];
                 }
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId:taskId);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId:taskId);
                 lastIndex++;
                 taskId = 0;
                 if (content2!="")
@@ -908,11 +912,14 @@ namespace Summary.Models
                     {
                         ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
                         taskId = await SQLCommands.AddTodo(newObj);
+                    }else{
+                        if(Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
+                            type = Helper.IdCategoryDic[findTask.TypeId];
                     }
                 }
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
-                Helper.UpdateColor(newTimeObj1, "none");
-                Helper.UpdateColor(newTimeObj2, "none");
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId: taskId);
+                Helper.UpdateColor(newTimeObj1, type);
+                Helper.UpdateColor(newTimeObj2, type);
                 
                 currentDailyObj.Add(newTimeObj1);
                 currentDailyObj.Add(newTimeObj2);
@@ -1001,7 +1008,7 @@ namespace Summary.Models
                     if (radioButton.IsChecked==true)
                     {
                         List<ToDoObj> allTasks = new List<ToDoObj>();
-                        allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        allTasks = TodayDailyObj.Where(x=>x.Type!="none").GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                         //update Category and Task
                         foreach (ToDoObj task in allTasks)
                         {

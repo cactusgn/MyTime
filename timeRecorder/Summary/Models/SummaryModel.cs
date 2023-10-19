@@ -377,7 +377,7 @@ namespace Summary.Models
                     if (radioButton.IsChecked==true)
                     {
                         List<ToDoObj> allTasks = new List<ToDoObj>();
-                        allTasks = TodayDailyObj.GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        allTasks = TodayDailyObj.Where(x=>x.Type!="none").GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                         //update Category and Task
                         foreach (ToDoObj task in allTasks)
                         {

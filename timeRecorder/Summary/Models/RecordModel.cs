@@ -952,7 +952,7 @@ namespace Summary.Models
                 {
                     if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask||obj.TypeId==0)
                     {
-                        if (!hs.Contains(obj.Note)&&obj.Note!="")
+                        if (!hs.Contains(obj.Note)&&obj.Note!=""&&obj.TypeId!=0)
                         {
                             ToDoObj newObj = new ToDoObj() { 
                                 CreatedDate = DateTime.Today, 
@@ -973,7 +973,7 @@ namespace Summary.Models
                 {
                     if(Helper.mainCategories.FirstOrDefault(x => x.Name==obj.Type, new Category() { AutoAddTask=false }).AutoAddTask)
                     {
-                        if (!hs.Contains(obj.Note)&& obj.Note != "")
+                        if (!hs.Contains(obj.Note)&& obj.Note != ""&&obj.Type!="none")
                         {
                             ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=obj.Type, CategoryId = categoryDic[obj.Type] };
                             var id = await SQLCommands.AddTodo(newObj);

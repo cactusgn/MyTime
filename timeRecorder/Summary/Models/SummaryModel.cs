@@ -327,7 +327,8 @@ namespace Summary.Models
                 {
                     if (timeObj.type==null||timeObj.type.Trim()==""|| !Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
                     {
-                        if(timeObj.taskId!=0){
+                        if(timeObj.taskId!=0&& SQLCommands.QueryTodo(timeObj.taskId)!=null)
+                        {
                             timeObj.type = Helper.mainCategories.FirstOrDefault(x => x.Id == SQLCommands.QueryTodo(timeObj.taskId).TypeId, new Category(){ Name="none"}).Name;
                         }else{
                             timeObj.type = "none";

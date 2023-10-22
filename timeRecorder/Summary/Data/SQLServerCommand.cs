@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Summary.Common;
+using Summary.Common.Utils;
 using Summary.Domain;
 using System;
 using System.Collections.Generic;
@@ -66,6 +67,16 @@ namespace Summary.Data
                     {
                         note.type = obj.Type;
                     }
+                    if (obj.TaskId!=0)
+                    {
+                        var task = QueryTodo(obj.TaskId);
+                        if (task!=null)
+                        {
+                            var taskid = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
+                            if (task.TypeId!=taskid)
+                                await UpdateTodo(task);
+                        }
+                    }
                     await context.SaveChangesAsync();
                 }
                 
@@ -82,6 +93,16 @@ namespace Summary.Data
                     objToUpdate.type = obj.type.Trim();
                     objToUpdate.note = obj.note;
                     objToUpdate.taskId = obj.taskId;
+                    if (obj.taskId!=0)
+                    {
+                        var task = QueryTodo(obj.taskId);
+                        if (task!=null)
+                        {
+                            var taskid = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
+                            if(task.TypeId!=taskid)
+                                await UpdateTodo(task);
+                        }
+                    }
                     await context.SaveChangesAsync();
                 }
 
@@ -219,9 +240,17 @@ namespace Summary.Data
                     var updateObj = item.First();
                     updateObj.CreateDate = obj.CreatedDate;
                     updateObj.UpdatedDate = DateTime.Today;
-                    updateObj.TypeId = typeid;
                     updateObj.CategoryId = obj.CategoryId!=0?obj.CategoryId:updateObj.CategoryId!=0? updateObj.CategoryId:typeid;
                     updateObj.Finished = obj.Finished;
+                    if (updateObj.TypeId!=typeid)
+                    {
+                        var allNotes = context.MyTime.Where(x => x.note==obj.Note);
+                        foreach (var note in allNotes)
+                        {
+                            note.type = Helper.IdCategoryDic.ContainsKey(typeid) ? Helper.IdCategoryDic[typeid] : "none";
+                        }
+                    }
+                    updateObj.TypeId = typeid;
                 }
                 await context.SaveChangesAsync();
             }
@@ -236,9 +265,17 @@ namespace Summary.Data
                     var updateObj = item.First();
                     updateObj.CreateDate = obj.CreateDate;
                     updateObj.UpdatedDate = DateTime.Today;
-                    updateObj.TypeId = obj.TypeId;
                     updateObj.CategoryId = obj.CategoryId;
                     updateObj.Finished = obj.Finished;
+                    if(updateObj.TypeId!=obj.TypeId)
+                    {
+                        var allNotes = context.MyTime.Where(x => x.note==obj.Note);
+                        foreach (var note in allNotes)
+                        {
+                            note.type = Helper.IdCategoryDic.ContainsKey(obj.TypeId) ? Helper.IdCategoryDic[obj.TypeId]:"none";
+                        }
+                    }
+                    updateObj.TypeId = obj.TypeId;
                 }
                 await context.SaveChangesAsync();
             }

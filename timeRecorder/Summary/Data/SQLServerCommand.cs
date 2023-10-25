@@ -72,9 +72,12 @@ namespace Summary.Data
                         var task = QueryTodo(obj.TaskId);
                         if (task!=null)
                         {
-                            var taskid = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
-                            if (task.TypeId!=taskid)
+                            var newTypeId = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
+                            if (task.TypeId!=newTypeId)
+                            {
+                                task.TypeId = newTypeId;
                                 await UpdateTodo(task);
+                            }
                         }
                     }
                     await context.SaveChangesAsync();
@@ -98,9 +101,12 @@ namespace Summary.Data
                         var task = QueryTodo(obj.taskId);
                         if (task!=null)
                         {
-                            var taskid = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
-                            if(task.TypeId!=taskid)
+                            var newTypeId = Helper.categoryDic.ContainsKey(objToUpdate.type) ? Helper.categoryDic[objToUpdate.type] : 0;
+                            if (task.TypeId!=newTypeId)
+                            {
+                                task.TypeId = newTypeId;
                                 await UpdateTodo(task);
+                            }
                         }
                     }
                     await context.SaveChangesAsync();

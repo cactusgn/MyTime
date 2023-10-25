@@ -902,8 +902,10 @@ namespace Summary.Models
                         type = Helper.IdCategoryDic[findTask.TypeId];
                 }
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId:taskId);
+                Helper.UpdateColor(newTimeObj1, type);
                 lastIndex++;
                 taskId = 0;
+                type = "none";
                 if (content2!="")
                 {
                     findTask = SQLCommands.QueryTodo(content2);
@@ -918,7 +920,7 @@ namespace Summary.Models
                     }
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId: taskId);
-                Helper.UpdateColor(newTimeObj1, type);
+                
                 Helper.UpdateColor(newTimeObj2, type);
                 
                 currentDailyObj.Add(newTimeObj1);

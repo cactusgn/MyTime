@@ -567,16 +567,25 @@ namespace Summary.Models
             if(selectedTimeObj!=null){
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
                 var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
+                string type = "none";
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
                 int taskId = findTask==null ? 0 : findTask.Id;
+               
                 if (taskId==0)
                 {
                     ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
                     taskId = await SQLCommands.AddTodo(newObj);
                 }
+                else
+                {
+                    if (Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
+                        type = Helper.IdCategoryDic[findTask.TypeId];
+                }
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
+                Helper.UpdateColor(newTimeObj1, type);
                 lastIndex++;
                 taskId = 0;
+                type = "none";
                 if (content2!="")
                 {
                     findTask = SQLCommands.QueryTodo(content2);
@@ -586,10 +595,14 @@ namespace Summary.Models
                         ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
                         taskId = await SQLCommands.AddTodo(newObj);
                     }
+                    else
+                    {
+                        if (Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
+                            type = Helper.IdCategoryDic[findTask.TypeId];
+                    }
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex,height, taskId: taskId);
-                Helper.UpdateColor(newTimeObj1, "none");
-                Helper.UpdateColor(newTimeObj2, "none");
+                Helper.UpdateColor(newTimeObj2, type);
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);

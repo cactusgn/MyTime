@@ -129,7 +129,6 @@
                 </DataGrid>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="0" Visibility="{Binding SquareViewVisible}">
                 <DockPanel 
-                           
                            ScrollViewer.CanContentScroll="True">
                         <ItemsControl ItemsSource="{Binding WrapDataSource}" DockPanel.Dock="Top" Margin="5" >
                         <ItemsControl.ItemsPanel>
@@ -152,7 +151,8 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </DockPanel>
+                        <Border DockPanel.Dock="Top" Height="10" Background="Transparent"/>
+                    </DockPanel>
                 </ScrollViewer>
                 <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   

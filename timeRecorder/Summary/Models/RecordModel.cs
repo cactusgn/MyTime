@@ -584,11 +584,18 @@ namespace Summary.Models
         }
         private async void updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
+            GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
+            if(findTask != null)
+            {
+                findTask.TypeId = Helper.NameIdDic[changedType];
+                findTask.CategoryId = 0;
+                await SQLCommands.UpdateTodo(findTask);
+            }
             foreach (var obj in TodayAllObjectWithSameNote)
             {
                 obj.Type = changedType;
                 Helper.UpdateColor(obj, changedType);
-                await SQLCommands.UpdateObj(obj);
+                //await SQLCommands.UpdateObj(obj);
             }
             if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != ""&&curr.Type!="none")
             {

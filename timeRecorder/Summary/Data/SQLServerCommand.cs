@@ -254,6 +254,7 @@ namespace Summary.Data
                         foreach (var note in allNotes)
                         {
                             note.type = Helper.IdCategoryDic.ContainsKey(typeid) ? Helper.IdCategoryDic[typeid] : "none";
+                            note.taskId = updateObj.Id;
                         }
                     }
                     updateObj.TypeId = typeid;
@@ -279,6 +280,7 @@ namespace Summary.Data
                         foreach (var note in allNotes)
                         {
                             note.type = Helper.IdCategoryDic.ContainsKey(obj.TypeId) ? Helper.IdCategoryDic[obj.TypeId]:"none";
+                            note.taskId = updateObj.Id;
                         }
                     }
                     updateObj.TypeId = obj.TypeId;

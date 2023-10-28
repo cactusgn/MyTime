@@ -244,15 +244,30 @@ namespace Summary.Models
 
             if (SelectedTimeObj.Type!=a)
             {
-                var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
-                ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = SelectedTimeObj.Note, Finished = true, Type = a, CategoryId = Helper.categoryDic[a] };
-                var id = await SQLCommands.AddTodo(newObj);
-                foreach (var obj in TodayAllObjectWithSameNote)
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(SelectedTimeObj.Note);
+                var id = 0;
+                if (findTask != null)
                 {
-                    obj.Type = a;
-                    obj.TaskId = id;
-                    Helper.UpdateColor(obj, a);
-                    await SQLCommands.UpdateObj(obj);
+                    id = findTask.Id;
+                    findTask.TypeId = Helper.NameIdDic[a.ToString()];
+                    findTask.CategoryId = 0;
+                    await SQLCommands.UpdateTodo(findTask);
+                }
+                else
+                {
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = SelectedTimeObj.Note, Finished = true, Type = a, CategoryId = Helper.categoryDic[a] };
+                    id = await SQLCommands.AddTodo(newObj);
+                }
+                foreach (var dailyViewObjs in AllTimeViewObjs)
+                {
+                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                    foreach (var obj in TodayAllObjectWithSameNote)
+                    {
+                        obj.Type = a.ToString();
+                        obj.TaskId = id;
+                        Helper.UpdateColor(obj, a.ToString());
+                        //await SQLCommands.UpdateObj(obj);
+                    }
                 }
                 refreshSingleDayPlot();
                 refreshSummaryPlot(currentSummaryRBType);
@@ -314,12 +329,12 @@ namespace Summary.Models
         private async void updateOldItems()
         {
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900,1,1), DateTime.Today);
-            foreach (GeneratedToDoTask task in allTasks) {
-                if(task.TypeId==0){
-                    task.TypeId = getTaskId(task.CategoryId);
-                    await SQLCommands.UpdateTodo(task);
-                }
-            }
+            //foreach (GeneratedToDoTask task in allTasks) {
+            //    if(task.TypeId==0){
+            //        task.TypeId = getTaskId(task.CategoryId);
+            //        await SQLCommands.UpdateTodo(task);
+            //    }
+            //}
             List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1900,1,1),DateTime.Today);
             if (AllTimeObjs != null)
             {
@@ -500,13 +515,25 @@ namespace Summary.Models
         {
             if (SelectedTimeObj.Type!=a.ToString())
             {
-                var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
-                foreach (var obj in TodayAllObjectWithSameNote)
+                
+                GeneratedToDoTask findTask = SQLCommands.QueryTodo(SelectedTimeObj.Note);
+                if (findTask != null)
                 {
-                    obj.Type = a.ToString();
-                    Helper.UpdateColor(obj, a.ToString());
-                    await SQLCommands.UpdateObj(obj);
+                    findTask.TypeId = Helper.NameIdDic[a.ToString()];
+                    findTask.CategoryId = 0;
+                    await SQLCommands.UpdateTodo(findTask);
                 }
+                foreach(var dailyViewObjs in AllTimeViewObjs)
+                {
+                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                    foreach (var obj in TodayAllObjectWithSameNote)
+                    {
+                        obj.Type = a.ToString();
+                        Helper.UpdateColor(obj, a.ToString());
+                        //await SQLCommands.UpdateObj(obj);
+                    }
+                }
+                
                 refreshSingleDayPlot();
                 refreshSummaryPlot(currentSummaryRBType);
             }

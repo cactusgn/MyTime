@@ -21,6 +21,7 @@
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition ></RowDefinition>
             </Grid.RowDefinitions>
@@ -38,10 +39,12 @@
             <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding ImportDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <TextBlock Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >导出目录:</TextBlock>
             <TextBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding OutputDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <TextBlock Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >默认休息内容:</TextBlock>
-            <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding RestContent, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <TextBlock Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >不跳出输入休息内容的间隔时间:</TextBlock>
-            <WrapPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" >
+            <TextBlock Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >工作目录:</TextBlock>
+            <TextBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding WorkDirectory, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >默认休息内容:</TextBlock>
+            <TextBox Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="480" Text="{Binding RestContent, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Left" Height="20" >不跳出输入休息内容的间隔时间:</TextBlock>
+            <WrapPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" >
                 <TextBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" Width="50" HorizontalContentAlignment="Center">
                     <Binding Path="IntervalMinutes" UpdateSourceTrigger="PropertyChanged">
                         <Binding.ValidationRules>
@@ -52,7 +55,7 @@
                 <TextBlock   VerticalAlignment="Center" Margin="10,0">分钟</TextBlock>
             </WrapPanel>
             
-            <Button Grid.Row="7" Command="{Binding SaveCommand}" Margin="3,24,3,24">保存</Button>
+            <Button Grid.Row="8" Command="{Binding SaveCommand}" Margin="3,24,3,24">保存</Button>
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>

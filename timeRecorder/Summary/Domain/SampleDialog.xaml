@@ -52,7 +52,7 @@
                     </Binding>
                 </materialDesign:TimePicker.Text>
             </materialDesign:TimePicker>
-            <TextBlock VerticalAlignment="Center" FontSize="14" Margin="10" Foreground="DarkRed" Visibility="{Binding ShowTip}">分割时间需要在两者之间</TextBlock>
+            <TextBlock VerticalAlignment="Center" FontSize="14" Margin="10" Foreground="#B91F3B" Visibility="{Binding ShowTip}">分割时间需要在两者之间</TextBlock>
         </StackPanel>
         <StackPanel  Grid.Row="3">
             <StackPanel  Orientation="Horizontal">

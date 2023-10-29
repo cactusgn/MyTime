@@ -33,6 +33,16 @@ namespace Summary.Models
             get { return outputDirectory; }
             set { outputDirectory = value; OnPropertyChanged(); }
         }
+
+        private string workDirectory;
+
+        public string WorkDirectory
+        {
+            get { return workDirectory; }
+            set { workDirectory = value; OnPropertyChanged(); }
+        }
+
+
         private string restContent;
 
         public string RestContent
@@ -55,6 +65,7 @@ namespace Summary.Models
             RestContent = Helper.GetAppSetting("RestContent");
             OutputDirectory = Helper.GetAppSetting("OutputDirectory");
             ImportDirectory = Helper.GetAppSetting("ImportDirectory");
+            WorkDirectory = Helper.GetAppSetting("WorkDirectory");
             IntervalMinutes = Helper.GetAppSetting("IntervalMinutes");
             setHelperVariables();
         }
@@ -70,6 +81,7 @@ namespace Summary.Models
             Helper.SetAppSetting("RestContent", RestContent);
             Helper.SetAppSetting("OutputDirectory", OutputDirectory);
             Helper.SetAppSetting("ImportDirectory", ImportDirectory);
+            Helper.SetAppSetting("WorkDirectory", WorkDirectory);
             Helper.SetAppSetting("IntervalMinutes", IntervalMinutes);
             setHelperVariables();
             await showMessageBox("保存成功");

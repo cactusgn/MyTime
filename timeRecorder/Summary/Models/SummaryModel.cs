@@ -266,7 +266,7 @@ namespace Summary.Models
                         obj.Type = a.ToString();
                         obj.TaskId = id;
                         Helper.UpdateColor(obj, a.ToString());
-                        //await SQLCommands.UpdateObj(obj);
+                        await SQLCommands.UpdateObj(obj);
                     }
                 }
                 refreshSingleDayPlot();
@@ -515,7 +515,6 @@ namespace Summary.Models
         {
             if (SelectedTimeObj.Type!=a.ToString())
             {
-                
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(SelectedTimeObj.Note);
                 if (findTask != null)
                 {
@@ -600,7 +599,7 @@ namespace Summary.Models
                
                 if (taskId==0)
                 {
-                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = "none", CategoryId = 0 };
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = type, CategoryId = 0 };
                     taskId = await SQLCommands.AddTodo(newObj);
                 }
                 else
@@ -608,7 +607,7 @@ namespace Summary.Models
                     if (Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
                         type = Helper.IdCategoryDic[findTask.TypeId];
                 }
-                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, "none", lastIndex, height, taskId: taskId);
+                var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj1, type);
                 lastIndex++;
                 taskId = 0;
@@ -619,7 +618,7 @@ namespace Summary.Models
                     taskId =  findTask==null ? 0 : findTask.Id;
                     if (taskId==0)
                     {
-                        ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = "none", CategoryId = 0 };
+                        ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = type, CategoryId = 0 };
                         taskId = await SQLCommands.AddTodo(newObj);
                     }
                     else
@@ -628,7 +627,7 @@ namespace Summary.Models
                             type = Helper.IdCategoryDic[findTask.TypeId];
                     }
                 }
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, "none", lastIndex,height, taskId: taskId);
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex,height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj2, type);
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
@@ -639,6 +638,7 @@ namespace Summary.Models
                 currentDailyObj.Remove(selectedTimeObj);
                 AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs = new ObservableCollection<TimeViewObj>(currentDailyObj.OrderBy(item => item.StartTime));
                 SelectedTimeObj = newTimeObj1;
+                TypeComboBox.SelectedItem = type;
                 refreshSingleDayPlot();
                 refreshSummaryPlot();
             }

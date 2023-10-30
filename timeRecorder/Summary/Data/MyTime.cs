@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,6 +89,10 @@ namespace Summary.Data
         {
             base.OnConfiguring(optionsBuilder);
             string WorkDirectory = Helper.GetAppSetting("WorkDirectory");
+            if(!Directory.Exists(Helper.GetAppSetting("WorkDirectory"))){
+                WorkDirectory = Environment.CurrentDirectory;
+                Helper.SetAppSetting("WorkDirectory", WorkDirectory);
+            }
             optionsBuilder.UseSqlite("Filename="+WorkDirectory + "/TimeTests.db");
             //optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Trusted_Connection=True;Initial Catalog=MyTime;User ID=sa;Password=abcd-1234;integrated security=false;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True;");
         }

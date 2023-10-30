@@ -182,6 +182,8 @@ namespace Summary.Models
         public MyCommand TipTextPreviewMouseUpCommand { get; set; }
         public MyCommand TodoTodaySelectionChangeCommand { get; set; }
         public MyCommand SummaryRBChangedCommand { get; set; }
+        public MyCommand DownKey_Command { get; set; }
+        public MyCommand UpKey_Command { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -227,9 +229,11 @@ namespace Summary.Models
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
 
         public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
-
+        public bool ClickUpOrDown =false;
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
+            DownKey_Command = new MyCommand(DownKeySub);
+            UpKey_Command = new MyCommand(UpKeySub);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
             CheckChangedCommand = new MyCommand(CheckChanged);
@@ -262,6 +266,28 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+
+        private void UpKeySub(object obj)
+        {   
+            ClickUpOrDown = true;
+            if(TodoToday!=null && TodoToday.IsDropDownOpen && TodoToday.Items.Count>0){
+                if(TodoToday.SelectedIndex-1>=0){
+                    TodoToday.SelectedIndex--;
+                    TodoTodayTextbox.Text = TodoToday.SelectedItem.ToString();
+                }
+            }
+        }
+
+        private void DownKeySub(object obj)
+        {
+            ClickUpOrDown = true;
+            if(TodoToday!=null && TodoToday.IsDropDownOpen  && TodoToday.Items.Count>0){
+                if(TodoToday.SelectedIndex+1<TodoToday.Items.Count){
+                    TodoToday.SelectedIndex++;
+                    TodoTodayTextbox.Text = TodoToday.SelectedItem.ToString();
+                }
+            }
         }
 
         private  void SummaryRBChanged(object obj)
@@ -307,7 +333,6 @@ namespace Summary.Models
             {
                 TodayText = TodoToday.SelectedValue.ToString();
             }
-            //TodoTodayTextbox.Focus();
         }
 
         private void TipTextPreviewMouseUp(object obj)
@@ -329,7 +354,7 @@ namespace Summary.Models
 
         private void TipTextChange(object obj)
         {
-            if (TodoTodayTextbox.Text!=null)
+            if (TodoTodayTextbox.Text!=null && !ClickUpOrDown)
             {
                 List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
                 if (TodoTodayTextbox.Text=="")
@@ -342,6 +367,9 @@ namespace Summary.Models
                 }
                 TodoToday.ItemsSource = TipList;
                 TodoToday.IsDropDownOpen=true;
+            }
+            if(ClickUpOrDown) {
+                ClickUpOrDown = false;
             }
         }
         public void initCategoryDic()

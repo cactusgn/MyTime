@@ -55,6 +55,8 @@
                         <TextBox.InputBindings>
                             <!--键盘事件绑定-->
                             <KeyBinding Command="{Binding Enter_ClickCommand}" CommandParameter="{Binding ElementName=TodoTodayTextbox,Path=Text}" Key="Enter"/>
+                            <KeyBinding Command="{Binding DownKey_Command}" CommandParameter="{Binding ElementName=TodoTodayTextbox,Path=Text}" Key="Down"/>
+                            <KeyBinding Command="{Binding UpKey_Command}" CommandParameter="{Binding ElementName=TodoTodayTextbox,Path=Text}" Key="Up"/>
                             <!--鼠标事件绑定-->
                             <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
                         </TextBox.InputBindings>

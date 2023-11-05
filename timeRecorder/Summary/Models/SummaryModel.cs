@@ -398,7 +398,7 @@ namespace Summary.Models
                         foreach (ToDoObj task in allTasks)
                         {
                             var findTask = SQLCommands.QueryTodo(task.Note);
-                            if (findTask != null&&Helper.IdCategoryDic.ContainsKey(findTask.CategoryId))
+                            if (findTask != null&&findTask.CategoryId!=0&&Helper.IdCategoryDic.ContainsKey(findTask.CategoryId))
                             {
                                 task.Category =  Helper.IdCategoryDic[findTask.CategoryId];
                                 task.CategoryId= findTask.CategoryId;

@@ -989,7 +989,7 @@ namespace Summary.Models
                 {
                     if (Helper.mainCategories.FirstOrDefault(x=>x.Id==obj.TypeId, new Category() { AutoAddTask=false}).AutoAddTask||obj.TypeId==0)
                     {
-                        if (!hs.Contains(obj.Note)&&obj.Note!=""&&obj.TypeId!=0)
+                        if (!hs.Contains(obj.Note)&&obj.Note!="")
                         {
                             ToDoObj newObj = new ToDoObj() { 
                                 CreatedDate = DateTime.Today, 

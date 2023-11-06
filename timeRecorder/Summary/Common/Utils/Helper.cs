@@ -122,6 +122,9 @@ namespace Summary.Common.Utils
                 NameIdDic.Add("task:" + task.Note, 0);
                 if(IdCategoryDic.ContainsKey(task.CategoryId)&&colorDic.ContainsKey(IdCategoryDic[task.CategoryId])){
                     colorDic.Add("task:" + task.Note, colorDic[IdCategoryDic[task.CategoryId]]);
+                }else if (NameIdDic.ContainsKey(task.Type)&&colorDic.ContainsKey(task.Type))
+                {
+                    colorDic.Add("task:" + task.Note, colorDic[task.Type]);
                 }
                 else{
                     colorDic.Add("task:" + task.Note, colorDic["none"]);

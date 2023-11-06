@@ -530,9 +530,11 @@ namespace Summary.Models
                 List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(task.Note);
                 foreach (MyTime timeObj in timeObjs)
                 {
-                    timeObj.taskId = findIndex;
-                    timeObj.type = timeObj.type.Trim();
-                    await SQLCommands.UpdateObj(timeObj);
+                    if(timeObj.type!=timeObj.type.Trim() || timeObj.taskId != findIndex){
+                        timeObj.taskId = findIndex;
+                        timeObj.type = timeObj.type.Trim();
+                        await SQLCommands.UpdateObj(timeObj);
+                    }
                 }
             } 
             //task的categoryId还是0，就改成type的ID

@@ -90,9 +90,11 @@
                         
                     </TextBlock>
            </Grid>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                
-                <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" 
+             
+
+                    <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                          SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationAccentListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
                 
                 <i:Interaction.Triggers>
@@ -136,7 +138,7 @@
                     
                 </ListBox.ItemTemplate>
             </ListBox>
-                </ScrollViewer>
+            
             </DockPanel>
         <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   

@@ -623,7 +623,7 @@ namespace Summary.Models
             {
                 obj.Type = changedType;
                 Helper.UpdateColor(obj, changedType);
-                //await SQLCommands.UpdateObj(obj);
+                await SQLCommands.UpdateObj(obj);
             }
             if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != ""&&curr.Type!="none")
             {

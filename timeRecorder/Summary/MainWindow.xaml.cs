@@ -37,7 +37,6 @@ namespace Summary
         {
             InitializeComponent();
             this.DataContext = mainModel;
-            this.LocationChanged += MainWindow_LocationChanged;
 
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
@@ -69,7 +68,16 @@ namespace Summary
                         this.WindowState = WindowState.Normal;
                         btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowMaximize;
                     }
+                    
                     this.DragMove();
+                }
+                else
+                {
+                    if (this.WindowState == WindowState.Normal&&this.Left!=0&&this.Top!=0)
+                    {
+                        normalLeft = this.Left;
+                        normalTop = this.Top;
+                    }
                 }
             };
             btnLittleWin.Click+=(s, e) =>
@@ -113,14 +121,7 @@ namespace Summary
             
         }
 
-        private void MainWindow_LocationChanged(object sender, EventArgs e)
-        {
-            if(this.WindowState == WindowState.Normal&&this.Left!=0&&this.Top!=0){
-                normalLeft = this.Left;
-                normalTop = this.Top;
-            }
-        }
-
+       
         // Rectangle (used by MONITORINFOEX)
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect {
@@ -173,7 +174,7 @@ namespace Summary
             window.WindowState = WindowState.Normal;
             window.ResizeMode = ResizeMode.CanResizeWithGrip;
 
-            
+
             this.Top = normalTop;
             this.Left = normalLeft;
         }

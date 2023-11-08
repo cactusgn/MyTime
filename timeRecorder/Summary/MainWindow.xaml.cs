@@ -22,6 +22,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Interop;
+
 namespace Summary
 {
     /// <summary>
@@ -33,6 +35,8 @@ namespace Summary
         {
             InitializeComponent();
             this.DataContext = mainModel;
+            LocationChanged += MainWindow_LocationChanged;
+
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
             MiniModel miniModel = new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext));
@@ -49,6 +53,7 @@ namespace Summary
                 {
                     this.WindowState = WindowState.Maximized;
                     btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowRestore;
+                  
                 }
             };
             btnClose.Click += (s, e) => { this.Close(); minimizeWindow.Close(); };
@@ -97,11 +102,30 @@ namespace Summary
                 {
                     this.WindowState = WindowState.Normal;
                     btnMaxIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowMaximize;
+                   
                 }
                     
             };
             
         }
-        
+        private void MainWindow_LocationChanged(object sender, EventArgs e)
+        {
+            UpdateScreenInfo(this);
+        }
+        private void UpdateScreenInfo(Window window)
+        {
+            var hwndSource = (HwndSource)PresentationSource.FromVisual(window);
+            if (hwndSource is null)
+            {
+                return;
+            }
+            var hWnd = hwndSource.Handle;
+            //var screen = System.Windows.Forms.Screen.FromHandle(hWnd).Bounds;
+            //var screen = System.Windows.Forms.Screen.FromHandle(hWnd);
+            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+            var screen = System.Windows.Forms.Screen.FromHandle(handle);
+            this.MaxHeight = screen.WorkingArea.Height + 8;
+            this.MaxWidth = screen.WorkingArea.Width + 8;
+        }
     }
 }

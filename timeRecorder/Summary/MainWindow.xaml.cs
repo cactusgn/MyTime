@@ -31,12 +31,13 @@ namespace Summary
     /// </summary>
     public partial class MainWindow : Window
     {
-    
+        double normalTop = 0;
+        double normalLeft = 0;
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
             this.DataContext = mainModel;
-           
+            this.LocationChanged += MainWindow_LocationChanged;
 
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
@@ -111,6 +112,15 @@ namespace Summary
             };
             
         }
+
+        private void MainWindow_LocationChanged(object sender, EventArgs e)
+        {
+            if(this.WindowState == WindowState.Normal&&this.Left!=0&&this.Top!=0){
+                normalLeft = this.Left;
+                normalTop = this.Top;
+            }
+        }
+
         // Rectangle (used by MONITORINFOEX)
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect {
@@ -163,17 +173,9 @@ namespace Summary
             window.WindowState = WindowState.Normal;
             window.ResizeMode = ResizeMode.CanResizeWithGrip;
 
-             var hwndSource = (HwndSource)PresentationSource.FromVisual(window);
-            if (hwndSource is null)
-            {
-                return;
-            }
-            var hWnd = hwndSource.Handle;
-            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
-            var screen = System.Windows.Forms.Screen.FromHandle(handle);
-
-            this.Top = this.Top + (screen.WorkingArea.Height - this.Height)/2;
-            this.Left = this.Left + (screen.WorkingArea.Width - this.Width)/2;
+            
+            this.Top = normalTop;
+            this.Left = normalLeft;
         }
 
         private static void Maximize(Window window) {

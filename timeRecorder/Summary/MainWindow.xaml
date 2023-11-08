@@ -39,14 +39,14 @@
     </Window.Resources>
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <materialDesign:ColorZone
                     x:Name="ColorZone"
                     Height="50"
                      CornerRadius="10,10,0,0"
-                    materialDesign:ElevationAssist.Elevation="Dp0"
+                    materialDesign:ElevationAssist.Elevation="Dp2"
                     Mode="PrimaryDark">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Margin="5"  VerticalAlignment="Center">
                 <Button  x:Name="btnLittleWin" Style="{StaticResource MaterialDesignFlatMidBgButton}" Margin="5" Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource MaterialDesignDarkForeground}">
@@ -64,7 +64,7 @@
                 
                 </StackPanel>
         </materialDesign:ColorZone>
-        <Border Grid.Row="1" >
+        <Border Grid.Row="1" CornerRadius="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="60" />

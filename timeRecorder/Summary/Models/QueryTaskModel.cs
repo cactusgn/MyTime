@@ -528,6 +528,7 @@ namespace Summary.Models
             {
                 task.Id = findIndex;
                 task.CategoryId = findTaskCategoryId;
+                task.Category =  Helper.IdCategoryDic.ContainsKey(findTaskCategoryId)? Helper.IdCategoryDic[findTaskCategoryId]:"none";
                 List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(task.Note);
                 foreach (MyTime timeObj in timeObjs)
                 {

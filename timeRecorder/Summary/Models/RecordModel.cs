@@ -610,7 +610,7 @@ namespace Summary.Models
         {
             refreshSingleDayPlot();
         }
-        private async void updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
+        private async Task updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
             if(findTask != null)
@@ -670,21 +670,72 @@ namespace Summary.Models
                 await showMessageBox("请先选中左侧要改的时间块");
                 return;
             }
-            updateTodayListAfterChangeType(SelectedTimeObj, a.ToString());
+            await updateTodayListAfterChangeType(SelectedTimeObj, a.ToString());
         }
-        private  void CellEditEnding(object obj){
+        private async void CellEditEnding(object obj){
             //update note or type
             TimeViewObj curr = (TimeViewObj)obj;
             var updateNoteItem = AllTimeViewObjs.First().DailyObjs.First(x => x.Id == curr.Id);
             updateNoteItem.TimeNote = curr.TimeNote;
-            updateTodayListAfterChangeType(updateNoteItem, curr.Type);
+
+            if (colorDic[updateNoteItem.Type]!=updateNoteItem.Color)
+            {
+                //Type updated
+                await updateTodayListAfterChangeType(updateNoteItem, curr.Type);
+            }
+            else
+            {
+                //note updated
+                await updateTodayListAfterChangeNote(updateNoteItem);
+            }
+        }
+        private async Task updateTodayListAfterChangeNote(TimeViewObj curr)
+        {
+            GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
+            if (findTask != null)
+            {
+                curr.Type =IdCategoryDic.ContainsKey(findTask.TypeId)?IdCategoryDic[findTask.TypeId]:"none";
+                Helper.UpdateColor(curr, curr.Type);
+                await SQLCommands.UpdateObj(curr);
+            }
+            else
+            {
+                await SQLCommands.UpdateObj(curr);
+            }
+            string changedType = curr.Type;
+            if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != ""&&curr.Type!="none")
+            {
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId= categoryDic[changedType] };
+                var id = await SQLCommands.AddTodo(newObj);
+                newObj.Id = id;
+                TodayList.Add(newObj);
+                TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+                hs.Add(curr.Note);
+            }
+            else if (hs.Contains(curr.Note) && !(Helper.mainCategories.FirstOrDefault(x => x.Name == changedType, new Category() { AutoAddTask = false }).AutoAddTask))
+            {
+                var item = TodayList.Where(x => x.Note == curr.Note);
+                if (item != null && item.Count() > 0)
+                {
+                    await SQLCommands.UpdateTodo(item.First());
+                    hs.Remove(curr.Note);
+                    await CheckAndDeleteToDo(item.First());
+                    TodayList.Remove(item.First());
+                }
+            }
+            else if (curr.Type!="none")
+            {
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId = categoryDic[changedType] };
+                var id = await SQLCommands.AddTodo(newObj);
+            }
+            refreshSingleDayPlot();
         }
         private async void TextBoxLostFocus(object obj)
         {
-            //update note or type
+            //update note
             var updateTimeViewObj = (TimeViewObj)obj;
-            await SQLCommands.UpdateObj(updateTimeViewObj);
-            refreshSingleDayPlot();
+            await updateTodayListAfterChangeNote(updateTimeViewObj);
+            
         }
         private void refreshAllObjs(){
             UpdateGridData();

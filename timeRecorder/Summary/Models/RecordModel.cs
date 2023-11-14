@@ -639,6 +639,7 @@ namespace Summary.Models
                 var item = TodayList.Where(x => x.Note == curr.Note);
                 if (item != null && item.Count() > 0)
                 {
+                    item.First().Type = changedType;
                     await SQLCommands.UpdateTodo(item.First());
                     hs.Remove(curr.Note);
                     await CheckAndDeleteToDo(item.First());

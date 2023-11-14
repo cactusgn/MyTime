@@ -22,6 +22,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
 
 namespace Summary.Models
 {
@@ -455,6 +456,8 @@ namespace Summary.Models
         public System.Windows.Style ComboBoxItemStyle { get; internal set; }
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
         public WrapPanel SingleDayTypeRadioGroupPanel { get; internal set; }
+        public Canvas LeftSchedule { get; internal set; }
+        public Canvas RightSchedule { get; internal set; }
 
         private  void closeDialog()
         {
@@ -555,6 +558,81 @@ namespace Summary.Models
                     if (radioButton.IsChecked==true) refreshSummaryPlot(radioButton.Content.ToString());
                 }));
             }
+            updateCanvas();
+        }
+
+        public void updateCanvas(){
+            if(LeftSchedule!=null && LeftPanelHeight > 100){
+             LeftSchedule.Dispatcher.Invoke(new Action(delegate
+                {
+                    LeftSchedule.Children.Clear();
+                    RightSchedule.Children.Clear();
+
+                    System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+                    r.Fill = new SolidColorBrush(Colors.LightGray);
+                    r.Stroke = new SolidColorBrush(Colors.LightGray);
+                    r.Width = 2;
+                    r.Height = height-100;
+                    r.SetValue(Canvas.LeftProperty, (double)65);
+                    r.SetValue(Canvas.TopProperty, (double)75);
+                   
+                    LeftSchedule.Children.Add(r);
+
+                    System.Windows.Shapes.Rectangle r1 = new System.Windows.Shapes.Rectangle();
+                    r1.Fill = new SolidColorBrush(Colors.LightGray);
+                    r1.Stroke = new SolidColorBrush(Colors.LightGray);
+                    r1.Width = 2;
+                    r1.Height = height-100;
+                    r1.SetValue(Canvas.LeftProperty, (double)7);
+                    r1.SetValue(Canvas.TopProperty, (double)75);
+                   
+                    RightSchedule.Children.Add(r1);
+
+                    int allhours = Helper.GlobalEndTimeSpan.Hours - Helper.GlobalStartTimeSpan.Hours;
+                    PaletteHelper _paletteHelper = new PaletteHelper();
+                    ITheme theme = _paletteHelper.GetTheme();
+                    //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
+                    var paletteColor =  _paletteHelper.GetTheme().PrimaryMid;
+                    for(int i = Helper.GlobalStartTimeSpan.Hours+1;i<=Helper.GlobalEndTimeSpan.Hours;i++){
+                        if(i<=Helper.GlobalEndTimeSpan.Hours){
+                            Ellipse el = new Ellipse();
+                            el.Fill = new SolidColorBrush(paletteColor.Color);
+                            el.Stroke = new SolidColorBrush(paletteColor.Color);
+                            el.Width = 10;
+                            el.Height = 10;
+                            el.SetValue(Canvas.ZIndexProperty, 1);
+                            el.SetValue(Canvas.LeftProperty, (double)61);
+                            el.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+75);
+                            LeftSchedule.Children.Add(el);
+
+                            Ellipse el2 = new Ellipse();
+                            el2.Fill = new SolidColorBrush(paletteColor.Color);
+                            el2.Stroke = new SolidColorBrush(paletteColor.Color);
+                            el2.Width = 10;
+                            el2.Height = 10;
+                            el2.SetValue(Canvas.ZIndexProperty, 1);
+                            el2.SetValue(Canvas.LeftProperty, (double)3);
+                            el2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+75);
+                            RightSchedule.Children.Add(el2);
+
+                            TextBlock a = new TextBlock();
+                            a.Text =  i.ToString("00")+":00:00";
+                            a.FontSize = 12;
+                            a.SetValue(Canvas.LeftProperty, (double)7);
+                            a.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+72);
+                            LeftSchedule.Children.Add(a);
+
+                            TextBlock a2 = new TextBlock();
+                            a2.Text =  i.ToString("00")+":00:00";
+                            a2.FontSize = 12;
+                            a2.SetValue(Canvas.LeftProperty, (double)15);
+                            a2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+72);
+                            RightSchedule.Children.Add(a2);
+                        }
+                    }
+                }));
+               
+            }
         }
         public void resizeHeight(object a = null)
         {
@@ -582,8 +660,9 @@ namespace Summary.Models
                         obj.Height = Helper.CalculateHeight(obj.LastTime,height);
                     }
                 }
-                SummaryPlot.Height = LeftPanelHeight-250;
-                SingleDayPlot.Height = LeftPanelHeight-250;
+                SummaryPlot.Height = LeftPanelHeight-250>0?LeftPanelHeight-250:100;
+                SingleDayPlot.Height = LeftPanelHeight-250>0?LeftPanelHeight-250:100;
+                updateCanvas();
                 SummaryPlot.Refresh();
                 SingleDayPlot.Refresh();
             }

@@ -120,9 +120,16 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition MinWidth="280"/>
                     </Grid.ColumnDefinitions>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                            <DockPanel>
-                                <StackPanel  DockPanel.Dock="Top"  Grid.Row="1" Grid.Column="0" x:Name="leftPanel"  HorizontalAlignment="Center" Orientation="Horizontal">
+                        <ScrollViewer  VerticalScrollBarVisibility="Auto">
+                            <DockPanel  HorizontalAlignment="Center" >
+                                <StackPanel DockPanel.Dock="Right" Width="75"  >
+                                    <Canvas Name="RightSchedule"></Canvas>
+                                </StackPanel>
+                                <StackPanel DockPanel.Dock="Left" Width="75"  >
+                                    <Canvas Name="leftSchedule"></Canvas>
+                                </StackPanel>
+                            <ScrollViewer  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
+                                <StackPanel  DockPanel.Dock="Left"  Grid.Row="1" Grid.Column="0" x:Name="leftPanel" Orientation="Horizontal" >
                                 <!--<DataGrid x:Name="DataList"/>-->
                                     <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
                                     <ItemsControl.ItemsPanel>
@@ -176,10 +183,11 @@
                                 </ItemsControl>
                                     <!--<Border Width="1" Background="{DynamicResource MaterialDesignBody}" Margin="1,75,1,5"></Border>-->
                                 </StackPanel>
-                               
-                            </DockPanel>
-                    </ScrollViewer>
-                    <GridSplitter HorizontalAlignment="Center"   
+                            </ScrollViewer>
+                           
+                        </DockPanel>
+                        </ScrollViewer>
+                        <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   
                       Width="2" Background="Silver">

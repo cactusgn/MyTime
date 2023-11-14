@@ -31,11 +31,14 @@ namespace Summary
             summaryModel.TypeComboBox = TypeComboBox;
             summaryModel.ComboBoxItemStyle = this.Resources["ComboBoxItemStyle"] as Style;
             summaryModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
+            summaryModel.LeftSchedule = leftSchedule;
+            summaryModel.RightSchedule = RightSchedule;
             this.DataContext = summaryModel;
             summaryModel.initTypeCombobox();
             summaryModel.RefreshSingleDayRadioButtons();
             summaryModel.showTimeView();
         }
+
         private void leftPanel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ((SummaryModel)this.DataContext).LeftPanelHeight = Result.ActualHeight;

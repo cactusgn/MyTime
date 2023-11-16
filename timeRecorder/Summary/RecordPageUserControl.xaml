@@ -245,7 +245,7 @@
                         Style="{StaticResource MaterialDesignFilledTabControl}">
                         <TabItem Header="当天总计" >
                             <DockPanel  Height="{Binding GridHeight}" >
-                                <WrapPanel DockPanel.Dock="Top" Margin="0,10,0,20" Orientation="Horizontal" x:Name="TypeRadioGroupPanel">
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,10,0,10" Orientation="Horizontal" x:Name="TypeRadioGroupPanel">
                                  
                                 </WrapPanel>
                                 <DockPanel DockPanel.Dock="Top" >

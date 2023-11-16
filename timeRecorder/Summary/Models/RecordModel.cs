@@ -1192,7 +1192,7 @@ namespace Summary.Models
                 else
                 {
                     height = RightPanelHeight;
-                    GridHeight = RightPanelHeight -280;
+                    GridHeight = RightPanelHeight -284;
                 }
                 
                 foreach (var gridSource in AllTimeViewObjs)

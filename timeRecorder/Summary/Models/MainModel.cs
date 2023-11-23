@@ -104,7 +104,7 @@ namespace Summary.Models
             OpenPage("RecordPageUserControl");
         }
         
-        private  void OpenPage(object o)
+        private async void OpenPage(object o)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
@@ -123,11 +123,11 @@ namespace Summary.Models
             else if(o.ToString() == "SummaryUserControl")
             {
                 MainContent = SummaryUserControl;
-                SummaryModel.initTypeCombobox();
-                SummaryModel.RefreshSingleDayRadioButtons();
-                SummaryModel.showTimeView();
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();
+                SummaryModel.initTypeCombobox();
+                SummaryModel.RefreshSingleDayRadioButtons();
+                 SummaryModel.clickOkButton();
             }else if(o.ToString() == "ColorTool")
             {
                 MainContent = ColorTool;

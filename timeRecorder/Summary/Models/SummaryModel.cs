@@ -16,6 +16,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -464,9 +465,10 @@ namespace Summary.Models
             IsDialogOpen=false;
 
         }
-        private void openDialog()
+        private  void openDialog()
         {
             IsDialogOpen=true;
+           
         }
         private async void openSplitDialog(){
             var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
@@ -510,10 +512,25 @@ namespace Summary.Models
                     EndTime = DateTime.Today;
                 }
             }
-                await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); });
-            //await Task.Run(() => { openDialog(); }).ContinueWith(delegate { showTimeView(); closeDialog(); }).ContinueWith(delegate { closeDialog(); });
+           
+            //Thread[] threads = new Thread[2];  
+            //threads[0] = new Thread(openDialog);
+            //threads[0].Start();
+            //threads[1] = new Thread(test);
+            //threads[1].Start();
+           await Task.Run( () => {  openDialog(); })
+                            .ContinueWith(async delegate { 
+                                await Task.Delay(500); 
+                                showTimeView(); 
+                                closeDialog(); 
+                             });
         }
-        
+        private async void test(){
+            //延迟500ms，让它可以完整地先显示出进度条，否则进度条显示动画也会卡住, 此多线程效果和上面的task.run的效果相同
+            //await Task.Delay(500);  
+            //showTimeView(); 
+            //closeDialog();
+        }
         private async void TimeObjType_SelectionChanged(object a)
         {
             if (SelectedTimeObj.Type!=a.ToString())

@@ -125,9 +125,9 @@ namespace Summary.Models
                 MainContent = SummaryUserControl;
                 ResetColor();
                 SummaryBtnForegroundColor = palette.Color.ToString();
-                SummaryModel.initTypeCombobox();
-                SummaryModel.RefreshSingleDayRadioButtons();
-                 SummaryModel.clickOkButton();
+                //SummaryModel.initTypeCombobox();
+                //SummaryModel.RefreshSingleDayRadioButtons();
+                //SummaryModel.clickOkButton();
             }else if(o.ToString() == "ColorTool")
             {
                 MainContent = ColorTool;

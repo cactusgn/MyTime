@@ -185,7 +185,7 @@ namespace Summary.Data
             using (var context = new MytimeContext())
             {
                 if(string.IsNullOrEmpty(obj.Note)){
-                    obj.Note = "休息";
+                    return 0;
                 }
                 var findTodoItem = context.ToDos.Where(x => x.Note == obj.Note);
                 if (findTodoItem.Count()>0)

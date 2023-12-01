@@ -104,7 +104,7 @@ namespace Summary.Models
             OpenPage("RecordPageUserControl");
         }
         
-        private async void OpenPage(object o)
+        private  void OpenPage(object o)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;

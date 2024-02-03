@@ -46,11 +46,14 @@ namespace Summary
                 this.Hide();
                 Helper.MiniWindowShow = false;
                 mainWindow.Topmost = false;
+                mainWindow.ShowInTaskbar = true;
+                mainWindow.notifyIcon.Visible = false;
                 mainWindow.Show();
             };
             btnMinimize.Click += (s, e) =>
             {
                 this.WindowState = WindowState.Minimized;
+                mainWindow.ShowInTaskbar = false;
             };
             this.Deactivated += (s, e) =>
             {
@@ -117,7 +120,7 @@ namespace Summary
                 model.ToggleIcon = "Pause";
                 recordModel.EndbtnEnabled = true;
                 recordModel.StartbtnEnabled = false;
-                model.WorkContent = Helper.WorkContent;
+                model.WorkContent =  $"{Helper.WorkContent}({Helper.EstimateTime}h)";
             }
             else
             {

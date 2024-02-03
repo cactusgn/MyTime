@@ -23,6 +23,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Interop;
+using System.Windows.Forms;
 
 namespace Summary
 {
@@ -33,16 +34,47 @@ namespace Summary
     {
         double normalTop = 0;
         double normalLeft = 0;
+        public NotifyIcon notifyIcon;
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
             this.DataContext = mainModel;
 
+            this.notifyIcon = new NotifyIcon();
+            this.notifyIcon.Text = "Time Recorder";
+            this.notifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
+            this.notifyIcon.Visible = true;
+
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
             MiniModel miniModel = new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext));
             MinimizeWindow minimizeWindow = new MinimizeWindow(this, miniModel, (RecordModel)(mainModel.RecordPageUserControl.DataContext));
-            
+
+            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler((o, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    minimizeWindow.Hide();
+                    Helper.MiniWindowShow = false;
+                    this.notifyIcon.Visible = false;
+                    this.ShowInTaskbar = true;
+                    this.WindowState = WindowState.Normal;
+                    this.Show();
+                }
+            });
+            this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler((o, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    this.Hide();
+                    Helper.MiniWindowShow = true;
+                    this.ShowInTaskbar = false;
+                    this.notifyIcon.Visible = true;
+                    minimizeWindow.Topmost = true;
+                    minimizeWindow.WindowState = WindowState.Normal;
+                }
+            });
+
             btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
             btnMax.Click += (s, e) => {
                 if (this.WindowState == WindowState.Maximized)
@@ -85,10 +117,12 @@ namespace Summary
                 this.Hide();
                 Helper.MiniWindowShow = true;
                 
+                this.notifyIcon.Visible = true;
+
                 if (Helper.WorkMode)
                 {
                     ((MiniModel)minimizeWindow.DataContext).ToggleIcon = "Pause";
-                    ((MiniModel)minimizeWindow.DataContext).WorkContent = Helper.WorkContent;
+                    ((MiniModel)minimizeWindow.DataContext).WorkContent = $"{Helper.WorkContent}({Helper.EstimateTime}h)";
                 }
                 else
                 {
@@ -101,7 +135,10 @@ namespace Summary
                 {
                     model.WorkFontSize-=1;
                 }
+                this.ShowInTaskbar = false;
+                minimizeWindow.ShowInTaskbar = false;
                 minimizeWindow.Show();
+                
             };
             ColorZone.MouseDoubleClick += (s, e) =>
             {
@@ -120,8 +157,8 @@ namespace Summary
             };
             
         }
+        #region "monitor settings"
 
-       
         // Rectangle (used by MONITORINFOEX)
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect {
@@ -219,5 +256,6 @@ namespace Summary
 
             window.WindowState = WindowState.Maximized;
         }
+        #endregion
     }
 }

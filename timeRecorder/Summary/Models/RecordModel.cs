@@ -36,7 +36,13 @@ namespace Summary.Models
         public ComboBox TodoToday { get; set; }
         public TextBox TodoTodayTextbox { get; set; }
         private double height;
-        
+
+        public decimal EstimateTime
+        {
+            get { return Helper.EstimateTime; }
+            set { Helper.EstimateTime = value; OnPropertyChanged(); }
+        }
+
         private double rightPanelHeight;
         public double RightPanelHeight
         {
@@ -182,6 +188,7 @@ namespace Summary.Models
         public MyCommand TipTextPreviewMouseUpCommand { get; set; }
         public MyCommand TodoTodaySelectionChangeCommand { get; set; }
         public MyCommand SummaryRBChangedCommand { get; set; }
+        public MyCommand EstimateContentChangeCommand { get; set; }
         public MyCommand DownKey_Command { get; set; }
         public MyCommand UpKey_Command { get; set; }
         public TimeViewObj SelectedTimeObj
@@ -229,6 +236,7 @@ namespace Summary.Models
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
 
         public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
+        public Dictionary<string,decimal> EstimateDic=new Dictionary<string,decimal>();
         public bool ClickUpOrDown =false;
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
@@ -258,6 +266,7 @@ namespace Summary.Models
             TipTextPreviewMouseUpCommand = new MyCommand(TipTextPreviewMouseUp);
             TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
+            EstimateContentChangeCommand = new MyCommand(EstimateContentChange);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
@@ -266,6 +275,21 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+
+        private void EstimateContentChange(object obj)
+        {
+            if (!string.IsNullOrEmpty(workContent))
+            {
+                if (EstimateDic.ContainsKey(workContent))
+                {
+                    EstimateDic[workContent] = decimal.Parse(obj.ToString());
+                }
+                else
+                {
+                    EstimateDic.Add(workContent, decimal.Parse(obj.ToString()));
+                }
+            }
         }
 
         private void UpKeySub(object obj)
@@ -604,6 +628,17 @@ namespace Summary.Models
         {
             calculateAccuTime();
             Helper.WorkContent = WorkContent;
+            if (!string.IsNullOrEmpty(workContent))
+            {
+                if (EstimateDic.ContainsKey(workContent))
+                {
+                    EstimateTime = EstimateDic[workContent];
+                }
+                else
+                {
+                    EstimateTime = 0;
+                }
+            }
         }
 
         private void SingleDayRBChanged(object obj)

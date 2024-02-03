@@ -29,6 +29,7 @@ namespace Summary.Common.Utils
         public static TimeSpan intervalRemindTimeSpan = new TimeSpan(0,2,0);
         public static TimeSpan TickTime;
         public static string WorkContent;
+        public static decimal EstimateTime;
         public static bool WorkMode;
         public static bool MiniWindowShow = false;
         public static ObservableCollection<string> TestCategory = new ObservableCollection<string>();

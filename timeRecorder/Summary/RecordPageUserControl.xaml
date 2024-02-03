@@ -31,15 +31,15 @@
                                        DialogClosing="DialogHost2_DialogClosing"
                                         DialogClosed="DialogHost2_DialogClosed">
         <Grid  Background="{DynamicResource MaterialDesignCardBackground}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" MinWidth="280"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
-            <ColumnDefinition Width="3*" MinWidth="420"></ColumnDefinition>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
-            <ColumnDefinition Width="2*" MinWidth="280"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
-            <TextBlock DockPanel.Dock="Top" Margin="10,10">Today:</TextBlock>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" MinWidth="280"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="3*" MinWidth="420"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="2*" MinWidth="280"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}">
+                <TextBlock DockPanel.Dock="Top" Margin="10,10">Today:</TextBlock>
                 <Grid Margin="10,5" DockPanel.Dock="Top" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
@@ -85,97 +85,97 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ComboBox>
-                    
-                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="Yellow" Width="20" Height="20" Margin="5,0,0,0" Visibility="Collapsed">
-                        
-                    </TextBlock>
-           </Grid>
-             
 
-                    <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" ScrollViewer.CanContentScroll="True"
+                    <TextBlock Grid.Column="1" DockPanel.Dock="Right" Background="Yellow" Width="20" Height="20" Margin="5,0,0,0" Visibility="Collapsed">
+
+                    </TextBlock>
+                </Grid>
+
+
+                <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" ScrollViewer.CanContentScroll="True"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                          SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationAccentListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
-                
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction 
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction 
                             CommandParameter="{Binding }"
                             Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                
-                <ListBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Delete" Command="{Binding DeleteContextMenu_ClickCommand}" />
-                    </ContextMenu>
-                </ListBox.ContextMenu>
-             
-                <ListBox.ItemTemplate>
-                    <ItemContainerTemplate>
-                        <Border x:Name="todayborder"  >
-                            <StackPanel Orientation="Horizontal" >
-                                <CheckBox Margin="0,0,8,0" IsChecked="{Binding Finished}" Background="DimGray" >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Checked">
-                                            <i:InvokeCommandAction 
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Delete" Command="{Binding DeleteContextMenu_ClickCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+
+                    <ListBox.ItemTemplate>
+                        <ItemContainerTemplate>
+                            <Border x:Name="todayborder"  >
+                                <StackPanel Orientation="Horizontal" >
+                                    <CheckBox Margin="0,0,8,0" IsChecked="{Binding Finished}" Background="DimGray" >
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Checked">
+                                                <i:InvokeCommandAction 
                                 CommandParameter="{Binding }"
                                 Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="Unchecked">
-                                            <i:InvokeCommandAction 
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="Unchecked">
+                                                <i:InvokeCommandAction 
                                 CommandParameter="{Binding }"
                                 Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </CheckBox>
-                                <TextBlock Text="{Binding Note}" TextDecorations="{Binding TextDecorations}">
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-                        
-                    </ItemContainerTemplate>
-                    
-                </ListBox.ItemTemplate>
-            </ListBox>
-            
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </CheckBox>
+                                    <TextBlock Text="{Binding Note}" TextDecorations="{Binding TextDecorations}">
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+
+                        </ItemContainerTemplate>
+
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
             </DockPanel>
-        <GridSplitter HorizontalAlignment="Center"   
+            <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="1"   
                       Width="1" Background="Silver">
-        </GridSplitter>
-        <StackPanel x:Name="MiddlePanel" Grid.Column="2" Margin="40,10" >
-            <StackPanel x:Name="MiddleUpPanel">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock>间隔时间：</TextBlock>
-                    <TextBlock Text="{Binding TickTime}"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,10">
-                    <Button
+            </GridSplitter>
+            <StackPanel x:Name="MiddlePanel" Grid.Column="2" Margin="40,10" >
+                <StackPanel x:Name="MiddleUpPanel">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>间隔时间：</TextBlock>
+                        <TextBlock Text="{Binding TickTime}"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10">
+                        <Button
                       Style="{StaticResource MaterialDesignIconForegroundButton}" IsEnabled="{Binding StartbtnEnabled}"
                       ToolTip="开始" Margin="10,0"  Width="50" Height="50" Command="{Binding StartCommand}" Cursor="Hand">
-                                            <materialDesign:PackIcon
+                            <materialDesign:PackIcon
                         Kind="Play" Foreground="Green" Width="45" Height="45"/>
-                    </Button>
-                    <Button
+                        </Button>
+                        <Button
                       Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding EndCommand}"
                       ToolTip="停止" Margin="10,0"  Width="50" Height="50" IsEnabled="{Binding EndbtnEnabled}">
-                        <materialDesign:PackIcon
+                            <materialDesign:PackIcon
                         Kind="StopCircleOutline" Foreground="IndianRed"  Width="40" Height="40"/>
-                    </Button>
-                    <Button
+                        </Button>
+                        <Button
                       Style="{StaticResource MaterialDesignIconForegroundButton}"  Command="{Binding ImportCommand}"
                       ToolTip="导入" Margin="10,0"  Width="50" Height="50">
-                        <materialDesign:PackIcon
+                            <materialDesign:PackIcon
                         Kind="DownloadOutline"  Foreground="LightBlue"  Width="40" Height="40"/>
-                    </Button>
-                    <Button
+                        </Button>
+                        <Button
                       Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding ExportCommand}"
                       ToolTip="导出" Margin="10,0"  Width="50" Height="50">
-                        <materialDesign:PackIcon
+                            <materialDesign:PackIcon
                         Kind="UploadOutline" Foreground="LightBlue"  Width="40" Height="40"/>
-                    </Button>
+                        </Button>
                         <Button
                       Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding DeleteAllCommand}"
                       ToolTip="删除今日所有时间块" Margin="10,0"  Width="50" Height="50">
@@ -183,35 +183,53 @@
                         Kind="Delete" Foreground="DimGray"  Width="40" Height="40"/>
                         </Button>
                     </StackPanel>
-                <StackPanel>
-                    <Grid >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"></ColumnDefinition>
-                            <ColumnDefinition Width="auto"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="35"></RowDefinition>
-                            <RowDefinition Height="35"></RowDefinition>
-                            <RowDefinition Height="35"></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <TextBlock  VerticalAlignment="Center">工作内容：</TextBlock>
-                        <TextBox Grid.Column="1"  VerticalAlignment="Center" Width="300" Text="{Binding WorkContent, UpdateSourceTrigger=LostFocus}" >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="LostFocus">
-                                        <i:InvokeCommandAction 
+                    <StackPanel>
+                        <Grid >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="35"></RowDefinition>
+                                <RowDefinition Height="35"></RowDefinition>
+                                <RowDefinition Height="35"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <TextBlock  VerticalAlignment="Center">工作内容：</TextBlock>
+                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                                <TextBox Grid.Column="1" HorizontalAlignment="Left"  VerticalAlignment="Center" Width="180" Text="{Binding WorkContent, UpdateSourceTrigger=LostFocus}" >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction 
                                         CommandParameter="{Binding }"
                                         Command="{Binding DataContext.WorkContentChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox}}"></i:InvokeCommandAction>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TextBox>
-                        <TextBlock Grid.Row="1"  VerticalAlignment="Center">间隔提醒：</TextBlock>
-                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1"  VerticalAlignment="Center">
-                            <TextBox Width="50" TextAlignment="Center"  VerticalAlignment="Center" >
-                                <Binding Path="Interval" UpdateSourceTrigger="PropertyChanged">
-                                    <Binding.ValidationRules>
-                                        <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
-                                    </Binding.ValidationRules>
-                                </Binding>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </TextBox>
+                                <TextBlock  Text="预计：" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7,0,0,0"/>
+                                <TextBox Name="EstimateTextbox" Grid.Column="1"  VerticalAlignment="Center" Width="50" TextAlignment="Center">
+                                    <Binding Path="EstimateTime" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction 
+                                        CommandParameter="{Binding ElementName=EstimateTextbox,Path=Text}"
+                                        Command="{Binding DataContext.EstimateContentChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </TextBox>
+                                <TextBlock  Text="h" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1"  VerticalAlignment="Center">间隔提醒：</TextBlock>
+                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1"  VerticalAlignment="Center">
+                                <TextBox Width="50" TextAlignment="Center"  VerticalAlignment="Center" >
+                                    <Binding Path="Interval" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="LostFocus">
                                             <i:InvokeCommandAction 
@@ -220,12 +238,12 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </TextBox>
-                            <TextBlock Margin="10,0,20,0" VerticalAlignment="Center">分钟</TextBlock>
-                            <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center" VerticalContentAlignment="Bottom" IsChecked="{Binding AccumulateModeCheck}" Command="{Binding AccumulateModeCheckChangedCommand}">累计模式</CheckBox>
-                        </StackPanel>
-                        <TextBlock  Grid.Row="2" VerticalAlignment="Center">slogan:</TextBlock>
+                                <TextBlock Margin="10,0,20,0" VerticalAlignment="Center">分钟</TextBlock>
+                                <CheckBox HorizontalAlignment="Left" Margin="20,0" VerticalAlignment="Center" VerticalContentAlignment="Bottom" IsChecked="{Binding AccumulateModeCheck}" Command="{Binding AccumulateModeCheckChangedCommand}">累计模式</CheckBox>
+                            </StackPanel>
+                            <TextBlock  Grid.Row="2" VerticalAlignment="Center">slogan:</TextBlock>
 
-                        <TextBox Grid.Row="2" Grid.Column="1" Width="300"  HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Slogan}">
+                            <TextBox Grid.Row="2" Grid.Column="1" Width="300"  HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Slogan}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="LostFocus">
                                         <i:InvokeCommandAction 
@@ -234,19 +252,19 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </TextBox>
-                        
-                    </Grid>
+
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
 
                 <StackPanel x:Name="MiddleBottomPanel" Margin="0,20,0,0">
-                    
+
                     <TabControl materialDesign:ColorZoneAssist.Mode="PrimaryMid"
                         Style="{StaticResource MaterialDesignFilledTabControl}">
                         <TabItem Header="当天总计" >
                             <DockPanel  Height="{Binding GridHeight}" >
                                 <WrapPanel DockPanel.Dock="Top" Margin="0,10,0,10" Orientation="Horizontal" x:Name="TypeRadioGroupPanel">
-                                 
+
                                 </WrapPanel>
                                 <DockPanel DockPanel.Dock="Top" >
                                     <ScottPlot:WpfPlot  x:Name="SingleDayPlot" />
@@ -254,7 +272,7 @@
                             </DockPanel>
                         </TabItem>
                         <TabItem Header="列表">
-                                <DataGrid MaxHeight="{Binding GridHeight}"
+                            <DataGrid MaxHeight="{Binding GridHeight}"
                                   ScrollViewer.CanContentScroll="True"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -296,126 +314,126 @@
                                                             SelectedItemBinding="{Binding Type,UpdateSourceTrigger=PropertyChanged}">
                                     </DataGridComboBoxColumn>
                                     <DataGridTextColumn Header="Note" Binding="{Binding Note,UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
-                                    
+
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
                     </TabControl>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
-        <GridSplitter HorizontalAlignment="Center"   
+            <GridSplitter HorizontalAlignment="Center"   
                       VerticalAlignment="Stretch"   
                       Grid.Column="3"   
                       Width="1" Background="Silver">
-        </GridSplitter>
-          
-                <DockPanel x:Name="RightPanel" Margin="0,10,0,0" Grid.Column="4" SizeChanged="RightPanel_SizeChanged">
+            </GridSplitter>
+
+            <DockPanel x:Name="RightPanel" Margin="0,10,0,0" Grid.Column="4" SizeChanged="RightPanel_SizeChanged">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" DockPanel.Dock="Right">
-            <StackPanel Width="100" Margin="0,10,20,10" VerticalAlignment="Center" CanVerticallyScroll="True">
-                <DockPanel  Margin="10,0,10,0">
-                    <Button DockPanel.Dock="Left"  Width="25" Height="25" Margin="5" Command="{Binding ResizeCommand}" CommandParameter="amplify"
+                    <StackPanel Width="100" Margin="0,10,20,10" VerticalAlignment="Center" CanVerticallyScroll="True">
+                        <DockPanel  Margin="10,0,10,0">
+                            <Button DockPanel.Dock="Left"  Width="25" Height="25" Margin="5" Command="{Binding ResizeCommand}" CommandParameter="amplify"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 ToolTip="放大">
-                        <!--<materialDesign:PackIcon Kind="Alarm" />--> +
-                    </Button>
-                    <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
+                                <!--<materialDesign:PackIcon Kind="Alarm" />--> +
+                            </Button>
+                            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding ResizeCommand}" CommandParameter="shrink"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
                 ToolTip="缩小">
-                        <!--<materialDesign:PackIcon Kind="Alarm" />--> -
-                    </Button>
-                </DockPanel>
-                <Button Margin="10" VerticalAlignment="Center"  Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
+                                <!--<materialDesign:PackIcon Kind="Alarm" />--> -
+                            </Button>
+                        </DockPanel>
+                        <Button Margin="10" VerticalAlignment="Center"  Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}" ToolTip="切分时间块" IsEnabled="{Binding SelectedTimeObj.IsEnabled}" Command="{Binding SplitButtonClickCommand}">
-                    <materialDesign:PackIcon
+                            <materialDesign:PackIcon
                                                     Width="30"
                                                     Height="20"
                                                     Kind="CallSplit" />
-                </Button>
+                        </Button>
                         <DockPanel  Margin="10,0,10,0"  DockPanel.Dock="Right">
-                        <Button  Width="25" Height="25" Margin="5" Command="{Binding MergeCommand}" CommandParameter="up"
+                            <Button  Width="25" Height="25" Margin="5" Command="{Binding MergeCommand}" CommandParameter="up"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 ToolTip="向上合并">
-                            <materialDesign:PackIcon Kind="ArrowUp" />
-                        </Button>
-                        <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding MergeCommand}" CommandParameter="down"
+                                <materialDesign:PackIcon Kind="ArrowUp" />
+                            </Button>
+                            <Button DockPanel.Dock="Right" Width="25" Height="25" Margin="5"  Command="{Binding MergeCommand}" CommandParameter="down"
                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
                 ToolTip="向下合并">
-                            <materialDesign:PackIcon Kind="ArrowDown" />
-                        </Button>
-                    </DockPanel>
+                                <materialDesign:PackIcon Kind="ArrowDown" />
+                            </Button>
+                        </DockPanel>
                         <StackPanel  x:Name="rightButtonPanel"></StackPanel>
-            </StackPanel>
+                    </StackPanel>
                 </ScrollViewer>
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                <StackPanel DockPanel.Dock="Left" >
-               
-                    <StackPanel Width="200" Margin="0,0,0,10"  HorizontalAlignment="Center" Orientation="Horizontal">
-                    <!--<DataGrid x:Name="DataList"/>-->
-                    <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel  IsVirtualizing="True"
+                    <StackPanel DockPanel.Dock="Left" >
+
+                        <StackPanel Width="200" Margin="0,0,0,10"  HorizontalAlignment="Center" Orientation="Horizontal">
+                            <!--<DataGrid x:Name="DataList"/>-->
+                            <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Path=AllTimeViewObjs}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel  IsVirtualizing="True"
                               VirtualizationMode="Recycling" Orientation="Horizontal"/>
-                                <!--<StackPanel Orientation="Horizontal"/>-->
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                                        <!--<StackPanel Orientation="Horizontal"/>-->
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
 
-                                <StackPanel Orientation="Vertical" Width="170">
+                                        <StackPanel Orientation="Vertical" Width="170">
 
-                                    <Border  Margin="0,5,0,1"  CornerRadius="6" >
-                                        <Button Content="{Binding Title}" Background="LightSalmon" Padding="2" BorderBrush="LightSalmon" Foreground="White"></Button>
-                                    </Border>
-                                    <Border  Margin="0,0,0,1"    CornerRadius="6" >
-                                        <Button Content="{Binding Week}" Padding="2" Background="{Binding Color}" FontSize="12" BorderBrush="{Binding Color}" Foreground="White"></Button>
-                                    </Border>
-                                    <ItemsControl ItemsSource="{Binding DailyObjs}" >
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Vertical"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border >
+                                            <Border  Margin="0,5,0,1"  CornerRadius="6" >
+                                                <Button Content="{Binding Title}" Background="LightSalmon" Padding="2" BorderBrush="LightSalmon" Foreground="White"></Button>
+                                            </Border>
+                                            <Border  Margin="0,0,0,1"    CornerRadius="6" >
+                                                <Button Content="{Binding Week}" Padding="2" Background="{Binding Color}" FontSize="12" BorderBrush="{Binding Color}" Foreground="White"></Button>
+                                            </Border>
+                                            <ItemsControl ItemsSource="{Binding DailyObjs}" >
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Vertical"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border >
 
-                                                    <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
-                                                        <i:Interaction.Triggers>
-                                                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                                                <i:InvokeCommandAction 
+                                                            <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                                        <i:InvokeCommandAction 
                                                                         CommandParameter="{Binding }"
                                                                         Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
-                                                            </i:EventTrigger>
+                                                                    </i:EventTrigger>
                                                                     <i:EventTrigger EventName="LostFocus">
                                                                         <i:InvokeCommandAction 
                                                                         CommandParameter="{Binding }"
                                                                         Command="{Binding DataContext.TextBoxLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>
                                                                     </i:EventTrigger>
-                                                        </i:Interaction.Triggers>
-                                                    </TextBox>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <!--<Border Width="1" Background="{DynamicResource MaterialDesignBody}" Margin="1,75,1,5"></Border>-->
-                </StackPanel>
-                
-            </StackPanel>
-            </ScrollViewer>
-        </DockPanel>
-    </Grid>
+                                                                </i:Interaction.Triggers>
+                                                            </TextBox>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!--<Border Width="1" Background="{DynamicResource MaterialDesignBody}" Margin="1,75,1,5"></Border>-->
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Grid>
     </materialDesign:DialogHost>
 </UserControl>

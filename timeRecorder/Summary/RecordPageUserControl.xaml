@@ -207,7 +207,7 @@
                                 </TextBox>
                                 <TextBlock  Text="预计：" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7,0,0,0"/>
                                 <TextBox Name="EstimateTextbox" Grid.Column="1"  VerticalAlignment="Center" Width="50" TextAlignment="Center">
-                                    <Binding Path="EstimateTime" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding Path="EstimateTime" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <domain:NumberValidationRule ValidatesOnTargetUpdated="True" />
                                         </Binding.ValidationRules>

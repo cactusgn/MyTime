@@ -8,3 +8,16 @@
 使用说明：https://d0xqrce990n.feishu.cn/docx/OzRFd2qYDo9B7ZxeHwrcQFsynGh
 
 使用视频：https://www.bilibili.com/video/BV1W8411y7Ra/?spm_id_from=333.1350.jump_directly
+
+当天时间记录：
+<img src="[https://img1.doubanio.com/view/group_topic/l/public/p640201184.webp](https://img9.doubanio.com/view/group_topic/l/public/p640201184.webp)" alt="当天时间记录"  />
+
+桌面模式：
+<img src="https://img9.doubanio.com/view/group_topic/l/public/p640201116.webp" />
+
+日历图：
+<img src="![image](https://github.com/cactusgn/MyTime/assets/20716742/9b1ed7de-abbd-4376-8d46-784f6752643c)" alt="时间统计"  />
+
+查询图：
+![image](https://github.com/cactusgn/MyTime/assets/20716742/2adf3d72-5033-48b4-9daa-a9a748441a1e)
+

@@ -93,12 +93,12 @@
 
 
                 <ListBox Name="TodayListbox" ItemsSource="{Binding TodayList}" ScrollViewer.CanContentScroll="True"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto" 
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                         SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationAccentListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
+                         SelectedItem="{Binding SelectedListItem}"  Style="{StaticResource MaterialDesignNavigationListBox}" materialDesign:ListBoxItemAssist.ShowSelection="False">
 
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
+                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                             <i:InvokeCommandAction 
                             CommandParameter="{Binding }"
                             Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>

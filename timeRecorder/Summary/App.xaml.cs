@@ -43,7 +43,13 @@ namespace Summary
                     Console.WriteLine(ex);
                 }
             }
-            
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+        }
+        void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show(e.Exception.ToString());
+            e.Handled = true;
+            // throw new NotImplementedException();
         }
         private void ConfiguratioHostServices(HostBuilderContext hostBuilder, IServiceCollection services)
         {

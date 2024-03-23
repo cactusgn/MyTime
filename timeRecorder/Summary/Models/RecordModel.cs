@@ -803,6 +803,13 @@ namespace Summary.Models
                     type = item.First().Type;
                     taskId = item.First().Id;
                 }
+                else
+                {
+                    var findTask = SQLCommands.QueryTodo(WorkContent);
+                    int typeId = findTask!=null ? findTask.TypeId : 0;
+                    type = IdCategoryDic.ContainsKey(typeId) ? IdCategoryDic[typeId] : "none";
+                    taskId = findTask==null ? 0 : findTask.Id;
+                }
             }
             var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record", taskId);
             await SQLCommands.AddObj(newObj);

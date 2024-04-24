@@ -1,15 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Summary.Common.Utils;
 using Summary.Data;
 using Summary.Domain;
 using Summary.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -21,6 +26,17 @@ namespace Summary
     public partial class App : Application
     {
         IHost _host;
+        [DllImport("user32", CharSet = CharSet.Unicode)]
+        static extern IntPtr FindWindow(string cls, string win);
+        [DllImport("user32")]
+        static extern IntPtr SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32")]
+        static extern bool IsIconic(IntPtr hWnd);
+        [DllImport("user32", SetLastError = true)]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32")]
+        static extern bool OpenIcon(IntPtr hWnd);
+        private static Mutex mutex = null;
         public App()
         {
             _host = Host.CreateDefaultBuilder().ConfigureServices(ConfiguratioHostServices).Build();
@@ -66,12 +82,35 @@ namespace Summary
         }
         protected override void OnStartup(StartupEventArgs e)
         {
+            const string appName = "TimeRecorder";
+            bool createdNew;
+
+            mutex = new Mutex(true, appName, out createdNew);
+
+            if (!createdNew)
+            {
+                // 应用程序的另一个实例已经在运行
+                //MessageBox.Show("应用程序已在运行。");
+                ActivateOtherWindow();
+                Current.Shutdown(); // 关闭当前实例
+                return;
+            }
             _host?.Start();
-            MainWindow? window = _host?.Services.GetRequiredService<MainWindow>();
-            window?.Show();
+            Helper.MainWindow = _host?.Services.GetRequiredService<MainWindow>();
+            Helper.MainWindow?.Show();
             base.OnStartup(e);
         }
-        
+        private static void ActivateOtherWindow()
+        {
+            IntPtr Minimize = FindWindow(null, "MinimizeWindow");
+            if (Minimize != IntPtr.Zero)
+            {
+                SetForegroundWindow(Minimize);
+                var success = ShowWindow(Minimize, 5);
+                if (IsIconic(Minimize))
+                    OpenIcon(Minimize);
+            }
+        }
         protected override async void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);

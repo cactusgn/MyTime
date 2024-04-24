@@ -35,6 +35,7 @@ namespace Summary
         double normalTop = 0;
         double normalLeft = 0;
         public NotifyIcon notifyIcon;
+        public MinimizeWindow minimizeWindow;
         public MainWindow(MainModel mainModel)
         {
             InitializeComponent();
@@ -48,7 +49,7 @@ namespace Summary
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             this.MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
             MiniModel miniModel = new MiniModel((RecordModel)(mainModel.RecordPageUserControl.DataContext));
-            MinimizeWindow minimizeWindow = new MinimizeWindow(this, miniModel, (RecordModel)(mainModel.RecordPageUserControl.DataContext));
+            minimizeWindow= new MinimizeWindow(this, miniModel, (RecordModel)(mainModel.RecordPageUserControl.DataContext));
 
             this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler((o, e) =>
             {

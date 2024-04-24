@@ -54,6 +54,7 @@ namespace Summary
             {
                 this.WindowState = WindowState.Minimized;
                 mainWindow.ShowInTaskbar = false;
+               
             };
             this.Deactivated += (s, e) =>
             {

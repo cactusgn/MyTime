@@ -40,6 +40,7 @@ namespace Summary.Common.Utils
         public static List<Category> allcategories = new List<Category>();
         public static bool displayInvisibleItems = false;
         public static Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
+        public static MainWindow MainWindow;
         //public static RecordModel recordModel;
         public static int getMaxDepth(int currDepth, int findCategoryId)
         {

@@ -52,9 +52,10 @@ namespace Summary
             };
             btnMinimize.Click += (s, e) =>
             {
+                this.ShowInTaskbar = true;
                 this.WindowState = WindowState.Minimized;
+                this.ShowInTaskbar = false;
                 mainWindow.ShowInTaskbar = false;
-               
             };
             this.Deactivated += (s, e) =>
             {

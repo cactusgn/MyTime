@@ -97,6 +97,7 @@ namespace Summary.Models
         public MyCommand Enter_ClickCommand { get; set; }
         public MyCommand DeleteContextMenu_ClickCommand { get; set; }
         public MyCommand TodayListBoxSelectionChangeCommand { get; set; }
+        public MyCommand TodayListBoxRightClickCommand { get; set; }
         public MyCommand CheckChangedCommand { get; set; }
         public MyCommand SelectedCommand { get; set; }
         public MyCommand UpdateTypeCommand { get; set; }
@@ -244,6 +245,7 @@ namespace Summary.Models
             UpKey_Command = new MyCommand(UpKeySub);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
+            TodayListBoxRightClickCommand = new MyCommand(TodayListBoxRightClick);
             CheckChangedCommand = new MyCommand(CheckChanged);
             SelectedCommand = new MyCommand(Selected);
             UpdateTypeCommand = new MyCommand(UpdateType);
@@ -275,6 +277,14 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+
+        private void TodayListBoxRightClick(object obj)
+        {
+            if (SelectedListItem != null)
+            {
+                currentObj = SelectedListItem;
+            }
         }
 
         private void EstimateContentChange(object obj)

@@ -274,7 +274,7 @@ namespace Summary.Common.Utils
                     }
                     if (TimeObj.type==null)
                     {
-                        TimeObj.type = "";
+                        TimeObj.type = "none";
                     }
                     if (startTimeSpan>=Helper.GlobalStartTimeSpan)
                     {

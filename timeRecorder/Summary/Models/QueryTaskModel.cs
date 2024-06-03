@@ -168,7 +168,7 @@ namespace Summary.Models
         private void updateSubContextMenu(List<Category> Categories, System.Windows.Controls.MenuItem currentNode, int id)
         {
             var subCategories = Categories.Where(x => x.ParentCategoryId == id).ToList();
-            if(subCategories.Count == 0) {
+            if(subCategories.Where(x=>x.Visible==true).Count() == 0) {
                 currentNode.Click += updateCurrentSelectedCategory;
             }
             

@@ -821,6 +821,7 @@ namespace Summary.Models
                     taskId = findTask==null ? 0 : findTask.Id;
                 }
             }
+            
             var newObj = Helper.CreateNewTimeObj(WorkStartTime,Helper.getCurrentTime(), WorkContent, DateTime.Today, type, lastIndex, height, "record", taskId);
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, type.ToString());
@@ -881,6 +882,10 @@ namespace Summary.Models
                 int typeId = findTask!=null?findTask.TypeId:0;
                 string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
                 int taskId = findTask==null? 0:findTask.Id;
+                if (type != "none")
+                {
+                    DebugMessage("5----" + type);
+                }
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);
                 Helper.UpdateColor(newObj, type.ToString());
@@ -894,6 +899,10 @@ namespace Summary.Models
                     GeneratedToDoTask findTask = SQLCommands.QueryTodo(Helper.RestContent);
                     int taskId = findTask==null ? 0 : findTask.Id;
                     string type = Helper.IdCategoryDic[findTask!=null ? findTask.TypeId : 0];
+                    if (type != "none")
+                    {
+                        DebugMessage("6----" + type);
+                    }
                     var newObj = Helper.CreateNewTimeObj(Helper.GlobalStartTimeSpan, WorkStartTime, Helper.RestContent, DateTime.Today, type, 1, height, "record", taskId);
                     await SQLCommands.AddObj(newObj);
                     Helper.UpdateColor(newObj, type);
@@ -1040,6 +1049,10 @@ namespace Summary.Models
                     if(Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
                         type = Helper.IdCategoryDic[findTask.TypeId];
                 }
+                if (content1==Helper.RestContent&&type != "none")
+                {
+                    DebugMessage("8----" + type);
+                }
                 var newTimeObj1 = Helper.CreateNewTimeObj(selectedTimeObj.StartTime, SplitTime, content1, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId:taskId);
                 Helper.UpdateColor(newTimeObj1, type);
                 lastIndex++;
@@ -1057,6 +1070,10 @@ namespace Summary.Models
                         if(Helper.IdCategoryDic.ContainsKey(findTask.TypeId))
                             type = Helper.IdCategoryDic[findTask.TypeId];
                     }
+                }
+                if (content2 == Helper.RestContent && type != "none")
+                {
+                    DebugMessage("7----" + type);
                 }
                 var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId: taskId);
                 

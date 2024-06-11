@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -42,6 +43,13 @@ namespace Summary.Common.Utils
         public static Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
         public static MainWindow MainWindow;
         //public static RecordModel recordModel;
+        public static void DebugMessage(String name)
+        {
+            FileStream fs = new FileStream(@"C:\temp\timerecorder_debug.txt", FileMode.Append, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine(DateTime.Now.ToString() + " " + name);
+            sw.Dispose();
+        }
         public static int getMaxDepth(int currDepth, int findCategoryId)
         {
             List<Category> allSubCategories = new List<Category>();
@@ -252,6 +260,9 @@ namespace Summary.Common.Utils
                             int taskId = findTask==null ? 0 : findTask.Id;
                             int typeId = findTask!=null?findTask.TypeId:0;
                             string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
+                            if(type!="none"){
+                                DebugMessage("1----"+type);
+                            }
                             TimeViewObj startTimeObj = CreateNewTimeObj(tempStart, TimeObj.startTime, Helper.RestContent, currentDate, type, lastIndex,height, taskId: taskId);
                             await SQLCommands.AddObj(startTimeObj);
                             UpdateColor(startTimeObj, type);
@@ -260,6 +271,9 @@ namespace Summary.Common.Utils
                         else if(startTimeSpan < tempStart)
                         {
                             //split first time obj into 2 time objs, delete the item and add the second time obj to the view
+                            if(TimeObj.note == Helper.RestContent&& TimeObj.type!="none"){
+                                DebugMessage("2----" + TimeObj.type);
+                            }
                             TimeViewObj firstSplitItem = CreateNewTimeObj(startTimeSpan, tempStart, TimeObj.note, currentDate, TimeObj.type, lastIndex, height, taskId: TimeObj.taskId);
                             await SQLCommands.AddObj(firstSplitItem);
                             UpdateColor(firstSplitItem, TimeObj.type);
@@ -286,6 +300,10 @@ namespace Summary.Common.Utils
                         timeViewObj.EndTime = TimeObj.endTime;
                         timeViewObj.Type = TimeObj.type.Trim()=="" ? "none" : TimeObj.type.Trim();
                         timeViewObj.Id = TimeObj.currentIndex;
+                        if (TimeObj.note == Helper.RestContent && TimeObj.type != "none")
+                        {
+                            DebugMessage("3----" + TimeObj.type);
+                        }
                         UpdateColor(timeViewObj, TimeObj.type.Trim());
                     }
                     currentDateTemplate.DailyObjs.Add(timeViewObj);
@@ -299,6 +317,10 @@ namespace Summary.Common.Utils
                     int taskId = findTask==null ? 0 : findTask.Id;
                     int typeId = findTask!=null?findTask.TypeId:0;
                     string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
+                    if ( type != "none")
+                    {
+                        DebugMessage("4----" + type);
+                    }
                     TimeViewObj startTimeObj = CreateNewTimeObj(endTimeSpan, tempEndTime, RestContent, currentDate, type, lastIndex, height, taskId: taskId);
                     UpdateColor(startTimeObj, type);
                     await SQLCommands.AddObj(startTimeObj);

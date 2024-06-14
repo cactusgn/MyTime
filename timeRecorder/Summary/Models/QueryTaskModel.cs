@@ -284,6 +284,7 @@ namespace Summary.Models
                 //check again if some time objs are created on second day while the task is created on previous day
                 foreach (MyTime TimeObj in SummaryAllTimeObjs)
                 {
+                    if(TimeObj.type == "none") continue;
                     if (TimeObj.taskId==0||!AllTasksFromDatabase.Any(x => x.Id==TimeObj.taskId))
                     {
                         GeneratedToDoTask findTask = SQLCommands.QueryTodo(TimeObj.note);
@@ -322,9 +323,11 @@ namespace Summary.Models
                             List<MyTime> timeObjs = SQLCommands.GetTimeObjsByName(TimeObj.note);
                             foreach (MyTime timeObj in timeObjs)
                             {
-                                timeObj.taskId = findIndex;
-                                timeObj.type = timeObj.type.Trim();
-                                await SQLCommands.UpdateObj(timeObj);
+                                if(timeObj.taskId!= findIndex|| timeObj.type!= timeObj.type.Trim()){
+                                    timeObj.taskId = findIndex;
+                                    timeObj.type = timeObj.type.Trim();
+                                    await SQLCommands.UpdateObj(timeObj);
+                                }
                             }
                         }
                     }

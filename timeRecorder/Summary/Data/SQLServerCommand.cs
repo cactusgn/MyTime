@@ -4,8 +4,10 @@ using Summary.Common.Utils;
 using Summary.Domain;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,6 +54,7 @@ namespace Summary.Data
         }
         public async Task<int> UpdateObj(TimeViewObj obj)
         {
+           
             using (var context = new MytimeContext())
             {
                 var objToUpdate = context.MyTime.FirstOrDefault(x=>x.currentIndex==obj.Id && x.createDate == obj.CreatedDate);
@@ -86,8 +89,23 @@ namespace Summary.Data
             }
             return 1;
         }
+        public static void PrintStackTrace([CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            // 使用System.Diagnostics.StackTrace  
+            var stackTrace = new StackTrace(true); // 传递true以捕获文件、行和列信息  
+            var frame = stackTrace.GetFrame(0); // 获取当前方法的帧  
+
+            // 打印当前方法的信息  
+            Helper.DebugMessage($"Method: {memberName} in {filePath}:{lineNumber}");
+
+            // 打印整个堆栈跟踪  
+            Helper.DebugMessage("Stack Trace:");
+            Helper.DebugMessage(stackTrace.ToString());
+
+        }
         public async Task<int> UpdateObj(MyTime obj)
         {
+           
             using (var context = new MytimeContext())
             {
                 var objToUpdate = context.MyTime.FirstOrDefault(x => x.currentIndex==obj.currentIndex && x.createDate == obj.createDate);
@@ -237,6 +255,10 @@ namespace Summary.Data
         //2. 在todaylist删除一个今天没有记录的task，需要更新createdDate为之前的createdDate
         public async Task<int> UpdateTodo(ToDoObj obj)
         {
+            if (obj.Note == "休息" && obj.Type != "none")
+            {
+                PrintStackTrace();
+            }
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x=>x.Note == obj.Note);
@@ -264,6 +286,10 @@ namespace Summary.Data
             return 1;
         }
         public async Task<int> UpdateTodo(GeneratedToDoTask obj){
+            if (obj.Note == "休息" && obj.TypeId != 0)
+            {
+                PrintStackTrace();
+            }
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x => x.Id == obj.Id);

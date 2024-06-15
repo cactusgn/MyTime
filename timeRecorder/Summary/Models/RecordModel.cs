@@ -239,6 +239,8 @@ namespace Summary.Models
         public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
         public Dictionary<string,decimal> EstimateDic=new Dictionary<string,decimal>();
         public bool ClickUpOrDown =false;
+        private string noteBeforeChange = "";
+        private string typeBeforeChange = "";
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DownKey_Command = new MyCommand(DownKeySub);
@@ -656,6 +658,9 @@ namespace Summary.Models
             refreshSingleDayPlot();
         }
         private async Task updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
+            if (curr.Type==typeBeforeChange){
+                return;
+            }
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
             if(findTask != null)
@@ -737,6 +742,10 @@ namespace Summary.Models
         }
         private async Task updateTodayListAfterChangeNote(TimeViewObj curr)
         {
+            if (curr.Note == noteBeforeChange)
+            {
+                return;
+            }
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
             if (findTask != null)
             {
@@ -1080,6 +1089,8 @@ namespace Summary.Models
         {
             TimeViewObj myTimeView = (TimeViewObj)obj;
             SelectedTimeObj = myTimeView;
+            noteBeforeChange = SelectedTimeObj.Note;
+            typeBeforeChange = SelectedTimeObj.Type;
         }
         public async void InitTodayData()
         {

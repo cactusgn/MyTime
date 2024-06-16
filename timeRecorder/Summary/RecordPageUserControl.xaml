@@ -418,7 +418,7 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
 
                                                             <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
                                                                 <i:Interaction.Triggers>
-                                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                                                         <i:InvokeCommandAction 
                                                                         CommandParameter="{Binding }"
                                                                         Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ItemsControl,AncestorLevel=2}}"></i:InvokeCommandAction>

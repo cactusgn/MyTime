@@ -363,6 +363,7 @@ namespace Summary.Models
         {
             var updateTimeViewObj = (TimeViewObj)obj;
             await SQLCommands.UpdateObj(updateTimeViewObj);
+            updateTaskColor(updateTimeViewObj);
             refreshSingleDayPlot();
         }
         private void SingleDayRBChanged(object obj)
@@ -562,8 +563,16 @@ namespace Summary.Models
             var currObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.First(x => x.Id==selectedTimeObj.Id);
             currObj.Note = a.ToString();
             currObj.TimeNote = currObj.LastTime + "\n" + currObj.Note;
+            updateTaskColor(currObj);
             await SQLCommands.UpdateObj(SelectedTimeObj);
             refreshSingleDayPlot();
+        }
+        private void updateTaskColor(TimeViewObj currObj)
+        {
+            GeneratedToDoTask findTask = SQLCommands.QueryTodo(currObj.Note);
+            int typeId = findTask != null ? findTask.TypeId : 0;
+            string type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
+            Helper.UpdateColor(currObj, type.ToString());
         }
         public async void showTimeView()
         {

@@ -658,7 +658,7 @@ namespace Summary.Models
             refreshSingleDayPlot();
         }
         private async Task updateTodayListAfterChangeType(TimeViewObj curr, string changedType){
-            if (curr.Type==typeBeforeChange){
+            if (changedType == typeBeforeChange){
                 return;
             }
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
@@ -893,7 +893,7 @@ namespace Summary.Models
                 int taskId = findTask==null? 0:findTask.Id;
                 if (type != "none")
                 {
-                    DebugMessage("5----" + type);
+                    DebugMessage("5----typeId:" + typeId + " taskid:" + taskId.ToString());
                 }
                 var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
                 await SQLCommands.AddObj(newObj);

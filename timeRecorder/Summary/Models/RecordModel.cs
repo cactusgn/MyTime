@@ -706,7 +706,7 @@ namespace Summary.Models
         private async Task CheckAndDeleteToDo(ToDoObj objTobeDeleted)
         {
             var objs = SQLCommands.GetTimeObjsByName(objTobeDeleted.Note);
-            if (objs.Count()==0||objTobeDeleted.Type=="none"||objTobeDeleted.Type=="")
+            if (objs.Count()==0)
             {
                 await SQLCommands.DeleteTodo(objTobeDeleted);
             }

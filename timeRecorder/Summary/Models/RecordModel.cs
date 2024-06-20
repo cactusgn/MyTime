@@ -747,6 +747,11 @@ namespace Summary.Models
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
             if (findTask != null)
             {
+                if (curr.Note=="休息"&&curr.Type!="none")
+                {
+                    DebugMessage("currObj id:" + curr.Id.ToString() + " curr.Type:" + curr.Type + " findTask's type: " + (IdCategoryDic.ContainsKey(findTask.TypeId) ? IdCategoryDic[findTask.TypeId] : "none"));
+                    DebugMessage("currObj startTime:" + curr.StartTime + " endTime:" + curr.EndTime);
+                }
                 if (curr.Type==(IdCategoryDic.ContainsKey(findTask.TypeId) ? IdCategoryDic[findTask.TypeId] : "none"))
                 {
                     return;

@@ -448,6 +448,7 @@ namespace Summary.Models
                         var updatedStartTime = aboveItem.StartTime;
                         SelectedTimeObj.StartTime = updatedStartTime;
                         SelectedTimeObj.LastTime = SelectedTimeObj.EndTime- SelectedTimeObj.StartTime;
+                        DebugMessage($"delete item: id:{aboveItem.Id} starttime: {aboveItem.StartTime} endtime: {aboveItem.EndTime}");
                         await SQLCommands.DeleteObj(aboveItem);
                         await SQLCommands.UpdateObj(SelectedTimeObj);
                         currentDailyObj.Remove(aboveItem);
@@ -464,6 +465,7 @@ namespace Summary.Models
                         var updatedEndTime = downItem.EndTime;
                         SelectedTimeObj.EndTime = updatedEndTime;
                         SelectedTimeObj.LastTime = SelectedTimeObj.EndTime - SelectedTimeObj.StartTime;
+                        DebugMessage($"delete item: id:{downItem.Id} starttime: {downItem.StartTime} endtime: {downItem.EndTime}");
                         await SQLCommands.DeleteObj(downItem);
                         await SQLCommands.UpdateObj(SelectedTimeObj);
                         currentDailyObj.Remove(downItem);
@@ -660,12 +662,16 @@ namespace Summary.Models
           
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
-      
+            
             if(findTask != null)
             {
                 if (findTask.TypeId==Helper.NameIdDic[changedType])
                 {
                     return;
+                }
+                if(findTask.Note == "休息"&& changedType !="none")
+                {
+                    DebugMessage($"AfterChangeType id:{curr.Id} note: {curr.Note} type:{changedType}");
                 }
                 findTask.TypeId = Helper.NameIdDic[changedType];
                 findTask.CategoryId = 0;
@@ -723,6 +729,7 @@ namespace Summary.Models
                 await showMessageBox("请先选中左侧要改的时间块");
                 return;
             }
+            DebugMessage($"click updateType button: type {SelectedTimeObj.Type} note:{SelectedTimeObj.Note} id:{SelectedTimeObj.Id}");
             await updateTodayListAfterChangeType(SelectedTimeObj, a.ToString());
         }
         private async void CellEditEnding(object obj){
@@ -733,11 +740,13 @@ namespace Summary.Models
 
             if (colorDic[updateNoteItem.Type]!=updateNoteItem.Color)
             {
+                DebugMessage("CellEditEnding change type: id: " + curr.Id + " note:" + curr.TimeNote + " type:" + curr.Type);
                 //Type updated
                 await updateTodayListAfterChangeType(updateNoteItem, curr.Type);
             }
             else
             {
+                DebugMessage("CellEditEnding change note: id: " + curr.Id + " note:" + curr.TimeNote + " type:" + curr.Type);
                 //note updated
                 await updateTodayListAfterChangeNote(updateNoteItem);
             }
@@ -749,8 +758,7 @@ namespace Summary.Models
             {
                 if (curr.Note=="休息"&&curr.Type!="none")
                 {
-                    DebugMessage("currObj id:" + curr.Id.ToString() + " curr.Type:" + curr.Type + " findTask's type: " + (IdCategoryDic.ContainsKey(findTask.TypeId) ? IdCategoryDic[findTask.TypeId] : "none"));
-                    DebugMessage("currObj startTime:" + curr.StartTime + " endTime:" + curr.EndTime);
+                    DebugMessage($"AfterChangeType id:{curr.Id} note: {curr.Note} type:{curr.Type}");
                 }
                 if (curr.Type==(IdCategoryDic.ContainsKey(findTask.TypeId) ? IdCategoryDic[findTask.TypeId] : "none"))
                 {

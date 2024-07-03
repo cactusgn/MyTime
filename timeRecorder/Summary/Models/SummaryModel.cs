@@ -321,13 +321,6 @@ namespace Summary.Models
             refreshSingleDayPlot();
             refreshSummaryPlot();
         }
-        private int getTaskId(int categoryId)
-        {
-            while(Helper.allcategories.FirstOrDefault(x=>x.Id==categoryId, new Category(){ ParentCategoryId=0}).ParentCategoryId!=0){
-                categoryId = Helper.allcategories.FirstOrDefault(x => x.Id == categoryId, new Category() { ParentCategoryId = 0 }).ParentCategoryId;
-            }
-            return categoryId;
-        }
         private async void updateOldItems()
         {
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900,1,1), DateTime.Today);
@@ -572,7 +565,9 @@ namespace Summary.Models
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(currObj.Note);
             int typeId = findTask != null ? findTask.TypeId : 0;
             string type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
-            currObj.TaskId = findTask.Id;
+            if(findTask!=null){
+                currObj.TaskId = findTask.Id;
+            }
             Helper.UpdateColor(currObj, type.ToString());
         }
         public async void showTimeView()

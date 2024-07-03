@@ -572,6 +572,7 @@ namespace Summary.Models
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(currObj.Note);
             int typeId = findTask != null ? findTask.TypeId : 0;
             string type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
+            currObj.TaskId = findTask.Id;
             Helper.UpdateColor(currObj, type.ToString());
         }
         public async void showTimeView()

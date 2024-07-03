@@ -766,6 +766,7 @@ namespace Summary.Models
                 }
                 curr.Type =IdCategoryDic.ContainsKey(findTask.TypeId)?IdCategoryDic[findTask.TypeId]:"none";
                 Helper.UpdateColor(curr, curr.Type);
+                curr.TaskId = findTask.Id;
                 await SQLCommands.UpdateObj(curr);
             }
             else

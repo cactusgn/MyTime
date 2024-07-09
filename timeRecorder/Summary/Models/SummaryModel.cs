@@ -558,15 +558,25 @@ namespace Summary.Models
             currObj.TimeNote = currObj.LastTime + "\n" + currObj.Note;
             updateTaskColor(currObj);
             await SQLCommands.UpdateObj(SelectedTimeObj);
+
             refreshSingleDayPlot();
         }
-        private void updateTaskColor(TimeViewObj currObj)
+        private async Task updateTaskColor(TimeViewObj currObj)
         {
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(currObj.Note);
-            int typeId = findTask != null ? findTask.TypeId : 0;
-            string type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
-            if(findTask!=null){
+            string type;
+            if (findTask != null)
+            {
+                int typeId =  findTask.TypeId;
+                type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
                 currObj.TaskId = findTask.Id;
+            }
+            else
+            {
+                type =  currObj.Type;
+                ToDoObj newObj = new ToDoObj() { CreatedDate = currObj.CreatedDate, Note = currObj.Note, Finished = false, Type = currObj.Type, CategoryId= Helper.categoryDic[currObj.Type] };
+                var id = await SQLCommands.AddTodo(newObj);
+                currObj.TaskId = id;
             }
             Helper.UpdateColor(currObj, type.ToString());
         }

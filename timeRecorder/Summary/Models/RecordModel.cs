@@ -662,7 +662,8 @@ namespace Summary.Models
           
             var TodayAllObjectWithSameNote = AllTimeViewObjs.First(x => x.createdDate == curr.CreatedDate).DailyObjs.Where(x => x.Note == curr.Note);
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(curr.Note);
-            
+            DebugMessage($"updateTodayListAfterChangeType curr.Note:{curr.Note} TodayAllObjectWithSameNote.count:{TodayAllObjectWithSameNote.Count()}");
+            var taskid = 0;
             if(findTask != null)
             {
                 if (findTask.TypeId==Helper.NameIdDic[changedType])
@@ -675,19 +676,27 @@ namespace Summary.Models
                 }
                 findTask.TypeId = Helper.NameIdDic[changedType];
                 findTask.CategoryId = 0;
+                taskid=findTask.Id;
                 await SQLCommands.UpdateTodo(findTask);
+            }
+            else
+            {
+                DebugMessage($"not find task {curr.Note}");
+                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type =changedType, CategoryId = categoryDic[changedType] };
+                taskid = await SQLCommands.AddTodo(newObj);
             }
             foreach (var obj in TodayAllObjectWithSameNote)
             {
                 obj.Type = changedType;
                 Helper.UpdateColor(obj, changedType);
+                obj.TaskId = taskid;
+                DebugMessage("UpdateObj id: " + obj.TaskId + " task note: " + curr.Note);
                 await SQLCommands.UpdateObj(obj);
             }
             if (!hs.Contains(curr.Note) && Helper.mainCategories.FirstOrDefault(x => x.Name==changedType, new Category() { AutoAddTask=false }).AutoAddTask&& curr.Note != ""&&curr.Type!="none")
             {
                 ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId= categoryDic[changedType] };
-                var id = await SQLCommands.AddTodo(newObj);
-                newObj.Id = id;
+                newObj.Id = taskid;
                 TodayList.Add(newObj);
                 TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
                 hs.Add(curr.Note);
@@ -703,9 +712,6 @@ namespace Summary.Models
                     await CheckAndDeleteToDo(item.First());
                     TodayList.Remove(item.First());
                 }
-            }else if(curr.Type!="none"){
-                ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = curr.Note, Finished = false, Type = curr.Type, CategoryId = categoryDic[changedType] };
-                var id = await SQLCommands.AddTodo(newObj);
             }
             refreshSingleDayPlot();
         }
@@ -844,6 +850,12 @@ namespace Summary.Models
                     int typeId = findTask!=null ? findTask.TypeId : 0;
                     type = IdCategoryDic.ContainsKey(typeId) ? IdCategoryDic[typeId] : "none";
                     taskId = findTask==null ? 0 : findTask.Id;
+                    if(taskId ==0)
+                    {
+                        var newToDoObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = WorkContent, Finished = false, Type = "none", CategoryId = 0 };
+                        taskId = await SQLCommands.AddTodo(newToDoObj);
+                        DebugMessage($"create new todo when click end button, taskid: {taskId}");
+                    }
                 }
             }
             

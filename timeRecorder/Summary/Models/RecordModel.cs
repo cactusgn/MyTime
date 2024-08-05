@@ -863,6 +863,14 @@ namespace Summary.Models
             await SQLCommands.AddObj(newObj);
             Helper.UpdateColor(newObj, type.ToString());
             currentDateTemplate.DailyObjs.Add(newObj);
+            if (!hs.Contains(WorkContent) && Helper.mainCategories.FirstOrDefault(x => x.Name == type, new Category() { AutoAddTask = false }).AutoAddTask && WorkContent != "" && type != "none")
+            {
+                var newToDoObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = WorkContent, Finished = false, Type = type};
+                newToDoObj.Id = taskId;
+                TodayList.Add(newToDoObj);
+                TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
+                hs.Add(WorkContent);
+            }
             refreshAllObjs();
             //reset rest start time
             WorkStartTime = Helper.getCurrentTime();

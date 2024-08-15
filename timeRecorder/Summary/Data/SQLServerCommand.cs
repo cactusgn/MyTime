@@ -69,6 +69,7 @@ namespace Summary.Data
                     foreach (var note in allNotes)
                     {
                         note.type = obj.Type;
+                        note.taskId = obj.TaskId;
                     }
                     if (obj.TaskId!=0)
                     {

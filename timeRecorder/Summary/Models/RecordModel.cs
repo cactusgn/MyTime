@@ -404,6 +404,7 @@ namespace Summary.Models
                     TipList = new ObservableCollection<string>(allTasks.Where(x => ((Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true) || x.TypeId== 0) &&x.Note.Contains(TodoTodayTextbox.Text)).OrderByDescending(x => x.CreateDate).Select(x => x.Note).Distinct().ToList());
                 }
                 TodoToday.ItemsSource = TipList;
+                TodoToday.SelectedIndex = -1;
                 TodoToday.IsDropDownOpen=true;
             }
             if(ClickUpOrDown) {

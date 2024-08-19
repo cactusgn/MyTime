@@ -318,9 +318,12 @@ namespace Summary.Models
         {
             ClickUpOrDown = true;
             if(TodoToday!=null && TodoToday.IsDropDownOpen  && TodoToday.Items.Count>0){
-                if(TodoToday.SelectedIndex+1<TodoToday.Items.Count){
+                if(TodoToday.SelectedIndex==-1) {
+                    TodoToday.SelectedIndex = 0;
+                }
+                else if (TodoToday.SelectedIndex + 1 < TodoToday.Items.Count)
+                {
                     TodoToday.SelectedIndex++;
-                    TodoTodayTextbox.Text = TodoToday.SelectedItem.ToString();
                 }
             }
         }
@@ -367,7 +370,6 @@ namespace Summary.Models
             if (TodoToday.SelectedValue!=null)
             {
                 TodayText = TodoToday.SelectedValue.ToString();
-                TodoToday.SelectedIndex = -1;
             }
         }
         

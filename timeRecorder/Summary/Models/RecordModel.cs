@@ -367,9 +367,10 @@ namespace Summary.Models
             if (TodoToday.SelectedValue!=null)
             {
                 TodayText = TodoToday.SelectedValue.ToString();
+                TodoToday.SelectedIndex = -1;
             }
         }
-
+        
         private void TipTextPreviewMouseUp(object obj)
         {
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);

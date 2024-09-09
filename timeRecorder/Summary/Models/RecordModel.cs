@@ -679,7 +679,7 @@ namespace Summary.Models
                     DebugMessage($"AfterChangeType id:{curr.Id} note: {curr.Note} type:{changedType}");
                 }
                 findTask.TypeId = Helper.NameIdDic[changedType];
-                findTask.CategoryId = 0;
+                findTask.CategoryId = Helper.categoryDic[changedType];
                 taskid=findTask.Id;
                 await SQLCommands.UpdateTodo(findTask);
             }
@@ -711,7 +711,7 @@ namespace Summary.Models
                 if (item != null && item.Count() > 0)
                 {
                     item.First().Type = changedType;
-                    await SQLCommands.UpdateTodo(item.First());
+                    item.First().CategoryId = categoryDic[changedType];
                     hs.Remove(curr.Note);
                     await CheckAndDeleteToDo(item.First());
                     TodayList.Remove(item.First());

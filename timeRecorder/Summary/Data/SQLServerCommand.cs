@@ -256,10 +256,6 @@ namespace Summary.Data
         //2. 在todaylist删除一个今天没有记录的task，需要更新createdDate为之前的createdDate
         public async Task<int> UpdateTodo(ToDoObj obj)
         {
-            if (obj.Note == "休息" && obj.Type != "none")
-            {
-                PrintStackTrace();
-            }
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x=>x.Note == obj.Note);

@@ -355,8 +355,8 @@ namespace Summary.Models
         private async void TextBoxLostFocus(object obj)
         {
             var updateTimeViewObj = (TimeViewObj)obj;
-            await SQLCommands.UpdateObj(updateTimeViewObj);
             updateTaskColor(updateTimeViewObj);
+            await SQLCommands.UpdateObj(updateTimeViewObj);
             refreshSingleDayPlot();
         }
         private void SingleDayRBChanged(object obj)
@@ -570,6 +570,7 @@ namespace Summary.Models
                 int typeId =  findTask.TypeId;
                 type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
                 currObj.TaskId = findTask.Id;
+                currObj.Type = type;
             }
             else
             {

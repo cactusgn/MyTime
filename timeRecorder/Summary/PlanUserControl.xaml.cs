@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Summary.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +17,11 @@ using System.Windows.Shapes;
 namespace Summary
 {
     /// <summary>
-    /// Interaction logic for PlanTaskUserControl.xaml
+    /// PlanUserControl.xaml 的交互逻辑
     /// </summary>
-    public partial class PlanTaskUserControl : UserControl
+    public partial class PlanUserControl : UserControl
     {
-        public PlanTaskUserControl()
+        public PlanUserControl(PlanModel planModel)
         {
             InitializeComponent();
         }

@@ -72,6 +72,7 @@ namespace Summary
             //这个根据自己需要注入
             services.AddSingleton<ISQLCommands, SQLServerCommand>();
             services.AddSingleton<MainModel>();
+            services.AddSingleton<PlanModel>();
             services.AddSingleton<MiniModel>();
             services.AddSingleton<SummaryModel>();
             services.AddSingleton<MainWindow>();

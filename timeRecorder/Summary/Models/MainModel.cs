@@ -44,6 +44,7 @@ namespace Summary.Models
         public RecordPageUserControl RecordPageUserControl { get; set; } 
         public SummaryUserControl SummaryUserControl { get; set; }
         public TaskManagerUserControl TaskManagerUserControl { get; set; }
+        public PlanUserControl PlanUserControl { get; set; }
         public ColorTool ColorTool { get; set; }
         public Settings Settings { get; set; }
         public SummaryModel SummaryModel { get; set; }
@@ -52,6 +53,12 @@ namespace Summary.Models
         public string colorBtnForegroundColor = Colors.Gray.ToString();
         public string settingsBtnForegroundColor = Colors.Gray.ToString();
         public string taskBtnForegroundColor = Colors.Gray.ToString();
+        public string planBtnForegroundColor = Colors.Gray.ToString();
+        public string PlanBtnForegroundColor
+        {
+            get { return planBtnForegroundColor; }
+            set { planBtnForegroundColor = value; OnPropertyChanged(); }
+        }
         public string TaskBtnForegroundColor
         {
             get { return taskBtnForegroundColor; }
@@ -78,8 +85,9 @@ namespace Summary.Models
             set { colorBtnForegroundColor = value; OnPropertyChanged(); }
         }
         private RecordModel RecordModel;
+        private PlanModel PlanModel;
         private TaskManagerModel TaskManagerModel;
-        public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel)
+        public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel, PlanModel planModel)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
@@ -100,6 +108,8 @@ namespace Summary.Models
             SummaryUserControl = new SummaryUserControl(summaryModel);
             TaskManagerModel = taskManagerModel;
             TaskManagerUserControl = new TaskManagerUserControl(taskManagerModel);
+            PlanModel = planModel;
+            PlanUserControl = new PlanUserControl(planModel);
             ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
@@ -146,6 +156,11 @@ namespace Summary.Models
                 MainContent = TaskManagerUserControl;
                 ResetColor();
                 TaskBtnForegroundColor = palette.Color.ToString();
+            }else if (o.ToString()=="PlanManager")
+            {
+                MainContent = PlanUserControl;
+                ResetColor();
+                PlanBtnForegroundColor = palette.Color.ToString();
             }
         }
         private void ResetColor()
@@ -155,6 +170,7 @@ namespace Summary.Models
             RecordBtnForegroundColor = Colors.Gray.ToString();
             SettingsBtnForegroundColor = Colors.Gray.ToString();
             TaskBtnForegroundColor = Colors.Gray.ToString();
+            PlanBtnForegroundColor = Colors.Gray.ToString();
         }
     }
 

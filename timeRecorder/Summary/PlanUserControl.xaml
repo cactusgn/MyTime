@@ -1,12 +1,56 @@
-﻿<UserControl x:Class="Summary.PlanUserControl"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Summary"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="Summary.PlanUserControl"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="1000">
     <Grid Background="{DynamicResource MaterialDesignCardBackground}">
-        <Button>plan</Button>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Orientation="Horizontal">
+            <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" />
+            <DatePicker
+        Width="120" Margin="10" HorizontalContentAlignment="Center"
+        materialDesign:CalendarAssist.IsHeaderVisible="False"
+        materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}"/>
+            <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"/>
+            <DatePicker
+        Width="120" Margin="10"  HorizontalContentAlignment="Center"
+        materialDesign:CalendarAssist.IsHeaderVisible="False"
+        materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}"/>
+            <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"/>
+            <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"/>
+            <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"/>
+            <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisWeek"
+        Background="{DynamicResource PrimaryHueMidBrush}"
+        BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+        Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+        ToolTip="本周">
+                <materialDesign:PackIcon Kind="Restore" />
+            </Button>
+            <Button Content="选择主题"  Margin="10" BorderBrush="AliceBlue" Background="#99CC60" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"/>
+        </StackPanel>
+        <Border Grid.Row="1" Margin="10,5">
+            <StackPanel Orientation="Horizontal" Background="{StaticResource MaterialDesignLightSeparatorBackground}">
+                <TextBlock>本日获得：</TextBlock>
+                <TextBlock x:Name="TotalCost" Text="{Binding TotalCostString}"></TextBlock>
+                <TextBlock Margin="10,0">本周获得:</TextBlock>
+                <TextBlock x:Name="AverageCost" Text="{Binding AverageCost}"></TextBlock>
+                <TextBlock Margin="10,0">本月获得：</TextBlock>
+                <TextBlock x:Name="TotalBonus" Text="{Binding TotalBonus}"></TextBlock>
+            </StackPanel>
+        </Border>
+        <StackPanel   DockPanel.Dock="Left"  Grid.Row="2" Grid.Column="0" x:Name="leftPanel" Orientation="Vertical" >
+            <Button Content="Add Column" HorizontalAlignment="Left" Width="189" Click="OnAddColumnButtonClick"/>
+            <DataGrid x:Name="TimeGrid" AutoGenerateColumns="False" Width="800" Height="400" 
+                      HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
+                       ItemsSource="{Binding TimeObjs}"/>
+        </StackPanel>
     </Grid>
 </UserControl>

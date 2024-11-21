@@ -26,26 +26,9 @@ namespace Summary
             InitializeComponent();
             this.DataContext = planModel;
             planModel.TimeGrid = this.TimeGrid;
-            init();
+            planModel.init();
         }
-        public void init()
-        {
-            this.TimeGrid.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "日期",
-                IsReadOnly = false,
-                Binding = new Binding("taskDate")
-                {
-                    StringFormat = "yyyy/MM/dd HH:mm:ss"
-                }
-            });
-            this.TimeGrid.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "任务名称",
-                IsReadOnly = false,
-                Binding = new Binding("taskName")
-            });
-        }
+        
        
         private void OnAddColumnButtonClick(object sender, RoutedEventArgs e)
         {

@@ -85,18 +85,17 @@ namespace Summary
         protected override void OnStartup(StartupEventArgs e)
         {
             const string appName = "TimeRecorder";
-            bool createdNew;
+            //bool createdNew;
 
-            mutex = new Mutex(true, appName, out createdNew);
+            //mutex = new Mutex(true, appName, out createdNew);
 
-            if (!createdNew)
-            {
-                // 应用程序的另一个实例已经在运行
-                //MessageBox.Show("应用程序已在运行。");
-                ActivateOtherWindow();
-                Current.Shutdown(); // 关闭当前实例
-                return;
-            }
+            //if (!createdNew)
+            //{
+            //    // 应用程序的另一个实例已经在运行
+            //    ActivateOtherWindow();
+            //    Current.Shutdown(); // 关闭当前实例
+            //    return;
+            //}
             _host?.Start();
             Helper.MainWindow = _host?.Services.GetRequiredService<MainWindow>();
             Helper.MainWindow?.Show();

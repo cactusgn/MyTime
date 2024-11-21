@@ -38,5 +38,7 @@ namespace Summary.Data
         public Task<int> DeleteCategory(int id);
 
         #endregion
+
+        public Task<List<TaskView>> GetTask(DateTime startTime, DateTime endTime);
     }
 }

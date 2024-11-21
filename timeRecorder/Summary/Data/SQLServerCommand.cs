@@ -408,6 +408,23 @@ namespace Summary.Data
             }
             return 1;
         }
+
+        public async Task<List<TaskView>> GetTask(DateTime startTime, DateTime endTime)
+        {
+            var list = new List<TaskView>();
+            using (var context = new MytimeContext())
+            {
+                list = context.MyTime.Where(x => x.createDate>=startTime && x.createDate<=endTime).GroupBy(x=>new { x.taskId }).Select(x=>new TaskView()
+                {
+                    taskId = x.First().taskId,
+                    taskName = x.First().note,
+                    taskDate = x.First().createDate,
+                    lastTime = new TimeSpan(x.Sum(x => x.lastTime.Ticks))
+                }).ToList();
+
+            }
+            return list;
+        }
     }
     
 }

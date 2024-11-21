@@ -27,7 +27,7 @@
             <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"/>
             <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"/>
             <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"/>
-            <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisWeek"
+            <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisMonth"
         Background="{DynamicResource PrimaryHueMidBrush}"
         BorderBrush="{DynamicResource PrimaryHueMidBrush}"
         Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
@@ -48,8 +48,8 @@
         </Border>
         <StackPanel   DockPanel.Dock="Left"  Grid.Row="2" Grid.Column="0" x:Name="leftPanel" Orientation="Vertical" >
             <Button Content="Add Column" HorizontalAlignment="Left" Width="189" Click="OnAddColumnButtonClick"/>
-            <DataGrid x:Name="TimeGrid" AutoGenerateColumns="False" Width="800" Height="400" 
-                      HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
+            <DataGrid x:Name="TimeGrid" AutoGenerateColumns="False" 
+                      HorizontalAlignment="Left" Margin="10,10,0,0"
                        ItemsSource="{Binding TimeObjs}"/>
         </StackPanel>
     </Grid>

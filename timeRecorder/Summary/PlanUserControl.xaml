@@ -5,13 +5,38 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Summary"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="Summary.PlanUserControl"
+             xmlns:uc="clr-namespace:Summary.Domain" xmlns:col="clr-namespace:System.Collections;assembly=System.Collections.NonGeneric"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="1000">
-    <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type DataGridRow}">
+            <Style.Triggers>
+                <!-- 例如，根据某个绑定属性的值来更改背景颜色 -->
+                <DataTrigger Binding="{Binding Background}" Value="1">
+                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Background}" Value="0">
+                    <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}"/>
+                </DataTrigger>
+                <!-- 可以添加更多的 DataTrigger 来处理不同的条件 -->
+            </Style.Triggers>
+        </Style>
+        
+    </UserControl.Resources>
+    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
+                          Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
+        <materialDesign:DialogHost.DialogContent>
+            <!--这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字
+           不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写
+           也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
+
+            <uc:SampleProgressDialog ></uc:SampleProgressDialog>
+        </materialDesign:DialogHost.DialogContent>
+        <Grid Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Orientation="Horizontal">
             <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" />
@@ -46,11 +71,14 @@
                 <TextBlock x:Name="TotalBonus" Text="{Binding TotalBonus}"></TextBlock>
             </StackPanel>
         </Border>
-        <StackPanel   DockPanel.Dock="Left"  Grid.Row="2" Grid.Column="0" x:Name="leftPanel" Orientation="Vertical" >
-            <Button Content="Add Column" HorizontalAlignment="Left" Width="189" Click="OnAddColumnButtonClick"/>
-            <DataGrid x:Name="TimeGrid" AutoGenerateColumns="False" 
-                      HorizontalAlignment="Left" Margin="10,10,0,0"
+        <UniformGrid Grid.Row="2" Grid.Column="0" >
+            <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
+                          ScrollViewer.CanContentScroll="True"
+
+                      HorizontalAlignment="Left" Margin="10,10,0,10"
                        ItemsSource="{Binding TimeObjs}"/>
-        </StackPanel>
+          
+        </UniformGrid>
     </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

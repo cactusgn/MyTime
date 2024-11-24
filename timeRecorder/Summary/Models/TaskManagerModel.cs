@@ -232,10 +232,29 @@ namespace Summary.Models
             }
             return true;
         }
+        private async void UpdateSubCategoryBonus(AddCategoryModel category)
+        {
+            var subItems = Helper.allcategories.Where(x => x.ParentCategoryId ==category.Id);
+            foreach (var subItem in subItems)
+            {
+                subItem.BonusPerHour = category.Bonus;
+                var subCategory = new AddCategoryModel()
+                {
+                    Category = subItem.Name,
+                    SelectedColor = subItem.Color,
+                    Bonus = category.Bonus,
+                    Visible = subItem.Visible,
+                    ParentId = subItem.ParentCategoryId,
+                    AutoCreateTask=subItem.AutoAddTask,
+                    Id = subItem.Id
+                };
+                await SQLCommands.UpdateCategory(subCategory);
+            }
+        }
         public async void EditCategory(AddCategoryModel category)
         {
-            
             await SQLCommands.UpdateCategory(category);
+            UpdateSubCategoryBonus(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             string oldVisibleValue = root.Visible;
             root.Title = category.Category;

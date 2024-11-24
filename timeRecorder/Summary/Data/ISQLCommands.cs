@@ -39,6 +39,5 @@ namespace Summary.Data
 
         #endregion
 
-        public Task<List<TaskView>> GetTask(DateTime startTime, DateTime endTime);
     }
 }

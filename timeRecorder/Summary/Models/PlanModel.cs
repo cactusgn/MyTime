@@ -207,11 +207,11 @@ namespace Summary.Models
             {
                 initTimeObjs(startTime, endTime);
             }));
-            if(startTime<=DateTime.Today && endTime>=DateTime.Today){
+            if(startTime<= DateTime.Today && endTime >= DateTime.Today){
                 todayReward = 0;
                 todayMinus = 0;
             }
-            if(startTime<= firstDayOfWeek && endTime>=firstDayOfWeek.AddDays(6))
+            if(startTime <= firstDayOfWeek && endTime >= firstDayOfWeek.AddDays(6))
             {
                 weekReward = 0;
                 weekMinus = 0;
@@ -263,7 +263,7 @@ namespace Summary.Models
                 if(DateTime.Today==taskDate){
                     todayReward += bonus;
                 }
-                if(taskDate <= firstDayOfWeek && taskDate >= firstDayOfWeek.AddDays(6)){
+                if(taskDate.Date >= firstDayOfWeek && taskDate.Date <= firstDayOfWeek.AddDays(6)){
                     weekReward += bonus;
                 }
             }
@@ -273,7 +273,7 @@ namespace Summary.Models
                 {
                     todayMinus += bonus;
                 }
-                if (taskDate <= firstDayOfWeek && taskDate >= firstDayOfWeek.AddDays(6))
+                if (taskDate.Date >= firstDayOfWeek && taskDate.Date <= firstDayOfWeek.AddDays(6))
                 {
                     weekMinus += bonus;
                 }
@@ -283,14 +283,9 @@ namespace Summary.Models
         private DateTime getFirstDayOfWeek()
         {
             // 获取当前日期
-            DateTime now = DateTime.Now;
+            DateTime now = DateTime.Today;
 
-            // 获取当前文化信息
-            CultureInfo culture = CultureInfo.CurrentCulture;
-
-            // 获取一周的第一天（CalendarWeekRule 和 DayOfWeek）
-            System.Globalization.Calendar calendar = culture.Calendar;
-            DateTime firstDayOfWeek = now.AddDays(-(int)(calendar.GetDayOfWeek(now)));
+            DateTime firstDayOfWeek = now.AddDays(1-(int)(now.DayOfWeek));
             return firstDayOfWeek;
         }
 

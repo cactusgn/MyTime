@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using ScottPlot;
+using ScottPlot.Palettes;
 using ScottPlot.Renderable;
 using Summary.Data;
 using Summary.Models;
@@ -49,6 +50,20 @@ namespace Summary.Common.Utils
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString() + " " + name);
             sw.Dispose();
+        }
+        public static bool IsDarkTheme()
+        {
+            return bool.Parse(Helper.GetAppSetting("IsDark"));
+        }
+        public static bool IsLightColor(System.Windows.Media.Color color)
+        {
+            // Calculate the brightness using a weighted average based on human eye sensitivity
+            double brightness = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255.0;
+
+            // Define a threshold value to determine if the color is light or dark
+            double threshold = 0.5;
+
+            return brightness >= threshold;
         }
         public static int getMaxDepth(int currDepth, int findCategoryId)
         {

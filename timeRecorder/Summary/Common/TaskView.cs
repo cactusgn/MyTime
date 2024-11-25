@@ -57,6 +57,7 @@ namespace Summary.Common
             }
             return res;
         }
+        public string ForegroundColor { get; set; }
         public DateTime TaskDate { get; set; }
         
         public string DayOfWeek

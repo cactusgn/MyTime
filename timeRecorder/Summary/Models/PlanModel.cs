@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace Summary.Models
 {
@@ -19,6 +20,7 @@ namespace Summary.Models
         public DataGrid TimeGrid { get; set; }
         public Dictionary<int, string> WorkThemes { get; set; } = new Dictionary<int, string>();
         public Dictionary<int, string> SubWorkThemes { get; set; } = new Dictionary<int, string>();
+        
         private int todayReward;
         private string todayRewardString;
         public string TodayRewardString
@@ -166,12 +168,25 @@ namespace Summary.Models
         private void initTimeObjs(DateTime startTime, DateTime endTime)
         {
             TimeObjs.Clear();
+            string ThemeColor = Helper.GetAppSetting("ThemeColor");
+            bool isLightColor = Helper.IsLightColor((Color)ColorConverter.ConvertFromString(ThemeColor));
             for (int i = 0; i<(endTime-startTime).Days+1; i++)
             {
                 var dayTaskView = new DayTaskView() { TaskDate = startTime.AddDays(i) };
                 foreach (var value in WorkThemes.Values)
                 {
                     dayTaskView.Background = i % 2;
+                    if(i % 2 == 1 )
+                    {
+                        if(isLightColor)
+                        {
+                            dayTaskView.ForegroundColor = "#000000";
+                        }
+                        else
+                        {
+                            dayTaskView.ForegroundColor = "#FFFFFF";
+                        }
+                    }
                     if (string.IsNullOrEmpty(dayTaskView.Theme1))
                     {
                         dayTaskView.Theme1 = value;
@@ -369,7 +384,8 @@ namespace Summary.Models
                         Theme3 = DayTaskViews.First().Theme3,
                         Theme4 = DayTaskViews.First().Theme4,
                         Theme5 = DayTaskViews.First().Theme5,
-                        Background = DayTaskViews.First().Background
+                        Background = DayTaskViews.First().Background,
+                        ForegroundColor = DayTaskViews.First().ForegroundColor
                     });
                 }));
                 

@@ -9,16 +9,24 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="1000">
     <UserControl.Resources>
-        <Style TargetType="{x:Type DataGridRow}">
+        <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}" >
             <Style.Triggers>
-                <!-- 例如，根据某个绑定属性的值来更改背景颜色 -->
+                <!-- 可以添加更多的 DataTrigger 来处理不同的条件 -->
+                <!--<Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.DataGrid.RowHoverBackground}" />
+                </Trigger>-->
                 <DataTrigger Binding="{Binding Background}" Value="1">
                     <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                    <Setter Property="Foreground" Value="{Binding ForegroundColor}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Background}" Value="0">
-                    <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}"/>
-                </DataTrigger>
-                <!-- 可以添加更多的 DataTrigger 来处理不同的条件 -->
+                
+                <!--<Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.DataGrid.Selected}" />
+                </Trigger>
+               
+                <Trigger Property="IsNewItem" Value="True">
+                    <Setter Property="Margin" Value="{Binding NewItemMargin, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                </Trigger>-->
             </Style.Triggers>
         </Style>
         
@@ -39,7 +47,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" x:Name="upPanel" Background="{DynamicResource MaterialDesignCardBackground}" Orientation="Horizontal">
-            <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" />
+            <TextBlock  Text="起始日期" VerticalAlignment="Center" Margin="10" />
             <DatePicker
         Width="120" Margin="10" HorizontalContentAlignment="Center"
         materialDesign:CalendarAssist.IsHeaderVisible="False"
@@ -86,7 +94,8 @@
         <UniformGrid Grid.Row="2" Grid.Column="0" >
             <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
                           ScrollViewer.CanContentScroll="True"
-                      
+                      EnableColumnVirtualization ="False"
+                       EnableRowVirtualization ="False"
                       HorizontalAlignment="Left" Margin="10,10,0,10"
                        ItemsSource="{Binding TimeObjs}"/>
           

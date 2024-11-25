@@ -4,6 +4,7 @@ using Summary.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,66 @@ namespace Summary.Models
         public DataGrid TimeGrid { get; set; }
         public Dictionary<int, string> WorkThemes { get; set; } = new Dictionary<int, string>();
         public Dictionary<int, string> SubWorkThemes { get; set; } = new Dictionary<int, string>();
+        private int todayReward;
+        private string todayRewardString;
+        public string TodayRewardString
+        {
+            get { return todayRewardString; }
+            set { todayRewardString = value; OnPropertyChanged(); }
+        }
+        private int todayMinus;
+        private string todayMinusString;
+        public string TodayMinusString
+        {
+            get { return todayMinusString; }
+            set { todayMinusString = value; OnPropertyChanged(); }
+        }
+        private string todayTotalString;
+        public string TodayTotalString
+        {
+            get { return todayTotalString; }
+            set { todayTotalString = value; OnPropertyChanged(); }
+        }
+        private int weekReward;
+        private string weekRewardString;
+        public string WeekRewardString
+        {
+            get { return weekRewardString; }
+            set { weekRewardString = value; OnPropertyChanged(); }
+        }
+        private int weekMinus;
+        private string weekMinusString;
+        public string WeekMinusString
+        {
+            get { return weekMinusString; }
+            set { weekMinusString = value; OnPropertyChanged(); }
+        }
+        private string weekTotalString;
+        public string WeekTotalString
+        {
+            get { return weekTotalString; }
+            set { weekTotalString = value; OnPropertyChanged(); }
+        }
+        private int currentReward;
+        private string currentRewardString;
+        public string CurrentRewardString
+        {
+            get { return currentRewardString; }
+            set { currentRewardString = value; OnPropertyChanged(); }
+        }
+        private int currentMinus;
+        private string currentMinusString;
+        public string CurrentMinusString
+        {
+            get { return currentMinusString; }
+            set { currentMinusString = value; OnPropertyChanged(); }
+        }
+        private string currentTotalString;
+        public string CurrentTotalString
+        {
+            get { return currentTotalString; }
+            set { currentTotalString = value; OnPropertyChanged(); }
+        }
         public DateTime startTime {  get; set; } = new DateTime(DateTime.Today.Year,DateTime.Today.Month,1);
         public DateTime StartTime
         {
@@ -46,6 +107,7 @@ namespace Summary.Models
             set { timeObjs = value; OnPropertyChanged(); }
         }
         public ISQLCommands SQLCommands { get; set; }
+        private DateTime firstDayOfWeek{get;set;}
         public PlanModel(ISQLCommands SqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
@@ -55,6 +117,7 @@ namespace Summary.Models
             WorkThemes.Add(63, "弹幕");
             WorkThemes.Add(3, "玩");
             WorkThemes.Add(22, "浪费");
+            firstDayOfWeek = getFirstDayOfWeek();
         }
         private void closeDialog()
         {
@@ -144,22 +207,91 @@ namespace Summary.Models
             {
                 initTimeObjs(startTime, endTime);
             }));
+            if(startTime<=DateTime.Today && endTime>=DateTime.Today){
+                todayReward = 0;
+                todayMinus = 0;
+            }
+            if(startTime<= firstDayOfWeek && endTime>=firstDayOfWeek.AddDays(6))
+            {
+                weekReward = 0;
+                weekMinus = 0;
+            }
+            currentMinus = 0;
+            currentReward = 0;
             List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(startTime,endTime);
             List<ToDoObj> allToDoByDate = AllTimeObjs.Where(x=>x.type!= null&&x.type!="none"&&!string.IsNullOrEmpty(x.note)).OrderBy(x => x.createDate).GroupBy(x => new { x.note,x.createDate }).Select(x => new ToDoObj() { CreatedDate = x.Key.createDate, Note = x.Key.note, LastTime = new TimeSpan(x.Sum(x => (x.endTime-x.startTime).Ticks)), Id = x.First().taskId, Type = x.First().type }).ToList();
+            bool calculateAllAtFirstTime = true;
             foreach (int i in WorkThemes.Keys)
             {
                 SubWorkThemes.Clear();
                 AddSubCategories(i);
                 foreach (ToDoObj recordedTask in allToDoByDate)
                 {
-                    recordedTask.Type = Helper.allcategories.FirstOrDefault(x=>x.Id == SQLCommands.QueryTodo(recordedTask.Id).CategoryId).Name;
-                    if (SubWorkThemes.Values.Contains(recordedTask.Type))
+                    GeneratedToDoTask todo = SQLCommands.QueryTodo(recordedTask.Id);
+                    Category a = Helper.allcategories.FirstOrDefault(x => x.Id == todo.CategoryId);
+                    recordedTask.Type = a.Name;
+                    recordedTask.Bonus = Convert.ToInt32(a.BonusPerHour * recordedTask.LastTime.TotalHours);
+                    if(calculateAllAtFirstTime){
+                        CalculateBonus(recordedTask.Bonus, recordedTask.CreatedDate);
+                    }
+                    if (SubWorkThemes.ContainsKey(a.Id))
                     {
-                        recordedTask.Type = WorkThemes[i];
+                       recordedTask.Type = WorkThemes[i];
                        InsertTaskIntoDayTaskViews(recordedTask, TimeObjs);
                     }
                 }
+                calculateAllAtFirstTime = false;
             }
+            TimeGrid.Dispatcher.Invoke(new Action(delegate
+            {
+                TodayRewardString = todayReward.ToString();
+                TodayMinusString = todayMinus.ToString();
+                TodayTotalString = (todayReward+ todayMinus).ToString();
+                WeekRewardString = weekReward.ToString();
+                WeekMinusString = weekMinus.ToString();
+                WeekTotalString = (weekReward + weekMinus).ToString();
+                CurrentRewardString = currentReward.ToString();
+                CurrentMinusString = currentMinus.ToString();
+                CurrentTotalString = (currentReward + currentMinus).ToString();
+            }));
+        }
+
+        private void CalculateBonus(int bonus, DateTime taskDate)
+        {
+            if(bonus>0){
+                currentReward += bonus;
+                if(DateTime.Today==taskDate){
+                    todayReward += bonus;
+                }
+                if(taskDate <= firstDayOfWeek && taskDate >= firstDayOfWeek.AddDays(6)){
+                    weekReward += bonus;
+                }
+            }
+            else{
+                currentMinus += bonus;
+                if (DateTime.Today == taskDate)
+                {
+                    todayMinus += bonus;
+                }
+                if (taskDate <= firstDayOfWeek && taskDate >= firstDayOfWeek.AddDays(6))
+                {
+                    weekMinus += bonus;
+                }
+            }
+        }
+
+        private DateTime getFirstDayOfWeek()
+        {
+            // 获取当前日期
+            DateTime now = DateTime.Now;
+
+            // 获取当前文化信息
+            CultureInfo culture = CultureInfo.CurrentCulture;
+
+            // 获取一周的第一天（CalendarWeekRule 和 DayOfWeek）
+            System.Globalization.Calendar calendar = culture.Calendar;
+            DateTime firstDayOfWeek = now.AddDays(-(int)(calendar.GetDayOfWeek(now)));
+            return firstDayOfWeek;
         }
 
         private void InsertTaskIntoDayTaskViews(ToDoObj recordedTask, ObservableCollection<DayTaskView> TimeObjs)

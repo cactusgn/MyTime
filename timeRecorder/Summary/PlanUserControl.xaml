@@ -63,18 +63,30 @@
         </StackPanel>
         <Border Grid.Row="1" Margin="10,5">
             <StackPanel Orientation="Horizontal" Background="{StaticResource MaterialDesignLightSeparatorBackground}">
-                <TextBlock>本日获得：</TextBlock>
-                <TextBlock x:Name="TotalCost" Text="{Binding TotalCostString}"></TextBlock>
-                <TextBlock Margin="10,0">本周获得:</TextBlock>
-                <TextBlock x:Name="AverageCost" Text="{Binding AverageCost}"></TextBlock>
-                <TextBlock Margin="10,0">本月获得：</TextBlock>
-                <TextBlock x:Name="TotalBonus" Text="{Binding TotalBonus}"></TextBlock>
-            </StackPanel>
+                <TextBlock >本日获得：</TextBlock>
+                <TextBlock Margin="0,0,10,0" x:Name="TodayReward" Text="{Binding TodayRewardString}"></TextBlock>
+                    <TextBlock >本日扣除：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="TodayMinus" Text="{Binding TodayMinusString}"></TextBlock>
+                <TextBlock>本日总获得：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="TodayTotal" Text="{Binding TodayTotalString}"></TextBlock>
+                <TextBlock>本周获得：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="WeekReward" Text="{Binding WeekRewardString}"></TextBlock>
+                <TextBlock>本周扣除：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="WeekMinus" Text="{Binding WeekMinusString}"></TextBlock>
+                <TextBlock>本周总获得：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="WeekTotal" Text="{Binding WeekTotalString}"></TextBlock>
+                <TextBlock>当前周期获得：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="CurrentReward" Text="{Binding CurrentRewardString}"></TextBlock>
+                <TextBlock>当前周期扣除：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="CurrentMinus" Text="{Binding CurrentMinusString}"></TextBlock>
+                <TextBlock>当前周期总获得：</TextBlock>
+                    <TextBlock Margin="0,0,10,0" x:Name="CurrentTotal" Text="{Binding CurrentTotalString}"></TextBlock>
+                </StackPanel>
         </Border>
         <UniformGrid Grid.Row="2" Grid.Column="0" >
             <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
                           ScrollViewer.CanContentScroll="True"
-
+                      
                       HorizontalAlignment="Left" Margin="10,10,0,10"
                        ItemsSource="{Binding TimeObjs}"/>
           

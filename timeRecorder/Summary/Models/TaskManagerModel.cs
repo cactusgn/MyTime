@@ -249,6 +249,7 @@ namespace Summary.Models
                     Id = subItem.Id
                 };
                 await SQLCommands.UpdateCategory(subCategory);
+                UpdateSubCategoryBonus(subCategory);
             }
         }
         public async void EditCategory(AddCategoryModel category)
@@ -257,6 +258,7 @@ namespace Summary.Models
             UpdateSubCategoryBonus(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             string oldVisibleValue = root.Visible;
+            int oldBonus = root.Bonus;
             root.Title = category.Category;
             root.Color = category.SelectedColor;
             root.Bonus = category.Bonus;
@@ -264,7 +266,7 @@ namespace Summary.Models
             root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
             root.VisibleValue = category.Visible;
             queryTaskModel.UpdateContextMenu();
-            if(root.ParentId != category.ParentId||root.Visible!=oldVisibleValue)
+            if(root.ParentId != category.ParentId||root.Visible!=oldVisibleValue||root.Bonus!=oldBonus)
             {
                 RefreshCategories();
             }

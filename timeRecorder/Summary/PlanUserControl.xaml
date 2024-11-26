@@ -9,27 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="1000">
     <UserControl.Resources>
-        <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}" >
-            <Style.Triggers>
-                <!-- 可以添加更多的 DataTrigger 来处理不同的条件 -->
-                <!--<Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.DataGrid.RowHoverBackground}" />
-                </Trigger>-->
-                <DataTrigger Binding="{Binding Background}" Value="1">
-                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
-                    <Setter Property="Foreground" Value="{Binding ForegroundColor}"/>
-                </DataTrigger>
-                
-                <!--<Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.DataGrid.Selected}" />
-                </Trigger>
-               
-                <Trigger Property="IsNewItem" Value="True">
-                    <Setter Property="Margin" Value="{Binding NewItemMargin, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
-                </Trigger>-->
-            </Style.Triggers>
-        </Style>
-        
+      
     </UserControl.Resources>
     <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
                           Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
@@ -92,14 +72,41 @@
                 </StackPanel>
         </Border>
         <UniformGrid Grid.Row="2" Grid.Column="0" >
-            <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
-                          ScrollViewer.CanContentScroll="True"
+                <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
+                       ScrollViewer.CanContentScroll="True"
                       EnableColumnVirtualization ="False"
                        EnableRowVirtualization ="False"
                       HorizontalAlignment="Left" Margin="10,10,0,10"
-                       ItemsSource="{Binding TimeObjs}"/>
-          
-        </UniformGrid>
+                       
+                       ItemsSource="{Binding TimeObjs}">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <!-- Default Background -->
+                            <Setter Property="Background" Value="White" />
+
+                            <!-- DataTrigger to change background based on a condition -->
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Background}" Value="1">
+                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Foreground" Value="{Binding ForegroundColor}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Background}" Value="0">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </DataTrigger>
+                                <!-- Trigger for MouseOver -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#DDDDDD" />
+                                    <Setter Property="Foreground" Value="#000000"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#DDDDDD" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+
+            </UniformGrid>
     </Grid>
     </materialDesign:DialogHost>
 </UserControl>

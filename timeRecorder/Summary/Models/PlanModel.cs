@@ -117,7 +117,7 @@ namespace Summary.Models
             WorkThemes.Add(1, "想做");
             WorkThemes.Add(7, "TimeRecorder");
             WorkThemes.Add(63, "弹幕");
-            WorkThemes.Add(3, "玩");
+            WorkThemes.Add(32, "锻炼");
             WorkThemes.Add(22, "浪费");
             firstDayOfWeek = getFirstDayOfWeek();
         }

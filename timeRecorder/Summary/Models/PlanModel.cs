@@ -1,4 +1,5 @@
-﻿using Summary.Common;
+﻿using MaterialDesignThemes.Wpf;
+using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
 using System;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -17,7 +17,7 @@ namespace Summary.Models
 {
     public class PlanModel : ViewModelBase
     {
-        public DataGrid TimeGrid { get; set; }
+        public System.Windows.Controls.DataGrid TimeGrid { get; set; }
         public Dictionary<int, string> WorkThemes { get; set; } = new Dictionary<int, string>();
         public Dictionary<int, string> SubWorkThemes { get; set; } = new Dictionary<int, string>();
         
@@ -100,7 +100,14 @@ namespace Summary.Models
             get => _IsDialogOpen;
             set { _IsDialogOpen = value; OnPropertyChanged(); }
         }
+        private bool themeOpen;
+        public bool ThemeOpen
+        {
+            get => themeOpen;
+            set { themeOpen = value; OnPropertyChanged(); }
+        }
         public MyCommand ClickOkButtonCommand { get; set; }
+        public MyCommand ClickThemeButtonCommand { get; set; }
         private ObservableCollection<DayTaskView> timeObjs = new ObservableCollection<DayTaskView>();
 
         public ObservableCollection<DayTaskView> TimeObjs
@@ -108,11 +115,20 @@ namespace Summary.Models
             get { return timeObjs; }
             set { timeObjs = value; OnPropertyChanged(); }
         }
+        private ObservableCollection<CategoryTheme> themeItems = new ObservableCollection<CategoryTheme>();
+        public ObservableCollection<CategoryTheme> ThemeItems
+        {
+            get { return themeItems; }
+            set { themeItems = value; OnPropertyChanged();}
+        }
         public ISQLCommands SQLCommands { get; set; }
         private DateTime firstDayOfWeek{get;set;}
+        public MyCommand CheckChangedCommand { get; set; }
         public PlanModel(ISQLCommands SqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
+            ClickThemeButtonCommand = new MyCommand(ClickThemeButton);
+            CheckChangedCommand = new MyCommand(ThemeCheckChanged);
             SQLCommands = SqlCommands;
             WorkThemes.Add(1, "想做");
             WorkThemes.Add(7, "TimeRecorder");
@@ -120,6 +136,30 @@ namespace Summary.Models
             WorkThemes.Add(32, "锻炼");
             WorkThemes.Add(22, "浪费");
             firstDayOfWeek = getFirstDayOfWeek();
+        }
+
+        private void ThemeCheckChanged(object obj)
+        {
+            CategoryTheme ct = (CategoryTheme)obj;
+            
+        }
+
+        private void ClickThemeButton(object obj)
+        {
+            ThemeOpen = true;
+            ThemeItems.Clear();
+            addThemes(0, 0);
+        }
+        private void addThemes(int parentKey, int level)
+        {
+            foreach(Category category in Helper.allcategories)
+            {
+                if(category.ParentCategoryId == parentKey)
+                {
+                    ThemeItems.Add(new CategoryTheme() { Level = level + 1, Checked=false, Name = category.Name });
+                    addThemes(category.Id, level+1);
+                }
+            }
         }
         private void closeDialog()
         {
@@ -396,7 +436,7 @@ namespace Summary.Models
         public void AddColumnsToTable()
         {
             this.TimeGrid.Columns.Clear();
-            this.TimeGrid.Columns.Add(new DataGridTextColumn()
+            this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
             {
                 Header = "日期",
                 IsReadOnly = true,
@@ -405,7 +445,7 @@ namespace Summary.Models
                     StringFormat = "yyyy/MM/dd"
                 }
             });
-            this.TimeGrid.Columns.Add(new DataGridTextColumn()
+            this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
             {
                 Header = "星期",
                 IsReadOnly = true,

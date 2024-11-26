@@ -7,6 +7,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="Summary.PlanUserControl"
              xmlns:uc="clr-namespace:Summary.Domain" xmlns:col="clr-namespace:System.Collections;assembly=System.Collections.NonGeneric"
              mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              d:DesignHeight="450" d:DesignWidth="1000">
     <UserControl.Resources>
       
@@ -17,10 +18,76 @@
             <!--这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字
            不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写
            也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
-
-            <uc:SampleProgressDialog ></uc:SampleProgressDialog>
+         <uc:SampleProgressDialog ></uc:SampleProgressDialog>
         </materialDesign:DialogHost.DialogContent>
-        <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+        <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ElementName=ThemeToggleButton, Path=IsChecked}">
+            <materialDesign:DrawerHost.RightDrawerContent>
+                <DockPanel Width="320">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10">
+                    <TextBox x:Name="DemoItemsSearchBox"
+                            Width="230" Height="50"
+                            materialDesign:HintAssist.Hint="Search"
+                            materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
+                            materialDesign:TextFieldAssist.HasClearButton="True"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                            Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" />
+                    <ToggleButton Margin="16"
+                                  Content="{materialDesign:PackIcon Kind=ArrowRight,Size=21}"
+                                  HorizontalAlignment="Right"
+                                  IsChecked="{Binding ElementName=ThemeToggleButton, Path=IsChecked, Mode=TwoWay}"
+                                  Style="{StaticResource MaterialDesignFlatPrimaryToggleButton}" />
+                    </StackPanel>
+                    <ListBox x:Name="ThemeListBox"
+                AutomationProperties.Name="ThemePagesListBox"
+                ItemsSource="{Binding ThemeItems}"
+                PreviewMouseLeftButtonUp="ThemeListBox_PreviewMouseLeftButtonUp"
+                SelectedIndex="{Binding SelectedIndex}"
+                SelectedItem="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged}"
+                Style="{StaticResource MaterialDesignNavigationListBox}"
+                materialDesign:ListBoxItemAssist.ShowSelection="False">
+                        <ListBox.Resources>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource MaterialDesignScrollBarMinimal}" />
+                        </ListBox.Resources>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                <i:InvokeCommandAction 
+                        CommandParameter="{Binding }"
+                        Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                <i:InvokeCommandAction 
+CommandParameter="{Binding }"
+Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate >
+                                <StackPanel Orientation="Horizontal" >
+                                    <CheckBox Margin="0,0,8,0" IsChecked="{Binding Checked}" Background="DimGray" >
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="Checked">
+                                                <i:InvokeCommandAction 
+ CommandParameter="{Binding }"
+ Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="Unchecked">
+                                                <i:InvokeCommandAction 
+ CommandParameter="{Binding }"
+ Command="{Binding DataContext.CheckChangedCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox}}"></i:InvokeCommandAction>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </CheckBox>
+                                    <TextBlock Margin="0,0,0,0" 
+                        AutomationProperties.AutomationId="ThemeItemPage"
+                        Text="{Binding Name}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </materialDesign:DrawerHost.RightDrawerContent>
+       
+            <Grid Background="{DynamicResource MaterialDesignCardBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
@@ -47,7 +114,8 @@
         ToolTip="本周">
                 <materialDesign:PackIcon Kind="Restore" />
             </Button>
-            <Button Content="选择主题"  Margin="10" BorderBrush="AliceBlue" Background="#99CC60" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"/>
+            <Button Content="选择主题"  Margin="10" BorderBrush="AliceBlue" Background="#99CC60" Command="{Binding ClickThemeButtonCommand}" Foreground="Black"/>
+            <CheckBox x:Name="ThemeToggleButton" Visibility="Collapsed" IsChecked="{Binding ThemeOpen}"></CheckBox>
         </StackPanel>
         <Border Grid.Row="1" Margin="10,5">
             <StackPanel Orientation="Horizontal" Background="{StaticResource MaterialDesignLightSeparatorBackground}">
@@ -107,6 +175,7 @@
                 </DataGrid>
 
             </UniformGrid>
-    </Grid>
+        </Grid>
+     </materialDesign:DrawerHost>
     </materialDesign:DialogHost>
 </UserControl>

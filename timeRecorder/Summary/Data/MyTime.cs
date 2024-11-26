@@ -78,6 +78,8 @@ namespace Summary.Data
         public int BonusPerHour{ get; set; }
         [DefaultValue(true)]
         public bool Visible{ get; set; }
+        [DefaultValue(false)]
+        public bool SelectedForPlan { get; set; }
         public int ParentCategoryId{ get; set; }
         public string Color{ get; set; }
         [DefaultValue(true)]

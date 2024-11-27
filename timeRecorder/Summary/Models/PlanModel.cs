@@ -266,7 +266,7 @@ namespace Summary.Models
                 todayReward = 0;
                 todayMinus = 0;
             }
-            if(startTime <= firstDayOfWeek && endTime >= firstDayOfWeek.AddDays(6))
+            if(startTime <= firstDayOfWeek)
             {
                 weekReward = 0;
                 weekMinus = 0;

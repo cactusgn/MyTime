@@ -50,7 +50,7 @@ namespace Summary
 
             while (dependencyObject != null)
             {
-                if (dependencyObject is ScrollBar) return;
+                if (dependencyObject is MaterialDesignThemes.Wpf.DrawerHost) return;
                 dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
             }
 

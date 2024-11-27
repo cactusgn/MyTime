@@ -402,3 +402,4 @@ FodyWeavers.xsd
 *.sln.iml
 SI.Core.Android/obj/Debug/
 SI.Core/obj/Debug/
+timeRecorder/Summary/TimeTests.db

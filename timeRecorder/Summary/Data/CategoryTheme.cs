@@ -11,5 +11,11 @@ namespace Summary.Data
         public string Name { get; set; }
         public int Level {  get; set; }
         public bool Checked { get; set; }
+        public string Margin {
+            get
+            {
+                return $"{Level*20 - 10},0,8,0";
+            }
+        }
     }
 }

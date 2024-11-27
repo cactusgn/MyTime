@@ -22,23 +22,29 @@
         </materialDesign:DialogHost.DialogContent>
         <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ElementName=ThemeToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.RightDrawerContent>
-                <DockPanel Width="320">
+                <DockPanel Width="420">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10">
-                    <TextBox x:Name="DemoItemsSearchBox"
-                            Width="230" Height="50"
-                            materialDesign:HintAssist.Hint="Search"
-                            materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
-                            materialDesign:TextFieldAssist.HasClearButton="True"
-                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                            Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button Margin="10,5"
-  IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-  Style="{StaticResource MaterialDesignIconButton}"
-  ToolTip="MaterialDesignIconButton">
-                            <materialDesign:PackIcon
-    Kind="ArrowRight" />
-                        </Button>
+                        <TextBlock Margin="5" Style="{DynamicResource   MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
+                        <ToggleButton  IsChecked="{Binding ShowHiddenItems}"  Command="{Binding ShowHiddenItemsCheckedCommand}"
+                          Width="40"
+                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                          ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background">  
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                                <SolidColorBrush
+      Color="{DynamicResource MaterialDesignShadow }" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                                <SolidColorBrush
+      Color="Gray" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                        </ToggleButton>
+                        <TextBlock Margin="5">隐藏类型</TextBlock>
                     </StackPanel>
+                    <DockPanel DockPanel.Dock="Bottom" Height="70" 
+                                Background="{DynamicResource MaterialDesignDarkSeparatorBackground}"
+                                VerticalAlignment="Center">
+                        <Button Height="40" Width="350">确定</Button>
+                    </DockPanel>
                     <ListBox DockPanel.Dock="Top" x:Name="ThemeListBox"
                 AutomationProperties.Name="ThemePagesListBox"
                 ItemsSource="{Binding ThemeItems}"
@@ -65,7 +71,7 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
                         <ListBox.ItemTemplate>
                             <DataTemplate >
                                 <StackPanel Orientation="Horizontal" >
-                                    <CheckBox Margin="0,0,8,0" IsChecked="{Binding Checked}" Background="DimGray" >
+                                    <CheckBox Margin="{Binding Margin}" IsChecked="{Binding Checked}" Background="DimGray" >
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Checked">
                                                 <i:InvokeCommandAction 
@@ -86,9 +92,7 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <StackPanel DockPanel.Dock="Bottom" Height="50">
-                        <Button>test</Button>
-                    </StackPanel>
+                    
                 </DockPanel>
             </materialDesign:DrawerHost.RightDrawerContent>
        

@@ -106,6 +106,12 @@ namespace Summary.Models
             get => themeOpen;
             set { themeOpen = value; OnPropertyChanged(); }
         }
+        private bool showHiddenItems;
+        public bool ShowHiddenItems
+        {
+            get => showHiddenItems;
+            set { showHiddenItems = value; OnPropertyChanged(); }
+        }
         public MyCommand ClickOkButtonCommand { get; set; }
         public MyCommand ClickThemeButtonCommand { get; set; }
         private ObservableCollection<DayTaskView> timeObjs = new ObservableCollection<DayTaskView>();
@@ -124,11 +130,13 @@ namespace Summary.Models
         public ISQLCommands SQLCommands { get; set; }
         private DateTime firstDayOfWeek{get;set;}
         public MyCommand CheckChangedCommand { get; set; }
+        public MyCommand ShowHiddenItemsCheckedCommand { get; set; }
         public PlanModel(ISQLCommands SqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
             ClickThemeButtonCommand = new MyCommand(ClickThemeButton);
             CheckChangedCommand = new MyCommand(ThemeCheckChanged);
+            ShowHiddenItemsCheckedCommand = new MyCommand(ShowHiddenItemsCheckChanged);
             SQLCommands = SqlCommands;
             WorkThemes.Add(1, "想做");
             WorkThemes.Add(7, "TimeRecorder");
@@ -136,6 +144,12 @@ namespace Summary.Models
             WorkThemes.Add(32, "锻炼");
             WorkThemes.Add(22, "浪费");
             firstDayOfWeek = getFirstDayOfWeek();
+            ShowHiddenItems = bool.Parse(Helper.GetAppSetting("ShowHiddenItems"));
+        }
+
+        private void ShowHiddenItemsCheckChanged(object obj)
+        {
+            Helper.SetAppSetting("ShowHiddenItems", ShowHiddenItems.ToString());
         }
 
         private void ThemeCheckChanged(object obj)

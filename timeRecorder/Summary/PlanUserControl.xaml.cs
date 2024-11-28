@@ -27,6 +27,7 @@ namespace Summary
             InitializeComponent();
             this.DataContext = planModel;
             planModel.TimeGrid = this.TimeGrid;
+            planModel.clickOkButton(null);
         }
         
        

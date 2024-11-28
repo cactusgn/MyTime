@@ -152,12 +152,23 @@ namespace Summary.Models
             var view = new SampleMessageDialog(message);
             await DialogHost.Show(view, "RootDialog3");
         }
-        private void ConfirmThemes(object obj)
+        private async void ConfirmThemes(object obj)
         {
            if(SelectedMoreThan5Themes()){
-                showMessageBox("最多选择5个主题");
+                await showMessageBox("最多选择5个主题");
                 return;
            }
+           WorkThemes.Clear();
+           foreach (var theme in ThemeItems)
+            {
+                if (theme.Checked)
+                {
+                    WorkThemes.Add(theme.Id, theme.Name);
+                }
+                SQLCommands.updateCheckedTheme(theme);
+            }
+            ThemeOpen = false;
+            clickOkButton(null);
         }
 
         private bool SelectedMoreThan5Themes()
@@ -222,7 +233,7 @@ namespace Summary.Models
             }
         }
 
-        private async void clickOkButton(object a)
+        public async void clickOkButton(object a)
         {
             if (a!=null &&a.ToString() == "LastMonth")
             {

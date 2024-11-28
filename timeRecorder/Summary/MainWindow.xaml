@@ -93,8 +93,8 @@
                                                             </Setter.Value>
                                                         </Setter>
                                                         <Setter Property="Cursor" Value="Hand"/>
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -117,8 +117,8 @@
                                                 </StackPanel>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                         <Setter Property="Cursor" Value="Hand"/>
                                                         <Setter Property="Effect">
                                                             <Setter.Value>
@@ -147,8 +147,8 @@
                                                     </StackPanel>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                             <Setter Property="Cursor" Value="Hand"/>
                                                             <Setter Property="Effect">
                                                                 <Setter.Value>
@@ -177,8 +177,8 @@
                                                     </StackPanel>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                             <Setter Property="Cursor" Value="Hand"/>
                                                             <Setter Property="Effect">
                                                                 <Setter.Value>
@@ -211,8 +211,8 @@
                                                 </StackPanel>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                             <Setter Property="Cursor" Value="Hand"/>
                                                             <Setter Property="Effect">
                                                                 <Setter.Value>
@@ -243,8 +243,8 @@
                                                 </StackPanel>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{DynamicResource PrimaryHueMidBrush}" />
-                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonIcon" Value="{Binding HoverForegroundColor}" />
+                                                            <Setter Property="Foreground" TargetName="LeftButtonText" Value="{Binding HoverForegroundColor}" />
                                                             <Setter Property="Cursor" Value="Hand"/>
                                                             <Setter Property="Effect">
                                                                 <Setter.Value>

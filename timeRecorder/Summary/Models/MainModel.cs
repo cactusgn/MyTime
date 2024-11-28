@@ -27,6 +27,7 @@ using MaterialDesignColors;
 using System.Configuration;
 using Summary.Common.Utils;
 using Microsoft.Data.SqlClient;
+using ScottPlot.Drawing.Colormaps;
 
 namespace Summary.Models
 {
@@ -84,15 +85,22 @@ namespace Summary.Models
             get { return colorBtnForegroundColor; }
             set { colorBtnForegroundColor = value; OnPropertyChanged(); }
         }
+        public string hoverForegroundColor = Colors.Gray.ToString();
+        public string HoverForegroundColor
+        {
+            get { return hoverForegroundColor; }
+            set { hoverForegroundColor = value; OnPropertyChanged(); }
+        }
         private RecordModel RecordModel;
         private PlanModel PlanModel;
         private TaskManagerModel TaskManagerModel;
+        private bool isDark ;
         public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel, PlanModel planModel)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
             string ThemeColor = Helper.GetAppSetting("ThemeColor");
-            bool isDark = bool.Parse(Helper.GetAppSetting("IsDark"));
+            isDark = bool.Parse(Helper.GetAppSetting("IsDark"));
             theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString(ThemeColor));
             if(isDark){
                 theme.SetBaseTheme(new MaterialDesignDarkTheme());
@@ -100,6 +108,7 @@ namespace Summary.Models
                 theme.SetBaseTheme(new MaterialDesignLightTheme());
             }
             _paletteHelper.SetTheme(theme);
+            HoverForegroundColor = getColor(_paletteHelper.GetTheme().PrimaryMid.Color.ToString());
             OpenPageCommand = new MyCommand(OpenPage);
             Settings = new Settings(new SettingsModel());
             RecordPageUserControl = new RecordPageUserControl(recordModel);
@@ -113,7 +122,33 @@ namespace Summary.Models
             ColorTool = new ColorTool(this);
             OpenPage("RecordPageUserControl");
         }
-        
+        static System.Windows.Media.Color AdjustBrightness(System.Drawing.Color color, float factor)
+        {
+            // 将颜色的R、G、B分量分别乘以因子，并限制在0-255范围内
+            int r = (int)(color.R * factor);
+            int g = (int)(color.G * factor);
+            int b = (int)(color.B * factor);
+
+            // 使用Math.Min和Math.Max确保值在有效范围内
+            r = Math.Min(255, Math.Max(0, r));
+            g = Math.Min(255, Math.Max(0, g));
+            b = Math.Min(255, Math.Max(0, b));
+
+            // 返回新的颜色
+            return System.Windows.Media.Color.FromRgb(Convert.ToByte(r), Convert.ToByte(g), Convert.ToByte(b));
+        }
+        private string getColor(string colorString){
+            isDark = bool.Parse(Helper.GetAppSetting("IsDark"));
+            System.Drawing.Color color = System.Drawing.ColorTranslator.FromHtml(colorString);
+            if (!isDark){
+                System.Windows.Media.Color darkerColor = AdjustBrightness(color, 0.8f);
+                HoverForegroundColor = darkerColor.ToString();
+                return darkerColor.ToString();
+            }else{
+                HoverForegroundColor = colorString;
+                return colorString;
+            }
+        }
         private  void OpenPage(object o)
         {
             ITheme theme = _paletteHelper.GetTheme();
@@ -128,13 +163,13 @@ namespace Summary.Models
                 RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;
                 ResetColor();
-                RecordBtnForegroundColor = palette.Color.ToString();
+                RecordBtnForegroundColor = getColor(palette.Color.ToString());
             }
             else if(o.ToString() == "SummaryUserControl")
             {
                 MainContent = SummaryUserControl;
                 ResetColor();
-                SummaryBtnForegroundColor = palette.Color.ToString();
+                SummaryBtnForegroundColor = getColor(palette.Color.ToString());
                 //SummaryModel.initTypeCombobox();
                 //SummaryModel.RefreshSingleDayRadioButtons();
                 //SummaryModel.clickOkButton();
@@ -142,25 +177,25 @@ namespace Summary.Models
             {
                 MainContent = ColorTool;
                 ResetColor();
-                ColorBtnForegroundColor = palette.Color.ToString();
+                ColorBtnForegroundColor = getColor(palette.Color.ToString());
             }
             else if (o.ToString() == "Settings")
             {
                 MainContent = Settings;
                 ResetColor();
-                SettingsBtnForegroundColor = palette.Color.ToString();
+                SettingsBtnForegroundColor = getColor(palette.Color.ToString());
             }
             else if (o.ToString() == "TaskManager")
             {
                 TaskManagerModel.queryTaskModel.clickOkButton();
                 MainContent = TaskManagerUserControl;
                 ResetColor();
-                TaskBtnForegroundColor = palette.Color.ToString();
+                TaskBtnForegroundColor = getColor(palette.Color.ToString());
             }else if (o.ToString()=="PlanManager")
             {
                 MainContent = PlanUserControl;
                 ResetColor();
-                PlanBtnForegroundColor = palette.Color.ToString();
+                PlanBtnForegroundColor = getColor(palette.Color.ToString());
             }
         }
         private void ResetColor()

@@ -150,12 +150,13 @@ namespace Summary.Models
         private void ShowHiddenItemsCheckChanged(object obj)
         {
             Helper.SetAppSetting("ShowHiddenItems", ShowHiddenItems.ToString());
+            ThemeItems.Clear();
+            addThemes(0, 0);
         }
 
         private void ThemeCheckChanged(object obj)
         {
             CategoryTheme ct = (CategoryTheme)obj;
-            
         }
 
         private void ClickThemeButton(object obj)
@@ -170,6 +171,10 @@ namespace Summary.Models
             {
                 if(category.ParentCategoryId == parentKey)
                 {
+                    if(!category.Visible&&!showHiddenItems)
+                    {
+                        continue;
+                    }
                     ThemeItems.Add(new CategoryTheme() { Level = level + 1, Checked=false, Name = category.Name });
                     addThemes(category.Id, level+1);
                 }
@@ -223,24 +228,12 @@ namespace Summary.Models
         {
             TimeObjs.Clear();
             string ThemeColor = Helper.GetAppSetting("ThemeColor");
-            bool isLightColor = Helper.IsLightColor((Color)ColorConverter.ConvertFromString(ThemeColor));
             for (int i = 0; i<(endTime-startTime).Days+1; i++)
             {
                 var dayTaskView = new DayTaskView() { TaskDate = startTime.AddDays(i) };
                 foreach (var value in WorkThemes.Values)
                 {
                     dayTaskView.Background = i % 2;
-                    if(i % 2 == 1 )
-                    {
-                        if(isLightColor)
-                        {
-                            dayTaskView.ForegroundColor = "#000000";
-                        }
-                        else
-                        {
-                            dayTaskView.ForegroundColor = "#FFFFFF";
-                        }
-                    }
                     if (string.IsNullOrEmpty(dayTaskView.Theme1))
                     {
                         dayTaskView.Theme1 = value;
@@ -439,7 +432,6 @@ namespace Summary.Models
                         Theme4 = DayTaskViews.First().Theme4,
                         Theme5 = DayTaskViews.First().Theme5,
                         Background = DayTaskViews.First().Background,
-                        ForegroundColor = DayTaskViews.First().ForegroundColor
                     });
                 }));
                 

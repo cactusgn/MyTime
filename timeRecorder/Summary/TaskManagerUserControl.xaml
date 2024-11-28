@@ -31,7 +31,7 @@
             <Setter Property="AllowDrop" Value="True"></Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueMidBrush}" />
+                    <Setter Property="Foreground"  Value="{DynamicResource PrimaryHueDarkBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -48,11 +48,7 @@
             </Grid.ColumnDefinitions>
            
                 <DockPanel Background="{StaticResource MaterialDesignLightSeparatorBackground}" >
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10,5" Visibility="Collapsed">
-                    <TextBlock >模式：</TextBlock>
-                    <RadioButton GroupName="taskMode" Margin="5,0">统计</RadioButton>
-                    <RadioButton GroupName="taskMode" Margin="5,0">计划</RadioButton>
-                </StackPanel>
+     
                     
                     <TreeView Name="RootTreeView" DockPanel.Dock="Top" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               AllowDrop="True" 
@@ -77,7 +73,7 @@
                             <HierarchicalDataTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Cursor" Value="Hand"/>
-                                    <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueMidBrush}" />
+                                    <Setter Property="Foreground" TargetName="Title" Value="{DynamicResource PrimaryHueDarkBrush}" />
                                 </Trigger>
                             </HierarchicalDataTemplate.Triggers>
                         </HierarchicalDataTemplate>

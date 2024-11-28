@@ -23,27 +23,17 @@
         <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ElementName=ThemeToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.RightDrawerContent>
                 <DockPanel Width="420">
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10">
-                        <TextBlock Margin="5" Style="{DynamicResource   MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
-                        <ToggleButton  IsChecked="{Binding ShowHiddenItems}"  Command="{Binding ShowHiddenItemsCheckedCommand}"
-                          Width="40"
-                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                          ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background">  
-                            <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
-                                <SolidColorBrush
-      Color="{DynamicResource MaterialDesignShadow }" />
-                            </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
-                            <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
-                                <SolidColorBrush
-      Color="Gray" />
-                            </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10"  VerticalAlignment="Center" Height="50">
+                        <TextBlock Height="30" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
+                        <ToggleButton Height="30" VerticalAlignment="Center" Margin="10,0,0,0" IsChecked="{Binding ShowHiddenItems}"  Command="{Binding ShowHiddenItemsCheckedCommand}"
+                          Width="40">
                         </ToggleButton>
-                        <TextBlock Margin="5">隐藏类型</TextBlock>
+                        <TextBlock LineHeight="20" Margin="10,0,0,0" TextAlignment="Center" VerticalAlignment="Center">隐藏类型</TextBlock>
                     </StackPanel>
                     <DockPanel DockPanel.Dock="Bottom" Height="70" 
                                 Background="{DynamicResource MaterialDesignDarkSeparatorBackground}"
                                 VerticalAlignment="Center">
-                        <Button Height="40" Width="350">确定</Button>
+                        <Button Height="40" Width="350" Background="{DynamicResource PrimaryHueDarkBrush}">确定</Button>
                     </DockPanel>
                     <ListBox DockPanel.Dock="Top" x:Name="ThemeListBox"
                 AutomationProperties.Name="ThemePagesListBox"
@@ -164,8 +154,8 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
                             <!-- DataTrigger to change background based on a condition -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Background}" Value="1">
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
-                                    <Setter Property="Foreground" Value="{Binding ForegroundColor}"/>
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Background}" Value="0">
                                     <Setter Property="Background" Value="Transparent"/>

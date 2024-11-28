@@ -409,7 +409,31 @@ namespace Summary.Data
             return 1;
         }
 
-       
+        public Dictionary<int, string> getCheckedThemes()
+        {
+            Dictionary<int, string> checkedThemes = new Dictionary<int, string>();
+            using (var context = new MytimeContext())
+            {
+                var cates = context.Categories.Where(x => x.SelectedForPlan == true);
+                foreach (var cate in cates)
+                {
+                    checkedThemes.Add(cate.Id, cate.Name);            
+                }
+            }
+            return checkedThemes;
+        }
+
+        public void updateCheckedTheme(CategoryTheme ct)
+        {
+            using (var context = new MytimeContext())
+            {
+                var cate = context.Categories.Where(x => x.Id == ct.Id).First();
+                if(cate != null){
+                    cate.SelectedForPlan = ct.Checked;
+                    context.SaveChanges();
+                }
+            }
+        }
     }
     
 }

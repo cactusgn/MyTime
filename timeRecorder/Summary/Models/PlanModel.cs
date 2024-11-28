@@ -1,4 +1,5 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignDemo.Domain;
+using MaterialDesignThemes.Wpf;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -131,20 +132,37 @@ namespace Summary.Models
         private DateTime firstDayOfWeek{get;set;}
         public MyCommand CheckChangedCommand { get; set; }
         public MyCommand ShowHiddenItemsCheckedCommand { get; set; }
+        public MyCommand ClickOkButtonInChoosingTheme { get; set; }
+        public DialogType dialogType { get; set; }
         public PlanModel(ISQLCommands SqlCommands)
         {
             ClickOkButtonCommand = new MyCommand(clickOkButton);
             ClickThemeButtonCommand = new MyCommand(ClickThemeButton);
             CheckChangedCommand = new MyCommand(ThemeCheckChanged);
             ShowHiddenItemsCheckedCommand = new MyCommand(ShowHiddenItemsCheckChanged);
+            ClickOkButtonInChoosingTheme = new MyCommand(ConfirmThemes);
             SQLCommands = SqlCommands;
-            WorkThemes.Add(1, "想做");
-            WorkThemes.Add(7, "TimeRecorder");
-            WorkThemes.Add(63, "弹幕");
-            WorkThemes.Add(32, "锻炼");
-            WorkThemes.Add(22, "浪费");
+            WorkThemes = SQLCommands.getCheckedThemes();
             firstDayOfWeek = getFirstDayOfWeek();
             ShowHiddenItems = bool.Parse(Helper.GetAppSetting("ShowHiddenItems"));
+        }
+        public async Task showMessageBox(string message)
+        {
+            dialogType = DialogType.MessageDialog;
+            var view = new SampleMessageDialog(message);
+            await DialogHost.Show(view, "RootDialog3");
+        }
+        private void ConfirmThemes(object obj)
+        {
+           if(SelectedMoreThan5Themes()){
+                showMessageBox("最多选择5个主题");
+                return;
+           }
+        }
+
+        private bool SelectedMoreThan5Themes()
+        {
+            return ThemeItems.Where(x=>x.Checked).Count()>5;
         }
 
         private void ShowHiddenItemsCheckChanged(object obj)
@@ -156,12 +174,14 @@ namespace Summary.Models
 
         private void ThemeCheckChanged(object obj)
         {
-            CategoryTheme ct = (CategoryTheme)obj;
+            //CategoryTheme ct = (CategoryTheme)obj;
+            //SQLCommands.updateCheckedTheme(ct);
         }
 
         private void ClickThemeButton(object obj)
         {
             ThemeOpen = true;
+            WorkThemes = SQLCommands.getCheckedThemes();
             ThemeItems.Clear();
             addThemes(0, 0);
         }
@@ -175,7 +195,7 @@ namespace Summary.Models
                     {
                         continue;
                     }
-                    ThemeItems.Add(new CategoryTheme() { Level = level + 1, Checked=false, Name = category.Name });
+                    ThemeItems.Add(new CategoryTheme() { Id = category.Id, Level = level + 1, Checked= WorkThemes.ContainsKey(category.Id), Name = category.Name });
                     addThemes(category.Id, level+1);
                 }
             }

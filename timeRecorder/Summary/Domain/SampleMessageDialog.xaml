@@ -6,7 +6,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="400"
              d:DesignWidth="600"
+             MinWidth="300"
              MaxWidth="400"
+             FontSize="16"
              mc:Ignorable="d">
   <Grid Margin="16">
     <Grid.RowDefinitions>
@@ -16,14 +18,15 @@
             <RowDefinition />
       <RowDefinition />
     </Grid.RowDefinitions>
-        <TextBlock  FontSize="14" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,10">提示</TextBlock>
+        <TextBlock   HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,10">提示</TextBlock>
         <Border Grid.Row="1" Height="1" Background="Gray" VerticalAlignment="Bottom"></Border>
         <TextBlock x:Name="Message"
                Grid.Row="2"
                Margin="0,6,0,0"
                Padding="15"
                TextWrapping="Wrap"
-               FontSize="14" Cursor=""/>
+               TextAlignment="Center"
+                Cursor=""/>
     <Button Grid.Row="3"
             Margin="16,16,16,0"
             HorizontalAlignment="Center"

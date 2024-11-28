@@ -36,6 +36,8 @@ namespace Summary.Data
         public Task<int> UpdateCategory(AddCategoryModel category);
         public Task<int> AddCategory(AddCategoryModel category);
         public Task<int> DeleteCategory(int id);
+        public Dictionary<int, string> getCheckedThemes();
+        public void updateCheckedTheme(CategoryTheme ct);
 
         #endregion
 

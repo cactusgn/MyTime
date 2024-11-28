@@ -8,6 +8,7 @@ namespace Summary.Data
 {
     public class CategoryTheme
     {
+        public int Id{get;set;}
         public string Name { get; set; }
         public int Level {  get; set; }
         public bool Checked { get; set; }

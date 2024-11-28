@@ -12,8 +12,8 @@
     <UserControl.Resources>
       
     </UserControl.Resources>
-    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost"
-                          Identifier="RootDialog"  IsOpen="{Binding IsDialogOpen}">
+    <materialDesign:DialogHost DialogTheme="Inherit" x:Name="DialogHost3"
+                          Identifier="RootDialog3"  IsOpen="{Binding IsDialogOpen}">
         <materialDesign:DialogHost.DialogContent>
             <!--这里放遮罩层的内容，比如我的是一个加载动画和一个登录中的文字
            不在这里定义内容也可以，可以在触发的控件的CommandParameter里面写
@@ -24,7 +24,7 @@
             <materialDesign:DrawerHost.RightDrawerContent>
                 <DockPanel Width="420">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10"  VerticalAlignment="Center" Height="50">
-                        <TextBlock Height="30" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
+                        <TextBlock Height="30" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
                         <ToggleButton Height="30" VerticalAlignment="Center" Margin="10,0,0,0" IsChecked="{Binding ShowHiddenItems}"  Command="{Binding ShowHiddenItemsCheckedCommand}"
                           Width="40">
                         </ToggleButton>
@@ -33,7 +33,7 @@
                     <DockPanel DockPanel.Dock="Bottom" Height="70" 
                                 Background="{DynamicResource MaterialDesignDarkSeparatorBackground}"
                                 VerticalAlignment="Center">
-                        <Button Height="40" Width="350" Background="{DynamicResource PrimaryHueDarkBrush}">确定</Button>
+                        <Button Height="40" Width="350" Background="{DynamicResource PrimaryHueDarkBrush}" Command="{Binding ClickOkButtonInChoosingTheme}">确定</Button>
                     </DockPanel>
                     <ListBox DockPanel.Dock="Top" x:Name="ThemeListBox"
                 AutomationProperties.Name="ThemePagesListBox"
@@ -113,7 +113,7 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
         ToolTip="本周">
                 <materialDesign:PackIcon Kind="Restore" />
             </Button>
-            <Button Content="选择主题"  Margin="10" BorderBrush="AliceBlue" Background="#99CC60" Command="{Binding ClickThemeButtonCommand}" Foreground="Black"/>
+                    <Button Content="选择主题"  Margin="10" BorderBrush="#99CC60" Background="#99CC60" Command="{Binding ClickThemeButtonCommand}" Foreground="Black"/>
             <CheckBox x:Name="ThemeToggleButton" Visibility="Collapsed" IsChecked="{Binding ThemeOpen}"></CheckBox>
         </StackPanel>
         <Border Grid.Row="1" Margin="10,5">

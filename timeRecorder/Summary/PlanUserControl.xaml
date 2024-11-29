@@ -20,15 +20,15 @@
            也可以是在cs代码里面传DialogHost.Show(viewOrModel);-->
          <uc:SampleProgressDialog ></uc:SampleProgressDialog>
         </materialDesign:DialogHost.DialogContent>
-        <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ElementName=ThemeToggleButton, Path=IsChecked}">
+        <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ThemeOpen}">
             <materialDesign:DrawerHost.RightDrawerContent>
                 <DockPanel Width="420">
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="16,10"  VerticalAlignment="Center" Height="50">
-                        <TextBlock Height="30" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
+                    <StackPanel Orientation="Horizontal" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Top"   VerticalAlignment="Center" Height="70">
+                        <TextBlock Margin="16,10" Height="30" Foreground="{DynamicResource MaterialDesignDarkForeground}" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"  Text="请选择你想要的主题："/>
                         <ToggleButton Height="30" VerticalAlignment="Center" Margin="10,0,0,0" IsChecked="{Binding ShowHiddenItems}"  Command="{Binding ShowHiddenItemsCheckedCommand}"
                           Width="40">
                         </ToggleButton>
-                        <TextBlock LineHeight="20" Margin="10,0,0,0" TextAlignment="Center" VerticalAlignment="Center">隐藏类型</TextBlock>
+                        <TextBlock LineHeight="20" Margin="10,0,0,0" TextAlignment="Center" Foreground="{DynamicResource MaterialDesignDarkForeground}"  VerticalAlignment="Center">隐藏类型</TextBlock>
                     </StackPanel>
                     <DockPanel DockPanel.Dock="Bottom" Height="70" 
                                 Background="{DynamicResource MaterialDesignDarkSeparatorBackground}"
@@ -114,8 +114,11 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
                 <materialDesign:PackIcon Kind="Restore" />
             </Button>
                     <Button Content="选择主题"  Margin="10" BorderBrush="#99CC60" Background="#99CC60" Command="{Binding ClickThemeButtonCommand}" Foreground="Black"/>
-            <CheckBox x:Name="ThemeToggleButton" Visibility="Collapsed" IsChecked="{Binding ThemeOpen}"></CheckBox>
-        </StackPanel>
+            <!--<CheckBox x:Name="ThemeToggleButton" Visibility="Collapsed" IsChecked="{Binding ThemeOpen}"></CheckBox>-->
+                    <ToggleButton VerticalAlignment="Center" Margin="10,0,0,0" IsChecked="{Binding UseLightBGColor}"  Command="{Binding UseLightBGColorCheckedCommand}" >
+                    </ToggleButton>
+                    <TextBlock  Text="使用浅色背景" VerticalAlignment="Center" Margin="10" />
+                </StackPanel>
         <Border Grid.Row="1" Margin="10,5">
             <StackPanel Orientation="Horizontal" Background="{StaticResource MaterialDesignLightSeparatorBackground}">
                 <TextBlock >本日获得：</TextBlock>
@@ -157,10 +160,14 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
                                         <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
                                         <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Background}" Value="0">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                <DataTrigger Binding="{Binding Background}" Value="3">
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
                                 </DataTrigger>
-                                <!-- Trigger for MouseOver -->
+                                <DataTrigger Binding="{Binding Background}" Value="0">
+                                     <Setter Property="Background" Value="Transparent"/>
+                                </DataTrigger>
+                                    <!-- Trigger for MouseOver -->
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" Value="#DDDDDD" />
                                     <Setter Property="Foreground" Value="#000000"/>

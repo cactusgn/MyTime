@@ -26,7 +26,7 @@ namespace Summary.Common
 
         public List<TaskTheme> TaskThemeList { get; set; }
     }
-    public class DayTaskView
+    public class DayTaskView:ViewModelBase
     {
         private string convertDayOfWeek(DayOfWeek dayOfWeek)
         {
@@ -63,7 +63,11 @@ namespace Summary.Common
         {
             get { return convertDayOfWeek(TaskDate.DayOfWeek); }
         }
-        public int Background { get; set; } = 1;
+        private int background = 1;
+        public int Background {
+            get { return background; }
+            set { background = value; OnPropertyChanged(); }
+        }
         public string Theme1 { get; set; } = "";
         public string Theme1TaskName { get; set; } = "";
         public string Theme1LastTime { get; set; } = "";

@@ -113,6 +113,27 @@ namespace Summary.Models
             get => showHiddenItems;
             set { showHiddenItems = value; OnPropertyChanged(); }
         }
+        private bool useLightBGColor;
+        public bool UseLightBGColor
+        {
+            get => useLightBGColor;
+            set { useLightBGColor = value;
+                Helper.SetAppSetting("UseLightBGColor", useLightBGColor.ToString());
+                foreach (var item in TimeObjs)
+                {
+                    if (useLightBGColor && item.Background == 1)
+                    {
+                        item.Background = 3;
+                    }
+                    if (!useLightBGColor && item.Background == 3)
+                    {
+                        item.Background = 1;
+                    }
+                }
+                OnPropertyChanged("TimeObjs");
+                OnPropertyChanged(); 
+            }
+        }
         public MyCommand ClickOkButtonCommand { get; set; }
         public MyCommand ClickThemeButtonCommand { get; set; }
         private ObservableCollection<DayTaskView> timeObjs = new ObservableCollection<DayTaskView>();
@@ -132,6 +153,7 @@ namespace Summary.Models
         private DateTime firstDayOfWeek{get;set;}
         public MyCommand CheckChangedCommand { get; set; }
         public MyCommand ShowHiddenItemsCheckedCommand { get; set; }
+        public MyCommand UseLightBGColorCheckedCommand { get; set; }
         public MyCommand ClickOkButtonInChoosingTheme { get; set; }
         public DialogType dialogType { get; set; }
         public PlanModel(ISQLCommands SqlCommands)
@@ -140,12 +162,20 @@ namespace Summary.Models
             ClickThemeButtonCommand = new MyCommand(ClickThemeButton);
             CheckChangedCommand = new MyCommand(ThemeCheckChanged);
             ShowHiddenItemsCheckedCommand = new MyCommand(ShowHiddenItemsCheckChanged);
+            UseLightBGColorCheckedCommand = new MyCommand(UseLightBGColorChecked);
             ClickOkButtonInChoosingTheme = new MyCommand(ConfirmThemes);
             SQLCommands = SqlCommands;
             WorkThemes = SQLCommands.getCheckedThemes();
             firstDayOfWeek = getFirstDayOfWeek();
             ShowHiddenItems = bool.Parse(Helper.GetAppSetting("ShowHiddenItems"));
+            UseLightBGColor = bool.Parse(Helper.GetAppSetting("UseLightBGColor"));
         }
+
+        private void UseLightBGColorChecked(object obj)
+        {
+            
+        }
+
         public async Task showMessageBox(string message)
         {
             dialogType = DialogType.MessageDialog;
@@ -265,6 +295,10 @@ namespace Summary.Models
                 foreach (var value in WorkThemes.Values)
                 {
                     dayTaskView.Background = i % 2;
+                    if(useLightBGColor && dayTaskView.Background == 1)
+                    {
+                        dayTaskView.Background = 3;
+                    }
                     if (string.IsNullOrEmpty(dayTaskView.Theme1))
                     {
                         dayTaskView.Theme1 = value;

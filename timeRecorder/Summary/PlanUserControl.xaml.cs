@@ -55,7 +55,7 @@ namespace Summary
                 dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
             }
 
-            ThemeToggleButton.IsChecked = false;
+           // ThemeToggleButton.IsChecked = false;
         }
     }
 }

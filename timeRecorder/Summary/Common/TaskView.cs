@@ -60,47 +60,62 @@ namespace Summary.Common
             set { background = value; OnPropertyChanged(); }
         }
         public string Theme1 { get; set; } = "";
-        public string theme1TaskName { get; set; } = "";
+        private string theme1TaskName { get; set; } = "";
+        public string oldTheme1TaskName { get; set; } = "";
         public string Theme1TaskName
         {
             get { return theme1TaskName; }
-            set { theme1TaskName = value; OnPropertyChanged(); }
+            set {
+                oldTheme1TaskName = theme1TaskName;
+                theme1TaskName = value; OnPropertyChanged(); }
         }
         public string Theme1LastTime { get; set; } = "";
         public string Theme1Reward { get; set; } = "";
         public string Theme2 { get; set; } = "";
-        public string theme2TaskName { get; set; } = "";
+        private string theme2TaskName { get; set; } = "";
+        public string oldTheme2TaskName { get; set; } = "";
         public string Theme2TaskName
         {
             get { return theme2TaskName; }
-            set { theme2TaskName = value; OnPropertyChanged(); }
+            set {
+                oldTheme2TaskName = theme2TaskName;
+                theme2TaskName = value; OnPropertyChanged(); }
         }
         public string Theme2LastTime { get; set; } = "";
         public string Theme2Reward { get; set; } = "";
         public string Theme3 { get; set; } = "";
-        public string theme3TaskName { get; set; } = "";
+        private string theme3TaskName { get; set; } = "";
+        public string oldTheme3TaskName { get; set; } = "";
         public string Theme3TaskName
         {
             get { return theme3TaskName; }
-            set { theme3TaskName = value; OnPropertyChanged(); }
+            set {
+                oldTheme3TaskName = theme3TaskName;
+                theme3TaskName = value; OnPropertyChanged(); }
         }
         public string Theme3LastTime { get; set; } = "";
         public string Theme3Reward { get; set; } = "";
         public string Theme4 { get; set; } = "";
-        public string theme4TaskName { get; set; } = "";
+        private string theme4TaskName { get; set; } = "";
+        public string oldTheme4TaskName { get; set; } = "";
         public string Theme4TaskName
         {
             get { return theme4TaskName; }
-            set { theme4TaskName = value; OnPropertyChanged(); }
+            set {
+                oldTheme4TaskName = theme4TaskName;
+                theme4TaskName = value; OnPropertyChanged(); }
         }
         public string Theme4LastTime { get; set; } = "";
         public string Theme4Reward { get; set; } = "";
         public string Theme5 { get; set; } = "";
-        public string theme5TaskName { get; set; } = "";
+        private string theme5TaskName { get; set; } = "";
+        public string oldTheme5TaskName { get; set; } = "";
         public string Theme5TaskName
         {
             get { return theme5TaskName; }
-            set { theme5TaskName = value; OnPropertyChanged(); }
+            set {
+                oldTheme5TaskName = theme5TaskName;
+                theme5TaskName = value; OnPropertyChanged(); }
         }
         public string Theme5LastTime { get; set; } = "";
         public string Theme5Reward { get; set; } = "";

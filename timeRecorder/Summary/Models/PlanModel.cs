@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -197,6 +198,26 @@ namespace Summary.Models
                 {
                     return;
                 }
+                if(curr.Theme1TaskName=="" && curr.oldTheme1TaskName!="")
+                {
+                    DeleteTask(curr.oldTheme1TaskName, curr.TaskDate.Date);
+                }
+                if (curr.Theme2TaskName=="" && curr.oldTheme2TaskName!="")
+                {
+                    DeleteTask(curr.oldTheme2TaskName, curr.TaskDate.Date);
+                }
+                if (curr.Theme3TaskName=="" && curr.oldTheme3TaskName!="")
+                {
+                    DeleteTask(curr.oldTheme3TaskName, curr.TaskDate.Date);
+                }
+                if (curr.Theme4TaskName=="" && curr.oldTheme4TaskName!="")
+                {
+                    DeleteTask(curr.oldTheme4TaskName, curr.TaskDate.Date);
+                }
+                if (curr.Theme5TaskName=="" && curr.oldTheme5TaskName!="")
+                {
+                    DeleteTask(curr.oldTheme5TaskName, curr.TaskDate.Date);
+                }
                 if (!string.IsNullOrEmpty(curr.Theme1TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme1TaskName, curr.TaskDate.Date))
                 {
                     AddTask(curr.Theme1TaskName, curr.Theme1, curr.TaskDate.Date);
@@ -218,9 +239,30 @@ namespace Summary.Models
                 }
             }
         }
+
+        private void DeleteTask(string TaskName, DateTime date)
+        {
+            MyTime Time = SQLCommands.GetTimeObjsByName(TaskName).Where(x => x.createDate ==date).FirstOrDefault();
+            if(Time!= null)
+            {
+                SQLCommands.DeleteObj(Time);
+            }
+        }
+
         private async void AddTask(string taskName, string type, DateTime taskDate) {
             GeneratedToDoTask findTask = SQLCommands.QueryTodo(taskName);
             int taskId = findTask==null ? 0 : findTask.Id;
+            if (taskId==0)
+            {
+                ToDoObj taskToDo = new ToDoObj()
+                {
+                    CreatedDate = taskDate,
+                    Note = taskName,
+                    Type = type,
+                    CategoryId = Helper.categoryDic.ContainsKey(type) ? Helper.categoryDic[type] : 0
+                };
+                taskId =  await SQLCommands.AddTodo(taskToDo);
+            }
             var newObj = Helper.CreateNewTimeObj(new TimeSpan(), new TimeSpan(), taskName, taskDate.Date, type, 0,0, "record",taskId:taskId);
             await SQLCommands.AddObj(newObj);
         }

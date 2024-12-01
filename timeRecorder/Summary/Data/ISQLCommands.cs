@@ -13,6 +13,7 @@ namespace Summary.Data
         #region TimeObjs
         public Task<List<MyTime>> GetAllTimeObjs(DateTime startTime, DateTime endTime);
         public List<MyTime> GetTimeObjsByName(string name);
+        public bool CanFindTimeObjsByNameAndDate(string name, DateTime date);
         public List<MyTime> GetTimeObjsByType(string type);
         public  Task<int> UpdateObj(TimeViewObj obj);
         public Task<int> UpdateObj(MyTime obj);

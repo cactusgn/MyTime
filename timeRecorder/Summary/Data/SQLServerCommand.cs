@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace Summary.Data
 {
@@ -31,6 +32,13 @@ namespace Summary.Data
                 list = context.MyTime.Where(x => x.createDate>=startTime && x.createDate<=endTime).ToList();
             }
             return list;
+        }
+        public bool CanFindTimeObjsByNameAndDate(string name, DateTime date)
+        {
+            using (var context = new MytimeContext())
+            {
+                return context.MyTime.Where(x => x.note==name&& x.createDate ==date).Count()>0;
+            }
         }
         public List<MyTime> GetTimeObjsByName(string name)
         {

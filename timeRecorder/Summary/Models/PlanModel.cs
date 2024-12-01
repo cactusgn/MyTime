@@ -1,5 +1,6 @@
 ﻿using MaterialDesignDemo.Domain;
 using MaterialDesignThemes.Wpf;
+using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
@@ -11,8 +12,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace Summary.Models
 {
@@ -155,6 +158,8 @@ namespace Summary.Models
         public MyCommand ShowHiddenItemsCheckedCommand { get; set; }
         public MyCommand UseLightBGColorCheckedCommand { get; set; }
         public MyCommand ClickOkButtonInChoosingTheme { get; set; }
+        public MyCommand CellEditEndingCommand { get; set; }
+        public MyCommand AddLineCommand { get; set; }
         public DialogType dialogType { get; set; }
         public PlanModel(ISQLCommands SqlCommands)
         {
@@ -164,6 +169,8 @@ namespace Summary.Models
             ShowHiddenItemsCheckedCommand = new MyCommand(ShowHiddenItemsCheckChanged);
             UseLightBGColorCheckedCommand = new MyCommand(UseLightBGColorChecked);
             ClickOkButtonInChoosingTheme = new MyCommand(ConfirmThemes);
+            CellEditEndingCommand = new MyCommand(CellEditEnding);
+            AddLineCommand = new MyCommand(AddLine);
             SQLCommands = SqlCommands;
             WorkThemes = SQLCommands.getCheckedThemes();
             firstDayOfWeek = getFirstDayOfWeek();
@@ -171,9 +178,54 @@ namespace Summary.Models
             UseLightBGColor = bool.Parse(Helper.GetAppSetting("UseLightBGColor"));
         }
 
+        private void AddLine(object obj)
+        {
+            if (obj!=null)
+            {
+                var curr = (DayTaskView)obj;
+                TimeObjs.Add(new DayTaskView() { TaskDate = curr.TaskDate,Background = curr.Background });
+                TimeObjs = new ObservableCollection<DayTaskView>(TimeObjs.OrderBy(t=> t.TaskDate));
+            }
+        }
+
+        private async void CellEditEnding(object obj)
+        {
+            DayTaskView curr = (DayTaskView)TimeGrid.SelectedItem;
+            if (curr!=null)
+            {
+                if(curr.TaskDate.Date<=DateTime.Today)
+                {
+                    return;
+                }
+                if (!string.IsNullOrEmpty(curr.Theme1TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme1TaskName, curr.TaskDate.Date))
+                {
+                    AddTask(curr.Theme1TaskName, curr.Theme1, curr.TaskDate.Date);
+                } else if (!string.IsNullOrEmpty(curr.Theme2TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme2TaskName, curr.TaskDate.Date))
+                {
+                    AddTask(curr.Theme2TaskName, curr.Theme2, curr.TaskDate.Date);
+                }
+                else if (!string.IsNullOrEmpty(curr.Theme3TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme3TaskName, curr.TaskDate.Date))
+                {
+                    AddTask(curr.Theme3TaskName, curr.Theme3, curr.TaskDate.Date);
+                }
+                else if (!string.IsNullOrEmpty(curr.Theme4TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme4TaskName, curr.TaskDate.Date))
+                {
+                    AddTask(curr.Theme4TaskName, curr.Theme4, curr.TaskDate.Date);
+                }
+                else if (!string.IsNullOrEmpty(curr.Theme5TaskName)&&!SQLCommands.CanFindTimeObjsByNameAndDate(curr.Theme5TaskName, curr.TaskDate.Date))
+                {
+                    AddTask(curr.Theme5TaskName, curr.Theme5, curr.TaskDate.Date);
+                }
+            }
+        }
+        private async void AddTask(string taskName, string type, DateTime taskDate) {
+            GeneratedToDoTask findTask = SQLCommands.QueryTodo(taskName);
+            int taskId = findTask==null ? 0 : findTask.Id;
+            var newObj = Helper.CreateNewTimeObj(new TimeSpan(), new TimeSpan(), taskName, taskDate.Date, type, 0,0, "record",taskId:taskId);
+            await SQLCommands.AddObj(newObj);
+        }
         private void UseLightBGColorChecked(object obj)
         {
-            
         }
 
         public async Task showMessageBox(string message)
@@ -423,6 +475,10 @@ namespace Summary.Models
 
             foreach (var DayLine in DayTaskViews)
             {
+                if (recordedTask.LastTime.TotalSeconds == 0 && recordedTask.CreatedDate<=DateTime.Today)
+                {
+                    continue;
+                }
                 if (DayLine.Theme1 == recordedTask.Type)
                 {
                     if (string.IsNullOrEmpty(DayLine.Theme1TaskName))
@@ -451,6 +507,10 @@ namespace Summary.Models
                 {
                     if (string.IsNullOrEmpty(DayLine.Theme3TaskName))
                     {
+                        if (recordedTask.LastTime.TotalSeconds == 0 && recordedTask.CreatedDate<=DateTime.Today)
+                        {
+                            continue;
+                        }
                         DayLine.Theme3TaskName = recordedTask.Note;
                         DayLine.Theme3LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme3Reward = recordedTask.Bonus.ToString();
@@ -503,10 +563,87 @@ namespace Summary.Models
                 InsertTaskIntoDayTaskViews(recordedTask, TimeObjs);
             }
         }
+        // 辅助方法：在视觉树中向上查找指定类型的父元素
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
 
+            if (parentObject == null) return null;
+
+            T parent = parentObject as T;
+            if (parent != null)
+            {
+                return parent;
+            }
+            else
+            {
+                return FindParent<T>(parentObject);
+            }
+        }
+        private DataGridTemplateColumn AddDataTemplate()
+        {
+            // 动态创建DataTemplate
+            var dataTemplate = new DataTemplate();
+            var frameworkElementFactory = new FrameworkElementFactory(typeof(Button));
+
+            // 绑定TextBox的Text属性到Value属性
+            //frameworkElementFactory.SetBinding(TextBox.TextProperty, new Binding(bindValue) { UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged });
+
+            
+            // 由于IsReadOnly是单个绑定，我们可以直接设置一个Binding
+            //var isReadOnlyBinding = new Binding("IsReadOnly") { Mode = BindingMode.OneWay };
+            //frameworkElementFactory.SetValue(TextBox.IsReadOnlyProperty, isReadOnlyBinding);
+
+            // 将FrameworkElementFactory添加到DataTemplate中
+            dataTemplate.VisualTree = frameworkElementFactory;
+            frameworkElementFactory.SetValue(Button.ContentProperty, "+");
+            frameworkElementFactory.SetValue(Button.FontSizeProperty, 15.0);
+            frameworkElementFactory.SetValue(Button.ForegroundProperty, new SolidColorBrush(Colors.Black));
+            frameworkElementFactory.SetValue(Button.WidthProperty, 20.0);
+            frameworkElementFactory.SetValue(Button.HeightProperty, 20.0);
+            frameworkElementFactory.SetValue(Button.PaddingProperty, new Thickness(0));
+            var AddButtonVisible = new Binding("AddButtonVisible") { Mode = BindingMode.OneWay };
+            frameworkElementFactory.SetValue(Button.VisibilityProperty, AddButtonVisible);
+            //var AddLineCommand = new Binding("DataContext.AddLineCommand") { RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(DataGrid),1) };
+
+            frameworkElementFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, e) =>
+            {
+                var button = sender as Button;
+                var dataGrid = FindParent<DataGrid>(button);
+                if (dataGrid != null)
+                {
+                    var selectedItem = dataGrid.SelectedItem as DayTaskView;
+                    AddLine(selectedItem);
+                }
+            }));
+            //frameworkElementFactory.SetValue(Button.CommandProperty, AddLineCommand);
+            //var binding = new Binding("SelectedItem")
+            //{
+            //    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(DataGrid),1),
+            //    Mode = BindingMode.OneWay
+            //};
+            //frameworkElementFactory.SetValue(Button.CommandParameterProperty, binding); 
+
+            var valueColumn = new DataGridTemplateColumn
+            {
+                Header = "",
+                CellTemplate = dataTemplate, // 使用我们动态创建的DataTemplate
+                //CellEditingTemplate = new DataTemplate // 通常编辑模板与显示模板相似，但可能包含额外的控件或逻辑
+                //{
+                //    VisualTree = new FrameworkElementFactory(typeof(TextBox))
+                //    {
+                //        Binding = new Binding("Value") { UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, Mode = BindingMode.TwoWay },
+                //        // 同样设置IsReadOnly属性
+                //        SetValue(TextBox.IsReadOnlyProperty, isReadOnlyBinding)
+                //    }
+                //}
+            };
+            return valueColumn;
+        }
         public void AddColumnsToTable()
         {
             this.TimeGrid.Columns.Clear();
+            this.TimeGrid.Columns.Add(AddDataTemplate());
             this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
             {
                 Header = "日期",
@@ -526,21 +663,24 @@ namespace Summary.Models
             foreach (var theme in WorkThemes)
             {
                 i++;
-                this.TimeGrid.Columns.Add(new DataGridTextColumn()
+                this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
                 {
                     Header = theme.Value,
-                    IsReadOnly = true,
-                    Binding = new Binding($"Theme{i}TaskName"),
-                    
+                    IsReadOnly = false,
+                    Binding = new Binding($"Theme{i}TaskName") { 
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    },
+                     
                 });
-                this.TimeGrid.Columns.Add(new DataGridTextColumn()
+                this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
                 {
                     Header = "时间",
                     IsReadOnly = true,
                     Binding = new Binding($"Theme{i}LastTime")
                     
                 });
-                this.TimeGrid.Columns.Add(new DataGridTextColumn()
+                this.TimeGrid.Columns.Add(new MaterialDesignThemes.Wpf.DataGridTextColumn()
                 {
                     Header = "获得",
                     IsReadOnly = true,

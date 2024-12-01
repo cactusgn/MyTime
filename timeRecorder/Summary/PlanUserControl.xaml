@@ -46,18 +46,7 @@
                         <ListBox.Resources>
                             <Style TargetType="ScrollBar" BasedOn="{StaticResource MaterialDesignScrollBarMinimal}" />
                         </ListBox.Resources>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                <i:InvokeCommandAction 
-                        CommandParameter="{Binding }"
-                        Command="{Binding DataContext.TodayListBoxSelectionChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
-                            </i:EventTrigger>
-                            <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
-                                <i:InvokeCommandAction 
-CommandParameter="{Binding }"
-Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox,AncestorLevel=1}}"></i:InvokeCommandAction>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                      
                         <ListBox.ItemTemplate>
                             <DataTemplate >
                                 <StackPanel Orientation="Horizontal" >
@@ -143,13 +132,21 @@ Command="{Binding DataContext.TodayListBoxRightClickCommand, RelativeSource={Rel
         </Border>
         <UniformGrid Grid.Row="2" Grid.Column="0" >
                 <DataGrid  x:Name="TimeGrid" AutoGenerateColumns="False" 
+                           HorizontalAlignment="Stretch"
                        ScrollViewer.CanContentScroll="True"
                       EnableColumnVirtualization ="False"
                        EnableRowVirtualization ="False"
-                      HorizontalAlignment="Left" Margin="10,10,0,10"
-                       
+                       Margin="10,10,0,10" 
+                        CanUserAddRows="False"
                        ItemsSource="{Binding TimeObjs}">
-                    <DataGrid.RowStyle>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="CellEditEnding">
+                                <i:InvokeCommandAction 
+ CommandParameter="{Binding ElementName=TimeGrid,Path=SelectedItem}"
+ Command="{Binding DataContext.CellEditEndingCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=DataGrid}}"></i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <!-- Default Background -->
                             <Setter Property="Background" Value="White" />

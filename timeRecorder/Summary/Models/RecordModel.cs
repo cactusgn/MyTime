@@ -1158,7 +1158,18 @@ namespace Summary.Models
                     }
                 }
             }
-            
+            var planItems = await SQLCommands.GetAllTimeObjs(DateTime.Today, DateTime.Today);
+            foreach (var obj in planItems)
+            {
+                if (!hs.Contains(obj.note) && obj.note != "" && obj.type != "none" && obj.note!=Helper.RestContent)
+                {
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.note, Finished = false, Type = obj.type, CategoryId = categoryDic[obj.type] };
+                    var id = await SQLCommands.AddTodo(newObj);
+                    newObj.Id = id;
+                    TodayList.Add(newObj);
+                    hs.Add(obj.note);
+                }
+            }
             TodayList = new ObservableCollection<ToDoObj>(todayList.OrderBy(x => x.Finished));
             List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
             TipList = new ObservableCollection<string>(allTasks.Where(x => Helper.mainCategories.FirstOrDefault(y => y.Id == x.TypeId, new Category() { AutoAddTask = false }).AutoAddTask == true).OrderByDescending(x=>x.CreateDate).Take(10).Select(x => x.Note).ToList());

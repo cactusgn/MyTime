@@ -517,8 +517,9 @@ namespace Summary.Models
 
             foreach (var DayLine in DayTaskViews)
             {
-                if (recordedTask.LastTime.TotalSeconds == 0 && recordedTask.CreatedDate<=DateTime.Today)
+                if (recordedTask.LastTime.TotalSeconds == 0 && recordedTask.CreatedDate<DateTime.Today)
                 {
+                    insertSuccess = true;
                     continue;
                 }
                 if (DayLine.Theme1 == recordedTask.Type)
@@ -549,10 +550,6 @@ namespace Summary.Models
                 {
                     if (string.IsNullOrEmpty(DayLine.Theme3TaskName))
                     {
-                        if (recordedTask.LastTime.TotalSeconds == 0 && recordedTask.CreatedDate<=DateTime.Today)
-                        {
-                            continue;
-                        }
                         DayLine.Theme3TaskName = recordedTask.Note;
                         DayLine.Theme3LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme3Reward = recordedTask.Bonus.ToString();

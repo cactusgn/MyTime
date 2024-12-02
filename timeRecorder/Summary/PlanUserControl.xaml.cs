@@ -1,4 +1,5 @@
-﻿using Summary.Models;
+﻿using Summary.Common;
+using Summary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,19 +32,7 @@ namespace Summary
         }
         
        
-        private void OnAddColumnButtonClick(object sender, RoutedEventArgs e)
-        {
-            // 创建一个新的 DataGridTextColumn
-            var newColumn = new DataGridTextColumn
-            {
-                Header = "New Column " + (TimeGrid.Columns.Count + 1),
-                Binding = new Binding($"NewField{TimeGrid.Columns.Count + 1}") // 这里需要一个对应的属性，但因为我们只是示例，可以跳过绑定验证
-            };
-
-            // 添加到 DataGrid 的 Columns 集合中
-            TimeGrid.Columns.Add(newColumn);
-        }
-
+       
         private void ThemeListBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             //until we had a StaysOpen flag to Drawer, this will help with scroll bars
@@ -56,6 +45,16 @@ namespace Summary
             }
 
            // ThemeToggleButton.IsChecked = false;
+        }
+
+        private void TimeGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            var columnIndex = TimeGrid.CurrentCell.Column.DisplayIndex;
+            var columnName = TimeGrid.Columns[columnIndex].Header.ToString();
+            if (columnName=="获得"||columnName=="时间")
+            {
+                TimeGrid.UnselectAllCells();
+            }
         }
     }
 }

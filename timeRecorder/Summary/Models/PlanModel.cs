@@ -196,6 +196,7 @@ namespace Summary.Models
             {
                 if(curr.TaskDate.Date<=DateTime.Today)
                 {
+                    TimeGrid.UnselectAll();
                     return;
                 }
                 if(curr.Theme1TaskName=="" && curr.oldTheme1TaskName!="")
@@ -238,6 +239,7 @@ namespace Summary.Models
                     AddTask(curr.Theme5TaskName, curr.Theme5, curr.TaskDate.Date);
                 }
             }
+            TimeGrid.UnselectAll();
         }
 
         private void DeleteTask(string TaskName, DateTime date)

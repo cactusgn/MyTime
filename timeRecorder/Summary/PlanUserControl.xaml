@@ -138,6 +138,7 @@
                        EnableRowVirtualization ="False"
                        Margin="10,10,0,10" 
                         CanUserAddRows="False"
+                       SelectedCellsChanged="TimeGrid_SelectedCellsChanged"
                        ItemsSource="{Binding TimeObjs}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="CellEditEnding">

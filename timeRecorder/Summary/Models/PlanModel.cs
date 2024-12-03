@@ -185,7 +185,15 @@ namespace Summary.Models
             if (obj!=null)
             {
                 var curr = (DayTaskView)obj;
-                TimeObjs.Add(new DayTaskView() { TaskDate = curr.TaskDate,Background = curr.Background });
+                TimeObjs.Add(new DayTaskView() { 
+                    TaskDate = curr.TaskDate,
+                    Background = curr.Background,
+                    Theme1 = curr.Theme1,
+                    Theme2 = curr.Theme2,
+                    Theme3 = curr.Theme3,
+                    Theme4 = curr.Theme4,
+                    Theme5 = curr.Theme5
+                });
                 TimeObjs = new ObservableCollection<DayTaskView>(TimeObjs.OrderBy(t=> t.TaskDate));
             }
         }
@@ -265,6 +273,20 @@ namespace Summary.Models
                     CategoryId = Helper.categoryDic.ContainsKey(type) ? Helper.categoryDic[type] : 0
                 };
                 taskId =  await SQLCommands.AddTodo(taskToDo);
+            }
+            else
+            {
+                if (findTask.TypeId!=Helper.allcategories.Where(x => x.Name==type).First().Id)
+                {
+                    ToDoObj taskToDo = new ToDoObj()
+                    {
+                        CreatedDate = taskDate,
+                        Note = taskName,
+                        Type = type,
+                        CategoryId = Helper.allcategories.Where(x => x.Name==type).First().Id
+                    };
+                    await SQLCommands.UpdateTodo(taskToDo);
+                }
             }
             var newObj = Helper.CreateNewTimeObj(new TimeSpan(), new TimeSpan(), taskName, taskDate.Date, type, 0,0, "record",taskId:taskId);
             await SQLCommands.AddObj(newObj);

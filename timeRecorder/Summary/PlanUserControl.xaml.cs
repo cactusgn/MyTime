@@ -49,12 +49,15 @@ namespace Summary
 
         private void TimeGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            var columnIndex = TimeGrid.CurrentCell.Column.DisplayIndex;
-            var columnName = TimeGrid.Columns[columnIndex].Header.ToString();
-            if (columnName=="获得"||columnName=="时间")
-            {
-                TimeGrid.UnselectAllCells();
+            if(TimeGrid.CurrentCell.Column!=null){
+                var columnIndex = TimeGrid.CurrentCell.Column.DisplayIndex;
+                var columnName = TimeGrid.Columns[columnIndex].Header.ToString();
+                if (columnName == "获得" || columnName == "时间")
+                {
+                    TimeGrid.UnselectAllCells();
+                }
             }
+            
         }
     }
 }

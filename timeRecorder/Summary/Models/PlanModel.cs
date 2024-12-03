@@ -4,6 +4,7 @@ using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Data;
+using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -271,7 +272,14 @@ namespace Summary.Models
         private void UseLightBGColorChecked(object obj)
         {
         }
-
+        public  void showProgressBar()
+        {
+            TimeGrid.Dispatcher.Invoke(new Action(delegate
+            {
+                var view = new SampleProgressDialog();
+                 DialogHost.Show(view, "RootDialog3");
+            }));
+        }
         public async Task showMessageBox(string message)
         {
             dialogType = DialogType.MessageDialog;
@@ -342,9 +350,9 @@ namespace Summary.Models
             IsDialogOpen=false;
 
         }
-        private void openDialog()
+        private  void openDialog()
         {
-            IsDialogOpen=true;
+             showProgressBar();
         }
         private void AddSubCategories(int id)
         {

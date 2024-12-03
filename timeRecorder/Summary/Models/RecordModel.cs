@@ -719,6 +719,8 @@ namespace Summary.Models
             }
             else
             {
+                MyTime timeViewObj = SQLCommands.GetTimeObjsByName(objTobeDeleted.Note).Where(x => x.createDate == DateTime.Today && x.lastTime.TotalSeconds == 0).First();
+                await SQLCommands.DeleteObj(timeViewObj);
                 objTobeDeleted.CreatedDate = objs.FirstOrDefault().createDate;
                 await SQLCommands.UpdateTodo(objTobeDeleted);
             }

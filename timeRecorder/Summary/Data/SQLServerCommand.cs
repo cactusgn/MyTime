@@ -217,7 +217,7 @@ namespace Summary.Data
                 var findTodoItem = context.ToDos.Where(x => x.Note == obj.Note);
                 if (findTodoItem.Count()>0)
                 {
-                    await UpdateTodo(obj);
+                    await UpdateTodo(obj,false);
                     return findTodoItem.First().Id;
                 }
                 var typeid = getTypeId(context, obj.Type.ToString());
@@ -262,12 +262,19 @@ namespace Summary.Data
         }
         //测试：1. 在todaylist增加一个已存在的task，需要更新createdDate为今天
         //2. 在todaylist删除一个今天没有记录的task，需要更新createdDate为之前的createdDate
-        public async Task<int> UpdateTodo(ToDoObj obj)
+        public async Task<int> UpdateTodo(ToDoObj obj, bool updateType=true)
         {
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x=>x.Note == obj.Note);
-                var typeid = getTypeId(context, obj.Type);
+                var typeid = 0;
+                if (updateType){
+                    typeid = getTypeId(context, obj.Type);
+                }else{
+                    if(item != null && item.Count() > 0){
+                        typeid = item.First().TypeId;
+                    }
+                }
                 if (item!=null&&item.Count()>0)
                 {
                     var updateObj = item.First();

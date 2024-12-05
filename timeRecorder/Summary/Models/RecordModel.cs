@@ -1153,7 +1153,7 @@ namespace Summary.Models
                     {
                         if (!hs.Contains(obj.Note)&& obj.Note != ""&&obj.Type!="none")
                         {
-                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=obj.Type, CategoryId = categoryDic[obj.Type] };
+                            ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.Note, Finished = false, Type=obj.Type };
                             var id = await SQLCommands.AddTodo(newObj);
                             newObj.Id = id;
                             TodayList.Add(newObj);
@@ -1167,7 +1167,7 @@ namespace Summary.Models
             {
                 if (!hs.Contains(obj.note) && obj.note != "" && obj.type != "none" && obj.note!=Helper.RestContent && obj.lastTime.TotalSeconds==0)
                 {
-                    ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.note, Finished = false, Type = obj.type, CategoryId = categoryDic[obj.type] };
+                    ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.note, Finished = false, Type = obj.type};
                     var id = await SQLCommands.AddTodo(newObj);
                     newObj.Id = id;
                     TodayList.Add(newObj);

@@ -481,7 +481,7 @@ namespace Summary.Models
                 foreach (ToDoObj recordedTask in allToDoByDate)
                 {
                     GeneratedToDoTask todo = SQLCommands.QueryTodo(recordedTask.Id);
-                    Category a = Helper.allcategories.FirstOrDefault(x => x.Id == todo.CategoryId);
+                    Category a = Helper.allcategories.FirstOrDefault(x => x.Id == todo.CategoryId, new Category(){ Id = 0, Name="none", ParentCategoryId=0});
                     recordedTask.Type = a.Name;
                     recordedTask.Bonus = Convert.ToInt32(a.BonusPerHour * recordedTask.LastTime.TotalHours);
                     if(calculateAllAtFirstTime){

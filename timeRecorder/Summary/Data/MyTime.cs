@@ -84,6 +84,8 @@ namespace Summary.Data
         public string Color{ get; set; }
         [DefaultValue(true)]
         public bool AutoAddTask { get; set; }
+        [DefaultValue(false)]
+        public bool ShowInRecordPage { get; set;}
     }
     public class MytimeContext : DbContext
     {

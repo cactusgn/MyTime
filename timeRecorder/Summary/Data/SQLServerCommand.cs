@@ -365,11 +365,11 @@ namespace Summary.Data
                     //Category root = new Category() { Name = "", Color = "", Visible = true, BonusPerHour = 0,ParentCategoryId=-1 };
                     //context.Categories.AddRange(root);
                     //await context.SaveChangesAsync();
-                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1", AutoAddTask=true, Visible = true, BonusPerHour = 20 };
-                    Category work = new Category() { Name = "work", Color = "#FFD700", AutoAddTask=true, Visible = true, BonusPerHour = 0 };
-                    Category play = new Category() { Name = "play", Color = "#ADD8E6", AutoAddTask=true, Visible = true, BonusPerHour = 0 };
-                    Category rest = new Category() { Name = "rest", Color = "#98FB98", AutoAddTask=false, Visible = true, BonusPerHour = 0 };
-                    Category waste = new Category() { Name = "waste", Color = "#F08080", AutoAddTask=false, Visible = true, BonusPerHour = 0 };
+                    Category invest = new Category() { Name = "invest", Color = "#FFB6C1", AutoAddTask=true, Visible = true, BonusPerHour = 20, ShowInRecordPage=true };
+                    Category work = new Category() { Name = "work", Color = "#FFD700", AutoAddTask=true, Visible = true, BonusPerHour = 0, ShowInRecordPage=true };
+                    Category play = new Category() { Name = "play", Color = "#ADD8E6", AutoAddTask=true, Visible = true, BonusPerHour = 0, ShowInRecordPage=true };
+                    Category rest = new Category() { Name = "rest", Color = "#98FB98", AutoAddTask=false, Visible = true, BonusPerHour = 0, ShowInRecordPage=true };
+                    Category waste = new Category() { Name = "waste", Color = "#F08080", AutoAddTask=false, Visible = true, BonusPerHour = 0, ShowInRecordPage=true };
                     context.Categories.AddRange(invest, work, play, rest, waste);
                     await context.SaveChangesAsync();
                 }
@@ -389,6 +389,7 @@ namespace Summary.Data
                     obj.BonusPerHour = category.Bonus;
                     obj.Visible = category.Visible;
                     obj.AutoAddTask = category.AutoCreateTask;
+                    obj.ShowInRecordPage = category.ShowInRecordPage;
                 }
                 await context.SaveChangesAsync();
             }
@@ -398,13 +399,18 @@ namespace Summary.Data
         {
             using (var context = new MytimeContext())
             {
+                if (category.ParentId==0)
+                {
+                    category.ShowInRecordPage = true;
+                }
                 Category cate = new Category() { 
                     Name = category.Category, 
                     Color = category.SelectedColor,
                     ParentCategoryId = category.ParentId,
                     BonusPerHour = category.Bonus,
                     Visible = category.Visible,
-                    AutoAddTask = category.AutoCreateTask
+                    AutoAddTask = category.AutoCreateTask,
+                    ShowInRecordPage = category.ShowInRecordPage
                 };
                 context.Categories.Add(cate);
                 await context.SaveChangesAsync();

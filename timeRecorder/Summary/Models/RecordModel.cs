@@ -223,7 +223,7 @@ namespace Summary.Models
         private bool DialogIsShown = false;
         public static ObservableCollection<string> TestCategory = new ObservableCollection<string>();
         private HashSet<string> hs = new HashSet<string>();
-        public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };
+        //public static ObservableCollection<string> TimeTypes = new ObservableCollection<string> { "none", "rest", "waste","play", "work", "invest", };       
         
         private ObservableCollection<string> tipList;
 
@@ -416,10 +416,10 @@ namespace Summary.Models
             RightButtonPanel.Children.Clear();
             List<Category> categories = SQLCommands.GetAllCategories().Result.ToList();
             //categoryDic为了后续快速获取这几个主要任务的id
-            List<Category> mainCategories = categories.Where(x => x.ParentCategoryId==0).ToList();
+            Helper.mainCategories = categories.Where(x => x.ParentCategoryId==0 || x.ShowInRecordPage).ToList();
             TestCategory.Clear();
             TestCategory.Add("none");
-            foreach (Category category in mainCategories)
+            foreach (Category category in Helper.mainCategories)
             {
                 if (!category.Visible) continue;
                 TestCategory.Add(category.Name);
@@ -430,6 +430,12 @@ namespace Summary.Models
                 button.Style = ButtonStyle;
                 button.Command = UpdateTypeCommand;
                 button.CommandParameter = category.Name;
+                button.Padding = new Thickness(9,4,9,4);
+                button.Width = 80;
+                while (button.FontSize>0&& Helper.getTextSize(category.Name, float.Parse(button.FontSize.ToString()))>62)
+                {
+                    button.FontSize-=1;
+                }
                 RightButtonPanel.Children.Add(button);
             }
         }

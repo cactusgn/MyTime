@@ -100,10 +100,10 @@ namespace Summary.Models
         private void EditCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.VisibleValue,root.Bonus,root.AutoCreateTask);
+            showCategoryDialog("修改类别", root.Id, root.Title, root.Color, root.ParentId,root.VisibleValue,root.Bonus,root.AutoCreateTask,root.ShowInRecordPage);
         }
 
-        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, bool visible, int bonus=20, bool autoCreateTask=true)
+        public async void showCategoryDialog(string title,int id, string category, string color, int parentId, bool visible, int bonus=20, bool autoCreateTask=true, bool showInRecordPage = false)
         {
             CategoryModel.Title = title;
             CategoryModel.Category = category;
@@ -117,6 +117,7 @@ namespace Summary.Models
             CategoryModel.ParentCategoryList = await getCategorySVs(id);
             CategoryModel.AutoCreateTask = autoCreateTask;
             CategoryModel.Visible = visible;
+            CategoryModel.ShowInRecordPage = showInRecordPage;
             var view = new AddCategoryDialog(CategoryModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
@@ -139,7 +140,7 @@ namespace Summary.Models
         private void AddCategoryClick(object obj)
         {
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
-            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, true, root.Bonus,root.AutoCreateTask);
+            showCategoryDialog("增加子类别",0,"",root.Color, root.Id, true, root.Bonus,root.AutoCreateTask,root.ShowInRecordPage);
         }
 
         private void TreeViewSelectedItemChanged(object obj)
@@ -165,7 +166,8 @@ namespace Summary.Models
                             ParentId = category.ParentCategoryId, 
                             Bonus = category.BonusPerHour,
                             AutoCreateTask=category.AutoAddTask,
-                            VisibleValue= category.Visible
+                            VisibleValue= category.Visible,
+                            ShowInRecordPage = category.ShowInRecordPage
                         };
                         initNode(Categories, child);
                         currentNode.Items.Add(child);
@@ -180,7 +182,8 @@ namespace Summary.Models
                         ParentId = category.ParentCategoryId,
                         Bonus = category.BonusPerHour,
                         AutoCreateTask =category.AutoAddTask,
-                        VisibleValue= category.Visible
+                        VisibleValue= category.Visible,
+                        ShowInRecordPage = category.ShowInRecordPage
                     };
                     initNode(Categories, child);
                     currentNode.Items.Add(child);
@@ -232,12 +235,13 @@ namespace Summary.Models
             }
             return true;
         }
-        private async void UpdateSubCategoryBonus(AddCategoryModel category)
+        private async void UpdateSubCategoryBonusAndAutoCreateTask(AddCategoryModel category)
         {
             var subItems = Helper.allcategories.Where(x => x.ParentCategoryId ==category.Id);
             foreach (var subItem in subItems)
             {
                 subItem.BonusPerHour = category.Bonus;
+                subItem.AutoAddTask = category.AutoCreateTask;
                 var subCategory = new AddCategoryModel()
                 {
                     Category = subItem.Name,
@@ -246,16 +250,17 @@ namespace Summary.Models
                     Visible = subItem.Visible,
                     ParentId = subItem.ParentCategoryId,
                     AutoCreateTask=subItem.AutoAddTask,
-                    Id = subItem.Id
+                    Id = subItem.Id,
+                    ShowInRecordPage=subItem.ShowInRecordPage
                 };
                 await SQLCommands.UpdateCategory(subCategory);
-                UpdateSubCategoryBonus(subCategory);
+                UpdateSubCategoryBonusAndAutoCreateTask(subCategory);
             }
         }
         public async void EditCategory(AddCategoryModel category)
         {
             await SQLCommands.UpdateCategory(category);
-            UpdateSubCategoryBonus(category);
+            UpdateSubCategoryBonusAndAutoCreateTask(category);
             MenuItemModel root = (MenuItemModel)RootTreeView.SelectedItem;
             string oldVisibleValue = root.Visible;
             int oldBonus = root.Bonus;
@@ -266,7 +271,7 @@ namespace Summary.Models
             root.Visible = category.Visible==false&&ShowVisibleHeader == "显示隐藏类别" ? "Collapsed":"Visible";
             root.VisibleValue = category.Visible;
             queryTaskModel.UpdateContextMenu();
-            if(root.ParentId != category.ParentId||root.Visible!=oldVisibleValue||root.Bonus!=oldBonus)
+            if(root.ParentId != category.ParentId||root.Visible!=oldVisibleValue||root.Bonus!=oldBonus||root.ShowInRecordPage!=category.ShowInRecordPage)
             {
                 RefreshCategories();
             }
@@ -349,7 +354,13 @@ namespace Summary.Models
             get { return autoCreateTask; }
             set { autoCreateTask = value; OnPropertyChanged(); }
         }
+        private bool showInRecordPage;
 
+        public bool ShowInRecordPage
+        {
+            get { return showInRecordPage; }
+            set { showInRecordPage = value; OnPropertyChanged(); }
+        }
         public ObservableCollection<MenuItemModel> Items { get; set; }
     }
 }

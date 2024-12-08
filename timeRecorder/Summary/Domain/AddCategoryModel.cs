@@ -105,8 +105,22 @@ namespace Summary.Domain
         {
             get
             {
-                return ParentId==0 ? "Visible": "Collapsed";
+                return ParentId==0 ? "Visible" : "Collapsed";
             }
+        }
+        public string ShowInRecordPageVisible
+        {
+            get
+            {
+                return ParentId!=0 ? "Visible": "Collapsed";
+            }
+        }
+        private bool showInRecordPage;
+
+        public bool ShowInRecordPage
+        {
+            get { return showInRecordPage; }
+            set { showInRecordPage = value; OnPropertyChanged(); }
         }
         private bool autoCreateTask;
 

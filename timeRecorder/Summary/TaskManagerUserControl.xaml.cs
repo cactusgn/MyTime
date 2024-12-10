@@ -1,4 +1,5 @@
-﻿using Summary.Data;
+﻿using Summary.Common.Utils;
+using Summary.Data;
 using Summary.Models;
 using System;
 using System.Collections.Generic;
@@ -90,7 +91,7 @@ namespace Summary
 
             if (dialogRes.Title=="增加子类别"&&dialogRes.Visible)
             {
-                if (tmModel.CategoryExist(dialogRes.Category).Result)
+                if (tmModel.CategoryExist(dialogRes.Category).Result &&dialogRes.ParentId!=0 && Helper.allcategories.Where(x=>x.Name==dialogRes.ParentName).Count()>0)
                 {
                     dialogRes.ShowInvalidCateMessage="Visible";
                     eventArgs.Cancel();
@@ -100,7 +101,7 @@ namespace Summary
             }
             else if (dialogRes.Title=="修改类别")
             {
-                if (tmModel.EditCheck(dialogRes).Result)
+                if (tmModel.EditCheck(dialogRes).Result &&dialogRes.ParentId!=0 && Helper.allcategories.Where(x => x.Name==dialogRes.ParentName).Count()>0)
                 {
                     tmModel.EditCategory(dialogRes);
                 }

@@ -65,6 +65,13 @@ namespace Summary.Domain
             get { return parentId; }
             set { parentId = value; OnPropertyChanged(); }
         }
+        private string parentName;
+
+        public string ParentName
+        {
+            get { return parentName; }
+            set { parentName = value; OnPropertyChanged(); }
+        }
         private ObservableCollection<ParentCategorySV> parentCategoryList;
 
         public ObservableCollection<ParentCategorySV> ParentCategoryList

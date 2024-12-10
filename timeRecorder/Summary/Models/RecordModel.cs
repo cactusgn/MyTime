@@ -34,6 +34,26 @@ namespace Summary.Models
 {
     public class RecordModel : ViewModelBase
     {
+        private int todayReward;
+        private string todayRewardString;
+        public string TodayRewardString
+        {
+            get { return todayRewardString; }
+            set { todayRewardString = value; OnPropertyChanged(); }
+        }
+        private int todayMinus;
+        private string todayMinusString;
+        public string TodayMinusString
+        {
+            get { return todayMinusString; }
+            set { todayMinusString = value; OnPropertyChanged(); }
+        }
+        private string todayTotalString;
+        public string TodayTotalString
+        {
+            get { return todayTotalString; }
+            set { todayTotalString = value; OnPropertyChanged(); }
+        }
         public ComboBox TodoToday { get; set; }
         public TextBox TodoTodayTextbox { get; set; }
         private double height;
@@ -1196,6 +1216,27 @@ namespace Summary.Models
         public void refreshSingleDayPlot()
         {
             var AllObj = AllTimeViewObjs.First(x => x.createdDate == DateTime.Today).DailyObjs;
+            todayReward = 0;
+            todayMinus = 0;
+            foreach (var obj in AllObj)
+            {
+                var findTask = SQLCommands.QueryTodo(obj.Note);
+                if (findTask != null&&IdCategoryDic.ContainsKey(findTask.CategoryId)&&findTask.CategoryId!=0)
+                {
+                    var category = allcategories.Find(x => x.Id ==findTask.CategoryId);
+                    if (category.BonusPerHour>0)
+                    {
+                        todayReward = todayReward + Convert.ToInt32(category.BonusPerHour * obj.LastTime.TotalHours);
+                    }
+                    else
+                    {
+                        todayMinus = todayMinus + Convert.ToInt32(category.BonusPerHour * obj.LastTime.TotalHours);
+                    }
+                }
+            }
+            TodayRewardString = todayReward.ToString();
+            TodayMinusString = todayMinus.ToString();
+            TodayTotalString = (todayReward + todayMinus).ToString();
             foreach (RadioButton radioButton in RadioButtons)
             {
                 radioButton.Dispatcher.Invoke(new Action(async delegate

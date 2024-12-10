@@ -56,10 +56,16 @@
         </TextBlock>
         <StackPanel Grid.Row="3" VerticalAlignment="Center" Orientation="Horizontal" Margin="20,10,15,0">
             <TextBlock VerticalAlignment="Center" Visibility="{Binding ParentVisible}" >父类别：</TextBlock>
-            <ComboBox  VerticalAlignment="Center" Width="150" ItemsSource="{Binding ParentCategoryList}" 
-                       DisplayMemberPath="ParentCategoryName" SelectedValuePath="ParentCategoryId" IsEnabled="{Binding ParentEnabled}"
+            <ComboBox  VerticalAlignment="Center" Width="150" 
+                       ItemsSource="{Binding ParentCategoryList}" 
+                       DisplayMemberPath="ParentCategoryName" 
+                       SelectedValuePath="ParentCategoryId" 
+                       IsEnabled="{Binding ParentEnabled}"
                        Visibility="{Binding ParentVisible}" 
+                       IsEditable="True"
+                       Text="{Binding ParentName}"
                        SelectedValue="{Binding ParentId}">
+   
             </ComboBox>
            
         </StackPanel>

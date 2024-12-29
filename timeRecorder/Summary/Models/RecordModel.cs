@@ -54,6 +54,13 @@ namespace Summary.Models
             get { return todayTotalString; }
             set { todayTotalString = value; OnPropertyChanged(); }
         }
+        private string diaryContent;
+        public string DiaryContent
+        {
+            get { return diaryContent; }
+            set { diaryContent = value; OnPropertyChanged(); }
+        }
+        
         public ComboBox TodoToday { get; set; }
         public TextBox TodoTodayTextbox { get; set; }
         private double height;
@@ -129,6 +136,7 @@ namespace Summary.Models
         public MyCommand ImportCommand { get; set; }
         public MyCommand ExportCommand { get; set; }
         public MyCommand MergeCommand { get; set; }
+        
 
         public int interval { get; set; }
         public int Interval
@@ -213,6 +221,7 @@ namespace Summary.Models
         public MyCommand EstimateContentChangeCommand { get; set; }
         public MyCommand DownKey_Command { get; set; }
         public MyCommand UpKey_Command { get; set; }
+        public MyCommand Tab_ClickCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -258,12 +267,15 @@ namespace Summary.Models
         public WrapPanel TypeRadioGroupPanel { get; internal set; }
 
         public List<RadioButton> RadioButtons { get; internal set; } = new List<RadioButton>();
+        public TextBox Diary { get; internal set; }
+
         public Dictionary<string,decimal> EstimateDic=new Dictionary<string,decimal>();
         public bool ClickUpOrDown =false;
         public RecordModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM) {
             Enter_ClickCommand = new MyCommand(Enter_Click);
             DownKey_Command = new MyCommand(DownKeySub);
             UpKey_Command = new MyCommand(UpKeySub);
+            Tab_ClickCommand = new MyCommand(TabKeySub);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
             TodayListBoxRightClickCommand = new MyCommand(TodayListBoxRightClick);
@@ -298,6 +310,48 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+        }
+
+        private void TabKeySub(object obj)
+        {
+            if (Diary.SelectionLength>0)
+            {
+                // 获取选中的文本
+                string selectedText = Diary.SelectedText;
+
+                // 获取选中文本前后的文本
+                string textBeforeSelection = Diary.Text.Substring(0, Diary.SelectionStart);
+                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart + Diary.SelectionLength);
+
+                // 分割选中的多行文本
+                string[] lines = selectedText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+                // 为每行添加3个空格
+                StringBuilder newSelectedText = new StringBuilder();
+                foreach (string line in lines)
+                {
+                    newSelectedText.AppendLine("   " + line);
+                }
+
+                // 构建新的文本
+                string newText = textBeforeSelection + newSelectedText.ToString() + textAfterSelection;
+
+                // 设置新的文本
+                Diary.Text = newText;
+
+                // 调整光标位置到选中文本后的第一个字符（已经加了3个空格的位置）
+                Diary.SelectionStart = textBeforeSelection.Length + newSelectedText.Length - lines.Length  * Environment.NewLine.Length; // 减去多加的换行符长度
+                Diary.SelectionLength = 0; // 取消选择
+            }
+            else
+            {
+                // 获取当前光标位置
+                int selectionStart = Diary.SelectionStart;
+                // 插入3个空格
+                Diary.Text = Diary.Text.Insert(selectionStart, "   ");
+                // 保持光标位置不变（考虑插入的3个空格）
+                Diary.SelectionStart = selectionStart + 3;
+            }
         }
 
         private void TodayListBoxRightClick(object obj)

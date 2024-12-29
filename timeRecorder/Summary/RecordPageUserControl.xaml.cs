@@ -31,6 +31,7 @@ namespace Summary
             RecordModel.TodoTodayTextbox = TodoTodayTextbox;
             RecordModel.RightButtonPanel = rightButtonPanel;
             RecordModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
+            RecordModel.Diary = Diary;
             RecordModel.ButtonStyle = this.Resources["TypeButton"] as System.Windows.Style;
             this.DataContext = RecordModel;
             RecordModel.initCategoryDic();

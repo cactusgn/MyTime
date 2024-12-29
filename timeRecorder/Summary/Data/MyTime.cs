@@ -87,6 +87,22 @@ namespace Summary.Data
         [DefaultValue(false)]
         public bool ShowInRecordPage { get; set;}
     }
+    public class Diary
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        [DefaultValue(0)]
+        public int Week { get; set; }
+        [DefaultValue(0)]
+        public int Year { get; set; }
+        public string Title { get; set; }
+        [DefaultValue(0)]
+        public int Type { get; set; }
+        [StringLength(5000), NotNull]
+        public string Note { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime UpdateTime { get; set; }
+    }
     public class MytimeContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -107,11 +123,11 @@ namespace Summary.Data
             modelBuilder.Entity<Category>();
             modelBuilder.Entity<ToDoTaskSetting>();
             base.OnModelCreating(modelBuilder);
-
         }
         public DbSet<MyTime> MyTime { set; get; }
         public DbSet<GeneratedToDoTask> ToDos { set; get; }
         public DbSet<Category> Categories { set; get; }
         public DbSet<ToDoTaskSetting> ToDoTaskSettings { set; get; }
+        public DbSet<Diary> Diaries { set; get; }
     }
 }

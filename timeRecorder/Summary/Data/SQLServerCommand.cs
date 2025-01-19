@@ -14,8 +14,36 @@ using System.Windows.Documents;
 
 namespace Summary.Data
 {
-    public  class SQLServerCommand: ISQLCommands
+    public class SQLServerCommand : ISQLCommands
     {
+        public async Task<Diary> GetDiaryAsync(DateTime date, int type = 0)
+        {
+            using(var context = new MytimeContext())
+            {
+                if(context.Diaries.Any(x=>x.Date ==date&&x.Type==type))
+                {
+                    return await context.Diaries.FirstOrDefaultAsync(x=>x.Date ==date&&x.Type==type);
+                }
+            }
+            return null;
+        }
+        public async Task<bool> SaveDiaryAsync(Diary diary)
+        {
+            try
+            {
+                using (var context = new MytimeContext())
+                {
+                    context.Diaries.Add(diary);
+                    await context.SaveChangesAsync();
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            
+        }
         public async Task<List<MyTime>> GetAllTimeObjs(DateTime startTime, DateTime endTime)
         {
             var list = new List<MyTime>();
@@ -455,6 +483,8 @@ namespace Summary.Data
                 }
             }
         }
+
+        
     }
     
 }

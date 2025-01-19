@@ -41,6 +41,9 @@ namespace Summary.Data
         public void updateCheckedTheme(CategoryTheme ct);
 
         #endregion
-
+        #region "Diary"
+        public Task<Diary> GetDiaryAsync(DateTime date, int type = 0);
+        public Task<bool> SaveDiaryAsync(Diary diary);
+        #endregion
     }
 }

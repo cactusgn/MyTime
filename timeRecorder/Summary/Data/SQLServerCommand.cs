@@ -16,13 +16,14 @@ namespace Summary.Data
 {
     public class SQLServerCommand : ISQLCommands
     {
-        public async Task<Diary> GetDiaryAsync(DateTime date, int type = 0)
+
+        public  Diary GetDiary(int year, DateTime date, int type = 0)
         {
             using(var context = new MytimeContext())
             {
-                if(context.Diaries.Any(x=>x.Date ==date&&x.Type==type))
+                if(context.Diaries.Any(x=>x.Date.Date ==date&&x.Type==type&&x.Year==year))
                 {
-                    return await context.Diaries.FirstOrDefaultAsync(x=>x.Date ==date&&x.Type==type);
+                    return  context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type==type && x.Year == year);
                 }
             }
             return null;

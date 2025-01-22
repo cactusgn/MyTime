@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -209,6 +210,7 @@ namespace Summary.Models
         public MyCommand SplitButtonClickCommand { get; set; }
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand CellEditEndingCommand { get; set; }
+        public MyCommand DiaryLostFocusCommand { get; set; }
         public MyCommand IntervalTextBoxLostFocusCommand { get; set; }
         public MyCommand SloganTextBoxLostFocusCommand { get; set; }
         public MyCommand AccumulateModeCheckChangedCommand { get; set; }
@@ -302,6 +304,7 @@ namespace Summary.Models
             TodoTodaySelectionChangeCommand = new MyCommand(TodoTodaySelectionChange);
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
             EstimateContentChangeCommand = new MyCommand(EstimateContentChange);
+            DiaryLostFocusCommand = new MyCommand(DiaryLostFocus);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
@@ -310,6 +313,46 @@ namespace Summary.Models
             showTextBoxTimer.Interval = 1000;//设定多少秒后行动，单位是毫秒
             showTextBoxTimer.Elapsed += new ElapsedEventHandler(showTextBoxTimer_Tick);//到时所有执行的动作
             showTextBoxTimer.Start();//启动计时
+            initDiary();
+        }
+
+        private void DiaryLostFocus(object obj)
+        {
+            Diary todayDiary = SQLCommands.GetDiary(DateTime.Today.Year, DateTime.Today, 0);
+            todayDiary.Note = DiaryContent;
+            SQLCommands.SaveDiaryAsync(todayDiary);
+        }
+
+        private Diary getTemplateDiary(){
+            Diary temp = SQLCommands.GetDiary(0, DateTime.Today, 0);
+            if(temp==null){
+                temp = new Diary(){
+                    Year = 0,
+                    Week = 0,
+                    Note = $"1.目标：\r\n2.昨天睡觉时间：\r\n3.起床时间：\r\n4.早饭：\r\n5.午饭：\r\n6.晚饭：\r\n7.记录：\r\n8.让自己的心态变得积极起来：\r\n锻炼\r\n每天主动积极应对的三件好事（用积极应对的想法来面对困难）：\r\n尝试的三件新事：\r\n在看/听的作品：\r\n发生的不好的事具有暂时性，偶然性，都是由于外界的原因，思考一下它的好处："
+                };
+                SQLCommands.SaveDiaryAsync(temp);
+            }
+            return temp;
+        }
+        private void initDiary()
+        {
+            Diary todayDiary =  SQLCommands.GetDiary(DateTime.Today.Year, DateTime.Today, 0);
+            if(todayDiary==null){
+                Diary template = getTemplateDiary();
+                DateTime currentDate = DateTime.Now;
+                CultureInfo cultureInfo = new CultureInfo("zh-CN");
+                System.Globalization.Calendar calendar = CultureInfo.InvariantCulture.Calendar;
+                int weekNumber = calendar.GetWeekOfYear(currentDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+                todayDiary = new Diary(){
+                    Year = currentDate.Year,
+                    Week = weekNumber,
+                    Date = currentDate,
+                    Note = template.Note
+                };
+                SQLCommands.SaveDiaryAsync(todayDiary);
+            }
+            DiaryContent = todayDiary.Note;
         }
 
         private void TabKeySub(object obj)

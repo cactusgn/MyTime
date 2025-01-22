@@ -337,8 +337,7 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
                             </DataGrid>
                         </TabItem>
                         <TabItem Header="记录">
-                            <TextBox Height="{Binding GridHeight}" 
-                                     Text="{Binding DiaryContent}"
+                            <TextBox Text="{Binding DiaryContent, UpdateSourceTrigger=LostFocus}"
                                      x:Name="Diary"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
@@ -352,8 +351,8 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
                                 </TextBox.InputBindings>
 
                                 <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="TextChanged">
-                                        <i:InvokeCommandAction CommandParameter="{Binding }" Command="{Binding DataContext.DiaryTextChangeCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                    <i:EventTrigger EventName="LostFocus">
+                                        <i:InvokeCommandAction CommandParameter="{Binding }" Command="{Binding DataContext.DiaryLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </TextBox>

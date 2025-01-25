@@ -33,6 +33,7 @@ namespace Summary
             summaryModel.TypeRadioGroupPanel = TypeRadioGroupPanel;
             summaryModel.LeftSchedule = leftSchedule;
             summaryModel.RightSchedule = RightSchedule;
+            summaryModel.Diary = Diary;
             this.DataContext = summaryModel;
             summaryModel.initTypeCombobox();
             summaryModel.RefreshSingleDayRadioButtons();

@@ -34,7 +34,14 @@ namespace Summary.Data
             {
                 using (var context = new MytimeContext())
                 {
-                    context.Diaries.Add(diary);
+                    if(context.Diaries.Any(x=>x.Id==diary.Id)){
+                        var diaryToUpdate = context.Diaries.FirstOrDefault(x => x.Id == diary.Id);
+                        diaryToUpdate.Note = diary.Note;
+                        diaryToUpdate.UpdateTime = DateTime.Now;
+                    }else{
+                        diary.UpdateTime=DateTime.Now;
+                        context.Diaries.Add(diary);
+                    }
                     await context.SaveChangesAsync();
                 }
                 return true;

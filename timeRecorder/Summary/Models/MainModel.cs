@@ -159,6 +159,7 @@ namespace Summary.Models
             {
                 RecordModel.initCategoryDic();
                 RecordModel.InitTodayData();
+                RecordModel.initDiary();
                 RecordModel.RefreshRadioButtons();
                 RecordModel.refreshSingleDayPlot();
                 MainContent = RecordPageUserControl;

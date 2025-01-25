@@ -335,7 +335,7 @@ namespace Summary.Models
             }
             return temp;
         }
-        private void initDiary()
+        public void initDiary()
         {
             Diary todayDiary =  SQLCommands.GetDiary(DateTime.Today.Year, DateTime.Today, 0);
             if(todayDiary==null){

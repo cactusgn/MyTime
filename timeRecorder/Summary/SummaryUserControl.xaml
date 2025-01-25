@@ -217,7 +217,7 @@
                                         <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="2">结束时间</TextBlock>
                                         <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="3">持续时间</TextBlock>
                                         <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="4">类型</TextBlock>
-                                        <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">记录</TextBlock>
+                                            <TextBlock Style="{StaticResource HorizontalExpanderContentTextBlock}"  Margin="5" Grid.Row="5">内容:</TextBlock>
 
                                         <TextBox HorizontalAlignment="Left" IsEnabled="False" TextAlignment="Center" Margin ="5" Grid.Column="1" Width="100" Text="{Binding SelectedTimeObj.CreatedDate,Converter={StaticResource dateConverter}}" FontWeight="Normal"></TextBox>
                                             <WrapPanel Grid.Column="1" Grid.Row="1" >
@@ -305,12 +305,31 @@
                                         </WrapPanel>
                                         <ScottPlot:WpfPlot x:Name="SummaryPlot" Height="500"/>
                                     </StackPanel>
-
                                 </Expander>
-                                <Expander>
-                                        <TextBox>
-                                            
-                                        </TextBox>
+                                    <Border
+Style="{StaticResource HorizontalDividerBorder}" />
+                                    <Expander Header="记录" Background="{DynamicResource MaterialDesignCardBackground}" Padding="15,0">
+                                        <StackPanel>
+                                            <TextBox Text="{Binding DiaryContent, UpdateSourceTrigger=LostFocus}"
+                                                 x:Name="Diary"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 VerticalAlignment="Stretch"
+                                                 VerticalScrollBarVisibility="Auto">        
+                                                <TextBox.InputBindings>
+                                                    <!--键盘事件绑定-->
+                                                    <KeyBinding Command="{Binding Tab_ClickCommand}" CommandParameter="{Binding ElementName=Diary,Path=Text}" Key="Tab"/>
+                                                    <!--鼠标事件绑定-->
+                                                    <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
+                                                </TextBox.InputBindings>
+
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="LostFocus">
+                                                        <i:InvokeCommandAction CommandParameter="{Binding }" Command="{Binding DataContext.DiaryLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </TextBox>
+                                        </StackPanel>
                                 </Expander>
                             </StackPanel>
                         </materialDesign:Card>

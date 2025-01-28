@@ -17,13 +17,13 @@ namespace Summary.Data
     public class SQLServerCommand : ISQLCommands
     {
 
-        public  Diary GetDiary(int year, DateTime date, int type = 0)
+        public  Diary GetDiary(DateTime date, DiaryType type = 0)
         {
             using(var context = new MytimeContext())
             {
-                if(context.Diaries.Any(x=>x.Date.Date ==date&&x.Type==type&&x.Year==year))
+                if(context.Diaries.Any(x=>x.Date.Date ==date&&x.Type== (int)type))
                 {
-                    return  context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type==type && x.Year == year);
+                    return  context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type== (int)type);
                 }
             }
             return null;
@@ -37,6 +37,7 @@ namespace Summary.Data
                     if(context.Diaries.Any(x=>x.Id==diary.Id)){
                         var diaryToUpdate = context.Diaries.FirstOrDefault(x => x.Id == diary.Id);
                         diaryToUpdate.Note = diary.Note;
+                        diaryToUpdate.Title = diary.Title;
                         diaryToUpdate.UpdateTime = DateTime.Now;
                     }else{
                         diary.UpdateTime=DateTime.Now;

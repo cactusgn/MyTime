@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
@@ -73,6 +74,7 @@ namespace Summary.Models
         public MyCommand ResizeCommand { get; set; }
         public MyCommand SplitButtonClickCommand { get; set; }
         public MyCommand DiaryLostFocusCommand { get; set; }
+        public MyCommand TitleLostFocusCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
         public WpfPlot SummaryPlot { get; set; }
@@ -106,6 +108,12 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        private string diaryTitle;
+        public string DiaryTitle
+        {
+            get { return diaryTitle; }
+            set { diaryTitle = value; OnPropertyChanged(); }
+        }
         private string diaryContent;
 
         public string DiaryContent
@@ -119,6 +127,7 @@ namespace Summary.Models
         }
         public TextBox Diary { get; internal set; }
         public MyCommand Tab_ClickCommand { get; set; }
+        public MyCommand DiaryKeyDownCommand { get; set; }
         public int SelectedIndex = 0;
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
@@ -132,6 +141,7 @@ namespace Summary.Models
             SplitButtonClickCommand = new MyCommand(SplitButtonClick);
             TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
             DiaryLostFocusCommand = new MyCommand(DiaryLostFocus);
+            TitleLostFocusCommand = new MyCommand(TitleLostFocus);
             MergeCommand = new MyCommand(Merge);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
@@ -139,57 +149,33 @@ namespace Summary.Models
             sampleDialogViewModel = SVM;
             SelectedCommand = new MyCommand(Selected);
             ResizeCommand = new MyCommand(resizeHeight);
+            DiaryKeyDownCommand = new MyCommand(DiaryKeyDown);
             Helper.initColor(SqlCommands);
-            updateOldItems();
+            //updateOldItems();
         }
-
+        private void DiaryKeyDown(object obj)
+        {
+            if ((Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift) || Keyboard.IsKeyDown(System.Windows.Input.Key.RightShift)) && Keyboard.IsKeyDown(System.Windows.Input.Key.Tab))
+            {
+                Helper.ClickShiftTabKey(Diary);
+            }
+        }
+        private void TitleLostFocus(object obj)
+        {
+            Diary currentDayDiary = SQLCommands.GetDiary( SelectedTimeObj.CreatedDate);
+            currentDayDiary.Title = DiaryTitle;
+            SQLCommands.SaveDiaryAsync(currentDayDiary);
+        }
         private void DiaryLostFocus(object obj)
         {
-            Diary todayDiary = SQLCommands.GetDiary(SelectedTimeObj.CreatedDate.Year, SelectedTimeObj.CreatedDate, 0);
-            todayDiary.Note = DiaryContent;
-            SQLCommands.SaveDiaryAsync(todayDiary);
+            Diary currentDayDiary = SQLCommands.GetDiary(SelectedTimeObj.CreatedDate);
+            currentDayDiary.Note = DiaryContent;
+            SQLCommands.SaveDiaryAsync(currentDayDiary);
         }
 
         private void TabKeySub(object obj)
         {
-            if (Diary.SelectionLength > 0)
-            {
-                // 获取选中的文本
-                string selectedText = Diary.SelectedText;
-
-                // 获取选中文本前后的文本
-                string textBeforeSelection = Diary.Text.Substring(0, Diary.SelectionStart);
-                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart + Diary.SelectionLength);
-
-                // 分割选中的多行文本
-                string[] lines = selectedText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-                // 为每行添加3个空格
-                StringBuilder newSelectedText = new StringBuilder();
-                foreach (string line in lines)
-                {
-                    newSelectedText.AppendLine("   " + line);
-                }
-
-                // 构建新的文本
-                string newText = textBeforeSelection + newSelectedText.ToString() + textAfterSelection;
-
-                // 设置新的文本
-                Diary.Text = newText;
-
-                // 调整光标位置到选中文本后的第一个字符（已经加了3个空格的位置）
-                Diary.SelectionStart = textBeforeSelection.Length + newSelectedText.Length - lines.Length * Environment.NewLine.Length; // 减去多加的换行符长度
-                Diary.SelectionLength = 0; // 取消选择
-            }
-            else
-            {
-                // 获取当前光标位置
-                int selectionStart = Diary.SelectionStart;
-                // 插入3个空格
-                Diary.Text = Diary.Text.Insert(selectionStart, "   ");
-                // 保持光标位置不变（考虑插入的3个空格）
-                Diary.SelectionStart = selectionStart + 3;
-            }
+            Helper.ClickTabKey(Diary);
         }
 
         public void RefreshSingleDayRadioButtons()
@@ -440,7 +426,15 @@ namespace Summary.Models
             if (myTimeView.CreatedDate!=CurrentDate)
             {
                 CurrentDate = myTimeView.CreatedDate;
-                DiaryContent = SQLCommands.GetDiary(CurrentDate.Year, CurrentDate)?.Note;
+                var CurrentDiary = SQLCommands.GetDiary(CurrentDate);
+                if(CurrentDiary!=null){
+                    DiaryContent = CurrentDiary.Note;
+                    DiaryTitle = CurrentDiary.Title;
+                }else{
+                    Diary initDiary = Helper.getInitDiary(SQLCommands, CurrentDate);
+                    DiaryContent = initDiary.Note;
+                    DiaryTitle = initDiary.Title;
+                }
                 refreshSingleDayPlot();
             }
         }

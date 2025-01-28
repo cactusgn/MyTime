@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
 using ScottPlot.Palettes;
 using ScottPlot.Renderable;
@@ -18,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -54,6 +56,148 @@ namespace Summary.Common.Utils
         public static bool IsDarkTheme()
         {
             return bool.Parse(Helper.GetAppSetting("IsDark"));
+        }
+        public static Diary getInitDiary(ISQLCommands SQLCommands,DateTime currentDate)
+        {
+            Diary initDateDiary = SQLCommands.GetDiary(currentDate, DiaryType.DailyDiary);
+            if (initDateDiary == null)
+            {
+                Diary template = Helper.getTemplateDiary(SQLCommands);
+                initDateDiary = new Diary()
+                {
+                    Year = currentDate.Year,
+                    Week = Helper.getWeekNo(currentDate),
+                    Date = currentDate,
+                    UpdateTime = currentDate,
+                    Note = template.Note,
+                    Title = Helper.getTitle(currentDate)
+                };
+                SQLCommands.SaveDiaryAsync(initDateDiary);
+            }
+           return initDateDiary;
+        }
+        public static Diary getTemplateDiary(ISQLCommands SQLCommands)
+        {
+            Diary temp = SQLCommands.GetDiary(DateTime.Today, DiaryType.Template);
+            if (temp == null)
+            {
+                temp = new Diary()
+                {
+                    Year = 0,
+                    Week = 0,
+                    Type = -1,
+                    Note = $"1. 目标：\r\n2. 昨天睡觉时间：\r\n3. 起床时间：\r\n4. 早饭：\r\n5. 午饭：\r\n6. 晚饭：\r\n7. 记录：\r\n8. 让自己的心态变得积极起来：\r\n锻炼\r\n每天主动积极应对的三件好事（用积极应对的想法来面对困难）：\r\n尝试的三件新事：\r\n在看/听的作品：\r\n发生的不好的事具有暂时性，偶然性，都是由于外界的原因，思考一下它的好处："
+                };
+                SQLCommands.SaveDiaryAsync(temp);
+            }
+            return temp;
+        }
+        public static int getWeekNo(DateTime currentDate)
+        {
+            CultureInfo cultureInfo = new CultureInfo("zh-CN");
+            System.Globalization.Calendar calendar = CultureInfo.InvariantCulture.Calendar;
+            int weekNumber = calendar.GetWeekOfYear(currentDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            return weekNumber;
+        }
+        public static string getTitle(DateTime currentDate)
+        {
+            int weekNumber = getWeekNo(currentDate);
+            return $"{currentDate.Year}.{weekNumber} {currentDate.ToString("yyyy-MM-dd")} {DayTaskView.convertDayOfWeek(currentDate.DayOfWeek)}";
+        }
+        public static void ClickShiftTabKey(TextBox Diary)
+        {
+            if (Diary.SelectionLength > 0){
+                // 获取选中的文本
+                string selectedText = Diary.SelectedText;
+                // 获取选中文本前后的文本
+                string textBeforeSelection = Diary.Text.Substring(0, Diary.SelectionStart);
+                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart+ Diary.SelectionLength);
+                if (textAfterSelection.StartsWith("\r\n"))
+                {
+                    textAfterSelection = textAfterSelection.Substring(2);
+                }else if (textAfterSelection.StartsWith("\r"))
+                {
+                    textAfterSelection = textAfterSelection.Substring(1);
+                }
+                // 分割选中的多行文本
+                string[] lines = selectedText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                // 为每行删除4个空格
+                StringBuilder newSelectedText = new StringBuilder();
+                foreach (string line in lines)
+                {
+                    int i = 0;
+                    while(line.Substring(i,1)==" "&&i<4){
+                        i++;
+                    }
+                    newSelectedText.AppendLine(line.Substring(i));
+                }
+
+                // 构建新的文本
+                string newText = textBeforeSelection + newSelectedText.ToString() + textAfterSelection;
+
+                // 设置新的文本
+                Diary.Text = newText;
+
+            }
+            else{
+                // 获取当前光标位置
+                int selectionStart = Diary.SelectionStart;
+                // 删除4个空格
+                int i = 4;
+                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart);
+                string textBeforeSelection = Diary.Text.Substring(0, selectionStart);
+                while (i>0 && textBeforeSelection.EndsWith(" ")){
+                    textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length - 1);
+                    i--;
+                }
+                Diary.Text = textBeforeSelection + textAfterSelection;
+                Diary.SelectionStart = selectionStart-4;
+            }
+        }
+        public static void ClickTabKey(TextBox Diary){
+            const string FourSpaces = "    ";
+            if (Diary.SelectionLength > 0)
+            {
+                // 获取选中的文本
+                string selectedText = Diary.SelectedText;
+
+                // 获取选中文本前后的文本
+                string textBeforeSelection = Diary.Text.Substring(0, Diary.SelectionStart);
+                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart+Diary.SelectionLength);
+                if (textAfterSelection.StartsWith("\r\n"))
+                {
+                    textAfterSelection = textAfterSelection.Substring(2);
+                }else if (textAfterSelection.StartsWith("\r"))
+                {
+                    textAfterSelection = textAfterSelection.Substring(1);
+                }
+                // 分割选中的多行文本
+                string[] lines = selectedText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+                // 为每行添加4个空格
+                StringBuilder newSelectedText = new StringBuilder();
+                foreach (string line in lines)
+                {
+                    newSelectedText.AppendLine(FourSpaces + line);
+                }
+                // 构建新的文本
+                string newText = textBeforeSelection + newSelectedText.ToString() + textAfterSelection;
+                // 设置新的文本
+                Diary.Text = newText;
+
+                // 调整光标位置到选中文本后的第一个字符（已经加了4个空格的位置）
+                Diary.SelectionStart = textBeforeSelection.Length + newSelectedText.Length - (lines.Length-1) * Environment.NewLine.Length; // 减去多加的换行符长度
+                Diary.SelectionLength = 0; // 取消选择
+            }
+            else
+            {
+                // 获取当前光标位置
+                int selectionStart = Diary.SelectionStart;
+                // 插入4个空格
+                Diary.Text = Diary.Text.Insert(selectionStart, FourSpaces);
+                // 保持光标位置不变（考虑插入的4个空格）
+                Diary.SelectionStart = selectionStart + 4;
+            }
         }
         public static bool IsLightColor(System.Windows.Media.Color color)
         {

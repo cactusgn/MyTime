@@ -42,7 +42,7 @@ namespace Summary.Data
 
         #endregion
         #region "Diary"
-        public Diary GetDiary(int year, DateTime date, int type = 0);
+        public Diary GetDiary(DateTime date, DiaryType type = 0);
         public Task<bool> SaveDiaryAsync(Diary diary);
         #endregion
     }

@@ -337,10 +337,18 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
                             </DataGrid>
                         </TabItem>
                         <TabItem Header="记录">
+                            <StackPanel>
+                                <TextBox Text="{Binding DiaryTitle, UpdateSourceTrigger=LostFocus}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction CommandParameter="{Binding }" Command="{Binding DataContext.TitleLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </TextBox>
                             <TextBox Text="{Binding DiaryContent, UpdateSourceTrigger=LostFocus}"
                                      x:Name="Diary"
                                      AcceptsReturn="True"
-                                     TextWrapping="Wrap"
+                                     TextWrapping="Wrap" 
                                      VerticalAlignment="Stretch"
                                      VerticalScrollBarVisibility="Auto">
                                 <TextBox.InputBindings>
@@ -354,8 +362,12 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
                                     <i:EventTrigger EventName="LostFocus">
                                         <i:InvokeCommandAction CommandParameter="{Binding }" Command="{Binding DataContext.DiaryLostFocusCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
                                     </i:EventTrigger>
-                                </i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewKeyDown">
+                                            <i:InvokeCommandAction CommandParameter="{Binding  }" Command="{Binding DataContext.DiaryKeyDownCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                             </TextBox>
+                            </StackPanel>
                         </TabItem>
                     </TabControl>
                 </StackPanel>

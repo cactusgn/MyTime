@@ -2,6 +2,7 @@
 using MaterialDesignThemes.Wpf;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
 using ScottPlot;
 using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
@@ -24,12 +25,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Summary.Common.Utils.Helper;
+using Key = System.Windows.Input.Key;
 
 namespace Summary.Models
 {
@@ -61,7 +64,12 @@ namespace Summary.Models
             get { return diaryContent; }
             set { diaryContent = value; OnPropertyChanged(); }
         }
-        
+        private string diaryTitle;
+        public string DiaryTitle
+        {
+            get { return diaryTitle; }
+            set { diaryTitle = value; OnPropertyChanged(); }
+        }
         public ComboBox TodoToday { get; set; }
         public TextBox TodoTodayTextbox { get; set; }
         private double height;
@@ -211,6 +219,7 @@ namespace Summary.Models
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand CellEditEndingCommand { get; set; }
         public MyCommand DiaryLostFocusCommand { get; set; }
+        public MyCommand TitleLostFocusCommand { get; set; }
         public MyCommand IntervalTextBoxLostFocusCommand { get; set; }
         public MyCommand SloganTextBoxLostFocusCommand { get; set; }
         public MyCommand AccumulateModeCheckChangedCommand { get; set; }
@@ -224,6 +233,7 @@ namespace Summary.Models
         public MyCommand DownKey_Command { get; set; }
         public MyCommand UpKey_Command { get; set; }
         public MyCommand Tab_ClickCommand { get; set; }
+        public MyCommand DiaryKeyDownCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
             get { return selectedTimeObj; }
@@ -305,6 +315,8 @@ namespace Summary.Models
             SummaryRBChangedCommand = new MyCommand(SummaryRBChanged);
             EstimateContentChangeCommand = new MyCommand(EstimateContentChange);
             DiaryLostFocusCommand = new MyCommand(DiaryLostFocus);
+            TitleLostFocusCommand = new MyCommand(TitleLostFocus);
+            DiaryKeyDownCommand = new MyCommand(DiaryKeyDown);
             SQLCommands = SqlCommands;
             sampleDialogViewModel = SVM;
             Interval = int.Parse(Helper.GetAppSetting("RemindTime"));
@@ -315,86 +327,40 @@ namespace Summary.Models
             showTextBoxTimer.Start();//启动计时
             initDiary();
         }
-
+        private void DiaryKeyDown(object obj)
+        {
+            if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) && Keyboard.IsKeyDown(Key.Tab)){
+                ClickShiftTabKey(Diary);
+            }
+        }
+        private void TitleLostFocus(object obj)
+        {
+            Diary todayDiary = SQLCommands.GetDiary(DateTime.Today);
+            todayDiary.Title = DiaryTitle;
+            SQLCommands.SaveDiaryAsync(todayDiary);
+        }
         private void DiaryLostFocus(object obj)
         {
-            Diary todayDiary = SQLCommands.GetDiary(DateTime.Today.Year, DateTime.Today, 0);
+            Diary todayDiary = SQLCommands.GetDiary(DateTime.Today);
             todayDiary.Note = DiaryContent;
             SQLCommands.SaveDiaryAsync(todayDiary);
         }
 
-        private Diary getTemplateDiary(){
-            Diary temp = SQLCommands.GetDiary(0, DateTime.Today, 0);
-            if(temp==null){
-                temp = new Diary(){
-                    Year = 0,
-                    Week = 0,
-                    Note = $"1.目标：\r\n2.昨天睡觉时间：\r\n3.起床时间：\r\n4.早饭：\r\n5.午饭：\r\n6.晚饭：\r\n7.记录：\r\n8.让自己的心态变得积极起来：\r\n锻炼\r\n每天主动积极应对的三件好事（用积极应对的想法来面对困难）：\r\n尝试的三件新事：\r\n在看/听的作品：\r\n发生的不好的事具有暂时性，偶然性，都是由于外界的原因，思考一下它的好处："
-                };
-                SQLCommands.SaveDiaryAsync(temp);
-            }
-            return temp;
-        }
         public void initDiary()
         {
-            Diary todayDiary =  SQLCommands.GetDiary(DateTime.Today.Year, DateTime.Today, 0);
-            if(todayDiary==null){
-                Diary template = getTemplateDiary();
-                DateTime currentDate = DateTime.Now;
-                CultureInfo cultureInfo = new CultureInfo("zh-CN");
-                System.Globalization.Calendar calendar = CultureInfo.InvariantCulture.Calendar;
-                int weekNumber = calendar.GetWeekOfYear(currentDate, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-                todayDiary = new Diary(){
-                    Year = currentDate.Year,
-                    Week = weekNumber,
-                    Date = currentDate,
-                    Note = template.Note
-                };
+            DateTime initDate = DateTime.Today;
+            Diary todayDiary = getInitDiary(SQLCommands, initDate);
+            if(string.IsNullOrEmpty(todayDiary.Title)){
+                todayDiary.Title = Helper.getTitle(initDate);
                 SQLCommands.SaveDiaryAsync(todayDiary);
             }
             DiaryContent = todayDiary.Note;
+            DiaryTitle = todayDiary.Title;
         }
 
         private void TabKeySub(object obj)
         {
-            if (Diary.SelectionLength>0)
-            {
-                // 获取选中的文本
-                string selectedText = Diary.SelectedText;
-
-                // 获取选中文本前后的文本
-                string textBeforeSelection = Diary.Text.Substring(0, Diary.SelectionStart);
-                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart + Diary.SelectionLength);
-
-                // 分割选中的多行文本
-                string[] lines = selectedText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-                // 为每行添加3个空格
-                StringBuilder newSelectedText = new StringBuilder();
-                foreach (string line in lines)
-                {
-                    newSelectedText.AppendLine("   " + line);
-                }
-
-                // 构建新的文本
-                string newText = textBeforeSelection + newSelectedText.ToString() + textAfterSelection;
-
-                // 设置新的文本
-                Diary.Text = newText;
-
-                // 调整光标位置到选中文本后的第一个字符（已经加了3个空格的位置）
-                Diary.SelectionStart = textBeforeSelection.Length + newSelectedText.Length - lines.Length  * Environment.NewLine.Length; // 减去多加的换行符长度
-                Diary.SelectionLength = 0; // 取消选择
-            }
-            else
-            {
-                // 获取当前光标位置
-                int selectionStart = Diary.SelectionStart;
-                // 插入3个空格
-                Diary.Text = Diary.Text.Insert(selectionStart, "   ");
-                // 保持光标位置不变（考虑插入的3个空格）
-                Diary.SelectionStart = selectionStart + 3;
-            }
+            ClickTabKey(Diary);
         }
 
         private void TodayListBoxRightClick(object obj)

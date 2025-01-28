@@ -119,7 +119,7 @@ namespace Summary.Common
         }
         public string Theme5LastTime { get; set; } = "";
         public string Theme5Reward { get; set; } = "";
-        private string convertDayOfWeek(DayOfWeek dayOfWeek)
+        public static string convertDayOfWeek(DayOfWeek dayOfWeek)
         {
             var res = "";
             switch (dayOfWeek)

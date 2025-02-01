@@ -25,6 +25,7 @@ namespace Summary
         {
             InitializeComponent();
             this.DataContext = settingsModel;
+            settingsModel.Diary = Diary;
         }
     }
 }

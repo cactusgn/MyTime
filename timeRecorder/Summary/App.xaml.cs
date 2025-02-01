@@ -80,6 +80,7 @@ namespace Summary
             services.AddSingleton<TaskManagerModel>();
             services.AddSingleton<SampleDialogViewModel>();
             services.AddSingleton<AddCategoryModel>();
+            services.AddSingleton<SettingsModel>();
             
         }
         protected override void OnStartup(StartupEventArgs e)

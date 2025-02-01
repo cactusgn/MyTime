@@ -309,7 +309,12 @@
                                     <Border
 Style="{StaticResource HorizontalDividerBorder}" />
                                     <Expander Header="记录" Background="{DynamicResource MaterialDesignCardBackground}" Padding="15,0">
-                                        <StackPanel>
+                                        <Grid MaxHeight="500"
+                                              KeyboardNavigation.TabNavigation="None">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                            </Grid.RowDefinitions>
                                             <TextBox Text="{Binding DiaryTitle, UpdateSourceTrigger=LostFocus}">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="LostFocus">
@@ -321,11 +326,15 @@ Style="{StaticResource HorizontalDividerBorder}" />
                                                  x:Name="Diary"
                                                  AcceptsReturn="True"
                                                  TextWrapping="Wrap"
+                                                 TextAlignment="Left"
+                                                     
+                                                 Grid.Row="1"
                                                  VerticalAlignment="Stretch"
                                                  VerticalScrollBarVisibility="Auto">        
                                                 <TextBox.InputBindings>
                                                     <!--键盘事件绑定-->
                                                     <KeyBinding Command="{Binding Tab_ClickCommand}" CommandParameter="{Binding ElementName=Diary,Path=Text}" Key="Tab"/>
+                                                    <KeyBinding Command="{Binding Return_ClickCommand}" CommandParameter="{Binding ElementName=Diary,Path=Text}" Key="Return"/>
                                                     <!--鼠标事件绑定-->
                                                     <!--<MouseBinding Command="{Binding ButtonClick}" MouseAction="LeftDoubleClick"/>-->
                                                 </TextBox.InputBindings>
@@ -339,7 +348,7 @@ Style="{StaticResource HorizontalDividerBorder}" />
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                             </TextBox>
-                                        </StackPanel>
+                                        </Grid>
                                 </Expander>
                             </StackPanel>
                         </materialDesign:Card>

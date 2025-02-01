@@ -3,13 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:Summary"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:domain="clr-namespace:Summary.Domain"
              mc:Ignorable="d" 
              FontSize="16"
              Background="{DynamicResource MaterialDesignCardBackground}"
-             
              d:DesignHeight="450" d:DesignWidth="800">
     <materialDesign:DialogHost x:Name="DialogHost2" Identifier="SubRootDialog"  
                                        DialogTheme="Inherit" >
@@ -22,7 +22,8 @@
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="150"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition ></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -54,8 +55,28 @@
                 </TextBox>
                 <TextBlock   VerticalAlignment="Center" Margin="10,0">分钟</TextBlock>
             </WrapPanel>
+            <TextBlock Grid.Row="7">日记模板：</TextBlock>
+            <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding DiaryContent, UpdateSourceTrigger=LostFocus}"
+         x:Name="Diary"
+         AcceptsReturn="True"
+         TextWrapping="Wrap" 
+             TextAlignment="Left"
+             Height="150"
+         VerticalScrollBarVisibility="Auto"
+         >
+                <TextBox.InputBindings>
+                    <!--键盘事件绑定-->
+                    <KeyBinding Command="{Binding Tab_ClickCommand}" CommandParameter="{Binding ElementName=Diary,Path=Text}" Key="Tab"/>
+                    <KeyBinding Command="{Binding Return_ClickCommand}" CommandParameter="{Binding ElementName=Diary,Path=Text}" Key="Return"/>
+                </TextBox.InputBindings>
 
-            <Button Grid.Row="8" Background="{DynamicResource PrimaryHueDarkBrush}" Command="{Binding SaveCommand}" Margin="3,24,3,24">保存</Button>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewKeyDown">
+                        <i:InvokeCommandAction CommandParameter="{Binding  }" Command="{Binding DataContext.DiaryKeyDownCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TextBox,AncestorLevel=1}}"></i:InvokeCommandAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
+            <Button Grid.Row="9" Background="{DynamicResource PrimaryHueDarkBrush}" Command="{Binding SaveCommand}" Margin="3,24,3,24">保存</Button>
         </Grid>
     </materialDesign:DialogHost>
 </UserControl>

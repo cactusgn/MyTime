@@ -60,7 +60,7 @@ namespace Summary.Common.Utils
         public static Diary getInitDiary(ISQLCommands SQLCommands,DateTime currentDate)
         {
             Diary initDateDiary = SQLCommands.GetDiary(currentDate, DiaryType.DailyDiary);
-            if (initDateDiary == null)
+            if (initDateDiary == null || string.IsNullOrEmpty(initDateDiary.Note))
             {
                 Diary template = Helper.getTemplateDiary(SQLCommands);
                 initDateDiary = new Diary()
@@ -79,17 +79,6 @@ namespace Summary.Common.Utils
         public static Diary getTemplateDiary(ISQLCommands SQLCommands)
         {
             Diary temp = SQLCommands.GetDiary(DateTime.Today, DiaryType.Template);
-            if (temp == null)
-            {
-                temp = new Diary()
-                {
-                    Year = 0,
-                    Week = 0,
-                    Type = -1,
-                    Note = $"1. 目标：\r\n2. 昨天睡觉时间：\r\n3. 起床时间：\r\n4. 早饭：\r\n5. 午饭：\r\n6. 晚饭：\r\n7. 记录：\r\n8. 让自己的心态变得积极起来：\r\n锻炼\r\n每天主动积极应对的三件好事（用积极应对的想法来面对困难）：\r\n尝试的三件新事：\r\n在看/听的作品：\r\n发生的不好的事具有暂时性，偶然性，都是由于外界的原因，思考一下它的好处："
-                };
-                SQLCommands.SaveDiaryAsync(temp);
-            }
             return temp;
         }
         public static int getWeekNo(DateTime currentDate)
@@ -103,6 +92,37 @@ namespace Summary.Common.Utils
         {
             int weekNumber = getWeekNo(currentDate);
             return $"{currentDate.Year}.{weekNumber} {currentDate.ToString("yyyy-MM-dd")} {DayTaskView.convertDayOfWeek(currentDate.DayOfWeek)}";
+        }
+        public static void ClickEnter(TextBox Diary){
+            int selectionStart = Diary.SelectionStart;
+            string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart);
+            string textBeforeSelection = Diary.Text.Substring(0, selectionStart);
+            if(textBeforeSelection.TrimEnd().EndsWith("•")){
+                textBeforeSelection = textBeforeSelection.TrimEnd();
+                textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length - 1);
+                Diary.Text = textBeforeSelection + textAfterSelection;
+                Diary.SelectionStart = selectionStart - 2;
+                return;
+            }
+            // 分割选中的多行文本
+            string[] lines = textBeforeSelection.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            if(lines.Length>0){
+                string lastline = lines[lines.Length-1];
+                if(lastline.TrimStart().StartsWith("•")){
+                   string[] aa = lastline.Split("•");
+                   if(aa.Length>1){
+                        Diary.Text = textBeforeSelection + "\r\n" + aa[0] + "• " + textAfterSelection;
+                        Diary.SelectionStart = selectionStart + 4 + aa[0].Length;
+                    }
+                }else{
+                    Diary.Text = textBeforeSelection + "\r\n" + textAfterSelection;
+                    Diary.SelectionStart = selectionStart+2;
+                }
+            }else{
+                Diary.Text = textBeforeSelection + "\r\n" + textAfterSelection;
+                Diary.SelectionStart = selectionStart;
+            }
+                
         }
         public static void ClickShiftTabKey(TextBox Diary)
         {
@@ -140,19 +160,46 @@ namespace Summary.Common.Utils
 
             }
             else{
+
                 // 获取当前光标位置
                 int selectionStart = Diary.SelectionStart;
                 // 删除4个空格
                 int i = 4;
                 string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart);
                 string textBeforeSelection = Diary.Text.Substring(0, selectionStart);
-                while (i>0 && textBeforeSelection.EndsWith(" ")){
-                    textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length - 1);
-                    i--;
+                if (textBeforeSelection.TrimEnd().EndsWith("•"))
+                {
+                    textBeforeSelection = textBeforeSelection.TrimEnd();
+                    textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length-1);
+                    while (i > 0 && textBeforeSelection.EndsWith(" "))
+                    {
+                        textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length - 1);
+                        i--;
+                    }
+                    Diary.Text = textBeforeSelection + "• " + textAfterSelection;
+                    Diary.SelectionStart = selectionStart - 4;
+                }else{
+                    while (i>0 && textBeforeSelection.EndsWith(" ")){
+                        textBeforeSelection = textBeforeSelection.Substring(0, textBeforeSelection.Length - 1);
+                        i--;
+                    }
+                    Diary.Text = textBeforeSelection + textAfterSelection;
+                    Diary.SelectionStart = selectionStart-4;
                 }
-                Diary.Text = textBeforeSelection + textAfterSelection;
-                Diary.SelectionStart = selectionStart-4;
             }
+        }
+        public static void ClickSpace(TextBox Diary){
+            int selectionStart = Diary.SelectionStart;
+            string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart);
+            string textBeforeSelection = Diary.Text.Substring(0, selectionStart);
+            if (textBeforeSelection.EndsWith("-"))
+            {
+                textBeforeSelection = textBeforeSelection.Substring(0, selectionStart-1) + "•";
+            }else{
+                return;
+            }
+            Diary.Text = textBeforeSelection + textAfterSelection;
+            Diary.SelectionStart = selectionStart;
         }
         public static void ClickTabKey(TextBox Diary){
             const string FourSpaces = "    ";
@@ -193,10 +240,22 @@ namespace Summary.Common.Utils
             {
                 // 获取当前光标位置
                 int selectionStart = Diary.SelectionStart;
-                // 插入4个空格
-                Diary.Text = Diary.Text.Insert(selectionStart, FourSpaces);
-                // 保持光标位置不变（考虑插入的4个空格）
-                Diary.SelectionStart = selectionStart + 4;
+                string textAfterSelection = Diary.Text.Substring(Diary.SelectionStart);
+                string textBeforeSelection = Diary.Text.Substring(0, selectionStart);
+                if (textBeforeSelection.TrimEnd().EndsWith("•"))
+                {
+                    string[] splitT = textBeforeSelection.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                    string lastLine = splitT[splitT.Length-1];
+                    string[] split2 = lastLine.Split("•");
+                    Diary.Text = textBeforeSelection.Substring(0, textBeforeSelection.Length - split2[1].Length-1) + FourSpaces + "• " + textAfterSelection;
+                    Diary.SelectionStart = selectionStart + 4;
+                }
+                else{
+                    // 插入4个空格
+                    Diary.Text = Diary.Text.Insert(selectionStart, FourSpaces);
+                    // 保持光标位置不变（考虑插入的4个空格）
+                    Diary.SelectionStart = selectionStart + 4;
+                }
             }
         }
         public static bool IsLightColor(System.Windows.Media.Color color)

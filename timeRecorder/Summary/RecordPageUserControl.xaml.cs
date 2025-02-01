@@ -99,5 +99,7 @@ namespace Summary
                 ((RecordModel)this.DataContext).DeleteAllAfterCheck();
             }
         }
+
+     
     }
 }

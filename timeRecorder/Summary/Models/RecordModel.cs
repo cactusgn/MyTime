@@ -233,6 +233,7 @@ namespace Summary.Models
         public MyCommand DownKey_Command { get; set; }
         public MyCommand UpKey_Command { get; set; }
         public MyCommand Tab_ClickCommand { get; set; }
+        public MyCommand Return_ClickCommand { get; set; }
         public MyCommand DiaryKeyDownCommand { get; set; }
         public TimeViewObj SelectedTimeObj
         {
@@ -288,6 +289,7 @@ namespace Summary.Models
             DownKey_Command = new MyCommand(DownKeySub);
             UpKey_Command = new MyCommand(UpKeySub);
             Tab_ClickCommand = new MyCommand(TabKeySub);
+            Return_ClickCommand = new MyCommand(ReturnKeySub);
             DeleteContextMenu_ClickCommand = new MyCommand(DeleteContextMenu);
             TodayListBoxSelectionChangeCommand = new MyCommand(TodayListBoxSelectionChange);
             TodayListBoxRightClickCommand = new MyCommand(TodayListBoxRightClick);
@@ -327,10 +329,19 @@ namespace Summary.Models
             showTextBoxTimer.Start();//启动计时
             initDiary();
         }
+
+        private void ReturnKeySub(object obj)
+        {
+            ClickEnter(Diary);
+        }
+
         private void DiaryKeyDown(object obj)
         {
             if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) && Keyboard.IsKeyDown(Key.Tab)){
                 ClickShiftTabKey(Diary);
+            }
+            if(Keyboard.IsKeyDown(Key.Space)){
+                ClickSpace(Diary);
             }
         }
         private void TitleLostFocus(object obj)
@@ -350,7 +361,8 @@ namespace Summary.Models
         {
             DateTime initDate = DateTime.Today;
             Diary todayDiary = getInitDiary(SQLCommands, initDate);
-            if(string.IsNullOrEmpty(todayDiary.Title)){
+            if(string.IsNullOrEmpty(todayDiary.Title))
+            {
                 todayDiary.Title = Helper.getTitle(initDate);
                 SQLCommands.SaveDiaryAsync(todayDiary);
             }

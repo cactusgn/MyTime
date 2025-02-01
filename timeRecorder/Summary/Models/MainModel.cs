@@ -95,7 +95,7 @@ namespace Summary.Models
         private PlanModel PlanModel;
         private TaskManagerModel TaskManagerModel;
         private bool isDark ;
-        public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel, PlanModel planModel)
+        public MainModel(SummaryModel summaryModel,RecordModel recordModel, TaskManagerModel taskManagerModel, PlanModel planModel, SettingsModel settingsModel)
         {
             ITheme theme = _paletteHelper.GetTheme();
             //theme.SetPrimaryColor((Color)ColorConverter.ConvertFromString("#2884D5"));
@@ -110,7 +110,7 @@ namespace Summary.Models
             _paletteHelper.SetTheme(theme);
             HoverForegroundColor = getColor(_paletteHelper.GetTheme().PrimaryMid.Color.ToString());
             OpenPageCommand = new MyCommand(OpenPage);
-            Settings = new Settings(new SettingsModel());
+            Settings = new Settings(settingsModel);
             RecordPageUserControl = new RecordPageUserControl(recordModel);
             RecordModel = recordModel;
             SummaryModel = summaryModel;

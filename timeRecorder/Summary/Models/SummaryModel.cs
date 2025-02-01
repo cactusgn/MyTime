@@ -128,6 +128,7 @@ namespace Summary.Models
         public TextBox Diary { get; internal set; }
         public MyCommand Tab_ClickCommand { get; set; }
         public MyCommand DiaryKeyDownCommand { get; set; }
+        public MyCommand Return_ClickCommand { get; set; }
         public int SelectedIndex = 0;
         public SummaryModel(ISQLCommands SqlCommands, SampleDialogViewModel SVM)
         {
@@ -142,6 +143,7 @@ namespace Summary.Models
             TextBoxLostFocusCommand = new MyCommand(TextBoxLostFocus);
             DiaryLostFocusCommand = new MyCommand(DiaryLostFocus);
             TitleLostFocusCommand = new MyCommand(TitleLostFocus);
+            Return_ClickCommand = new MyCommand(ReturnKeySub);
             MergeCommand = new MyCommand(Merge);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
@@ -153,11 +155,20 @@ namespace Summary.Models
             Helper.initColor(SqlCommands);
             //updateOldItems();
         }
+        private void ReturnKeySub(object obj)
+        {
+            Helper.ClickEnter(Diary);
+        }
+
         private void DiaryKeyDown(object obj)
         {
             if ((Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift) || Keyboard.IsKeyDown(System.Windows.Input.Key.RightShift)) && Keyboard.IsKeyDown(System.Windows.Input.Key.Tab))
             {
                 Helper.ClickShiftTabKey(Diary);
+            }
+            if (Keyboard.IsKeyDown(System.Windows.Input.Key.Space))
+            {
+                Helper.ClickSpace(Diary);
             }
         }
         private void TitleLostFocus(object obj)

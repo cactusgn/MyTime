@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ScottPlot.Drawing.Colormaps;
 using Summary.Common;
 using Summary.Common.Utils;
 using Summary.Domain;
@@ -21,9 +22,25 @@ namespace Summary.Data
         {
             using(var context = new MytimeContext())
             {
+                if(type==DiaryType.Template){
+                    Diary template = context.Diaries.FirstOrDefault(x => x.Type == (int)type);
+                    if(template==null){
+                        Diary temp = new Diary()
+                        {
+                            Year = 0,
+                            Week = 0,
+                            Type = -1,
+                            Note = $"1. 目标：\r\n2. 昨天睡觉时间：\r\n3. 起床时间：\r\n4. 早饭：\r\n5. 午饭：\r\n6. 晚饭：\r\n7. 记录：\r\n8. 让自己的心态变得积极起来：\r\n锻炼\r\n每天主动积极应对的三件好事（用积极应对的想法来面对困难）：\r\n尝试的三件新事：\r\n在看/听的作品：\r\n发生的不好的事具有暂时性，偶然性，都是由于外界的原因，思考一下它的好处："
+                        };
+                        context.Diaries.Add(temp);
+                        context.SaveChanges();
+                        return temp;
+                    }
+                    return template;
+                }
                 if(context.Diaries.Any(x=>x.Date.Date ==date&&x.Type== (int)type))
                 {
-                    return  context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type== (int)type);
+                    return context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type== (int)type);
                 }
             }
             return null;

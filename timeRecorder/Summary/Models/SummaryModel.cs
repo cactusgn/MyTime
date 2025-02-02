@@ -75,6 +75,7 @@ namespace Summary.Models
         public MyCommand SplitButtonClickCommand { get; set; }
         public MyCommand DiaryLostFocusCommand { get; set; }
         public MyCommand TitleLostFocusCommand { get; set; }
+        public MyCommand ClickDiaryButtonCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
         public WpfPlot SummaryPlot { get; set; }
@@ -125,6 +126,18 @@ namespace Summary.Models
                 OnPropertyChanged();
             }
         }
+        private bool themeOpen;
+        public bool ThemeOpen
+        {
+            get => themeOpen;
+            set { themeOpen = value; OnPropertyChanged(); }
+        }
+        private ObservableCollection<Diary> allDiaries;
+        public ObservableCollection<Diary> AllDiaries
+        {
+            get => allDiaries;
+            set { allDiaries = value; OnPropertyChanged(); }
+        }
         public TextBox Diary { get; internal set; }
         public MyCommand Tab_ClickCommand { get; set; }
         public MyCommand DiaryKeyDownCommand { get; set; }
@@ -145,6 +158,7 @@ namespace Summary.Models
             TitleLostFocusCommand = new MyCommand(TitleLostFocus);
             Return_ClickCommand = new MyCommand(ReturnKeySub);
             MergeCommand = new MyCommand(Merge);
+            ClickDiaryButtonCommand = new MyCommand(ClickDiaryButton);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
             SQLCommands = SqlCommands;
@@ -155,6 +169,14 @@ namespace Summary.Models
             Helper.initColor(SqlCommands);
             //updateOldItems();
         }
+
+        private async void ClickDiaryButton(object obj)
+        {
+            ThemeOpen = true;
+            List<Diary> AllDiaries1 = await SQLCommands.GetDiaries(StartTime, EndTime); 
+            AllDiaries = new ObservableCollection<Diary>(AllDiaries1.OrderBy(x=>x.Date));
+        }
+
         private void ReturnKeySub(object obj)
         {
             Helper.ClickEnter(Diary);

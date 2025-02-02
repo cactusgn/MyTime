@@ -44,6 +44,7 @@ namespace Summary.Data
         #region "Diary"
         public Diary GetDiary(DateTime date, DiaryType type = 0);
         public Task<bool> SaveDiaryAsync(Diary diary);
+        public Task<List<Diary>> GetDiaries(DateTime startTime, DateTime endTime);
         #endregion
     }
 }

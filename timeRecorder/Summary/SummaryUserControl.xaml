@@ -58,7 +58,32 @@
                                        DialogTheme="Inherit" 
                                        DialogClosing="DialogHost2_DialogClosing"
                                         DialogClosed="DialogHost2_DialogClosed">
-            <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
+                <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ThemeOpen}">
+                    <materialDesign:DrawerHost.RightDrawerContent>
+                        <ScrollViewer  >
+                            <StackPanel Width="440" Orientation="Vertical" >
+                                <TextBlock Text="日记" FontSize="20" FontWeight="Bold" Margin="10"></TextBlock>
+                                <ItemsControl  ItemsSource="{Binding AllDiaries}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling" >
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel  IsVirtualizing="True"
+                                        VirtualizationMode="Recycling" Orientation="Vertical"/>
+                                            <!--<StackPanel Orientation="Horizontal"/>-->
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel >
+                                                <TextBox Text="{Binding Title}" FontSize="16" FontWeight="Bold" Margin="10,0"></TextBox>
+                                                <TextBox Text="{Binding Note}" FontSize="14" FontWeight="Normal" Margin="10,5" TextAlignment="Left" TextWrapping="Wrap"></TextBox>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </materialDesign:DrawerHost.RightDrawerContent>
+                    <Grid ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="White" >
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="Filter" Height="70"/>
                         <RowDefinition  Height="1"/>
@@ -89,6 +114,7 @@
                             <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek" Foreground="Black"></Button>
                             <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"></Button>
                             <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"></Button>
+                            <Button Content="记录"  Margin="10"  BorderBrush="LightGreen" Background="LightGreen" Command="{Binding ClickDiaryButtonCommand}" Foreground="Black"></Button>
                             <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisWeek"
         Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"
@@ -356,6 +382,7 @@ Style="{StaticResource HorizontalDividerBorder}" />
                 </Grid>
 
             </Grid>
+                </materialDesign:DrawerHost>
             </materialDesign:DialogHost>
         </materialDesign:DialogHost>
     </Grid>

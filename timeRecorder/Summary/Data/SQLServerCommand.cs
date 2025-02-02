@@ -17,7 +17,12 @@ namespace Summary.Data
 {
     public class SQLServerCommand : ISQLCommands
     {
-
+        public Task<List<Diary>> GetDiaries(DateTime startTime, DateTime endTime)
+        {
+            using (var context = new MytimeContext()){
+                return context.Diaries.Where(x => x.Date.Date >= startTime && x.Type == 0 && x.Date.Date <= endTime).ToListAsync();
+            }
+        }
         public  Diary GetDiary(DateTime date, DiaryType type = 0)
         {
             using(var context = new MytimeContext())

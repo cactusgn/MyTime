@@ -1264,9 +1264,10 @@ namespace Summary.Models
                 }
             }
             var planItems = await SQLCommands.GetAllTimeObjs(DateTime.Today, DateTime.Today);
+            //增加planned的持续时间为0的item
             foreach (var obj in planItems)
             {
-                if (!hs.Contains(obj.note) && obj.note != "" && obj.type != "none" && obj.note!=Helper.RestContent && obj.lastTime.TotalSeconds==0)
+                if (!hs.Contains(obj.note) && obj.note != "" && obj.note!=Helper.RestContent && obj.lastTime.TotalSeconds==0)
                 {
                     ToDoObj newObj = new ToDoObj() { CreatedDate = DateTime.Today, Note = obj.note, Finished = false, Type = obj.type};
                     var id = await SQLCommands.AddTodo(newObj);

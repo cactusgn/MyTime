@@ -565,7 +565,7 @@ namespace Summary.Common.Utils
             TimeObj.Height = CalculateHeight(TimeObj.LastTime,height,viewType);
             TimeObj.StartTime = startTime;
             TimeObj.EndTime = endTime;
-            TimeObj.Type = Helper.mainCategories.Any(x=>x.Name==type)?type:"none";
+            TimeObj.Type = Helper.allcategories.Any(x=>x.Name==type)?type:"none";
             TimeObj.Id = index;
             TimeObj.TaskId = taskId;
             return TimeObj;

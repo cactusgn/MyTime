@@ -465,6 +465,17 @@ Command="{Binding DataContext.TodoTodaySelectionChangeCommand, RelativeSource={R
                                                         <Border >
 
                                                             <TextBox  Margin="0" Text="{Binding TimeNote}" Height="{Binding Height}" FontSize="12" Background="{Binding Color}" TextWrapping="Wrap"  BorderBrush="Black"  BorderThickness="0.3" TextAlignment="Center"  materialDesign:TextFieldAssist.TextFieldCornerRadius="0" Padding="0" Foreground="Black">
+                                                                <TextBox.ToolTip>
+                                                                    <ToolTip Content="{Binding Note, FallbackValue=''}"
+                                                                         Placement="MousePoint"
+                                                                         PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"
+                                                                         HasDropShadow="True"
+                                                                         Background="#F3F3F3"
+                                                                         BorderBrush="#F3F3F3"
+                                                                         BorderThickness="1"
+                                                                         Padding="5"
+                                                                         FontSize="12" />       
+                                                                </TextBox.ToolTip>
                                                                 <i:Interaction.Triggers>
                                                                     <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                                                         <i:InvokeCommandAction 

@@ -61,7 +61,7 @@
                 <materialDesign:DrawerHost  IsRightDrawerOpen="{Binding ThemeOpen}">
                     <materialDesign:DrawerHost.RightDrawerContent>
                         <ScrollViewer  >
-                            <StackPanel Width="{Binding ElementName=rightPanel, Path=ActualWidth}" Orientation="Vertical" >
+                            <StackPanel x:Name="drawerDiaryPanel" Orientation="Vertical" >
                                 <TextBlock Text="日记" FontSize="20" FontWeight="Bold" Margin="10"></TextBlock>
                                 <ItemsControl  ItemsSource="{Binding AllDiaries}" Padding="5" VirtualizingPanel.VirtualizationMode="Recycling" >
                                     <ItemsControl.ItemsPanel>
@@ -144,7 +144,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="7*"/>
                         <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition MinWidth="280"/>
+                        <ColumnDefinition MinWidth="280" Width="280"/>
                     </Grid.ColumnDefinitions>
                         <ScrollViewer  VerticalScrollBarVisibility="Auto">
                             <DockPanel  HorizontalAlignment="Center" >
@@ -231,7 +231,7 @@
                     <!--右边panel-->
                         <StackPanel Grid.Row="1" Grid.Column="2" >
                             <materialDesign:Card  >
-                            <StackPanel  x:Name="rightPanel"  >
+                            <StackPanel  x:Name="rightPanel" Loaded="rightPanel_Loaded" >
                                 <Expander
                               HorizontalAlignment="Stretch" 
                               Header="时间块" IsExpanded="True"  Background="{DynamicResource MaterialDesignCardBackground}" >

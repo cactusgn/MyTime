@@ -34,6 +34,8 @@ namespace Summary
             summaryModel.LeftSchedule = leftSchedule;
             summaryModel.RightSchedule = RightSchedule;
             summaryModel.Diary = Diary;
+            summaryModel.drawerDiaryPanel = drawerDiaryPanel;
+            summaryModel.rightPanel = rightPanel;
             this.DataContext = summaryModel;
             summaryModel.initTypeCombobox();
             summaryModel.RefreshSingleDayRadioButtons();
@@ -77,6 +79,26 @@ namespace Summary
             ((SummaryModel)this.DataContext).sampleDialogViewModel.Content2 = "";
             if (!Equals(eventArgs.Parameter, true))
                 return;
+        }
+        private void AddBindingWidthForDrawerPanel()
+        {
+            // 确保sourcePanel已加载并有一个有效的ActualWidth
+            if (rightPanel != null && rightPanel.IsLoaded && rightPanel.ActualWidth > 0)
+            {
+                // 创建一个新的Binding对象
+                Binding binding = new Binding("ActualWidth")
+                {
+                    Source = rightPanel, // 设置源元素
+                    Mode = BindingMode.OneWay // 通常我们不需要双向绑定ActualWidth
+                };
+
+                // 使用BindingOperations.SetBinding来设置绑定
+                BindingOperations.SetBinding(drawerDiaryPanel, StackPanel.WidthProperty, binding);
+            }
+        }
+        private void rightPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            AddBindingWidthForDrawerPanel();
         }
     }
 }

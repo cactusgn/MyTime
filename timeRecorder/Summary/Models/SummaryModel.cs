@@ -87,7 +87,7 @@ namespace Summary.Models
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand MergeCommand { get; set; }
         public List<RadioButton> SingleDayRadioButtons = new List<RadioButton>();
-        
+        public StackPanel drawerDiaryPanel {get;set;}
         public bool RadioButtonEnabled
         {
             get
@@ -167,8 +167,9 @@ namespace Summary.Models
             ResizeCommand = new MyCommand(resizeHeight);
             DiaryKeyDownCommand = new MyCommand(DiaryKeyDown);
             Helper.initColor(SqlCommands);
-            //updateOldItems();
         }
+
+        
 
         private async void ClickDiaryButton(object obj)
         {
@@ -547,6 +548,7 @@ namespace Summary.Models
         public WrapPanel SingleDayTypeRadioGroupPanel { get; internal set; }
         public Canvas LeftSchedule { get; internal set; }
         public Canvas RightSchedule { get; internal set; }
+        public StackPanel rightPanel { get; internal set; }
 
         private  void closeDialog()
         {

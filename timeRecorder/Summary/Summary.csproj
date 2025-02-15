@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <None Remove="App.config" />
+    <None Remove="TimeTests.db" />
   </ItemGroup>
 
   <ItemGroup>

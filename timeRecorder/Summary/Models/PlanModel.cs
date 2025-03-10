@@ -559,6 +559,7 @@ namespace Summary.Models
                     if (string.IsNullOrEmpty(DayLine.Theme1TaskName))
                     {
                         DayLine.Theme1TaskName = recordedTask.Note;
+                        DayLine.oldTheme1TaskName = recordedTask.Note;
                         DayLine.Theme1LastTime = recordedTask.LastTime.TotalHours.ToString("F2") ;
                         DayLine.Theme1Reward = recordedTask.Bonus.ToString();
                         insertSuccess = true;
@@ -571,6 +572,7 @@ namespace Summary.Models
                     if (string.IsNullOrEmpty(DayLine.Theme2TaskName))
                     {
                         DayLine.Theme2TaskName = recordedTask.Note;
+                        DayLine.oldTheme2TaskName = recordedTask.Note;
                         DayLine.Theme2LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme2Reward = recordedTask.Bonus.ToString();
                         insertSuccess = true;
@@ -583,6 +585,7 @@ namespace Summary.Models
                     if (string.IsNullOrEmpty(DayLine.Theme3TaskName))
                     {
                         DayLine.Theme3TaskName = recordedTask.Note;
+                        DayLine.oldTheme3TaskName = recordedTask.Note;
                         DayLine.Theme3LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme3Reward = recordedTask.Bonus.ToString();
                         insertSuccess = true;
@@ -595,6 +598,7 @@ namespace Summary.Models
                     if (string.IsNullOrEmpty(DayLine.Theme4TaskName))
                     {
                         DayLine.Theme4TaskName = recordedTask.Note;
+                        DayLine.oldTheme4TaskName = recordedTask.Note;
                         DayLine.Theme4LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme4Reward = recordedTask.Bonus.ToString();
                         insertSuccess = true;
@@ -607,6 +611,7 @@ namespace Summary.Models
                     if (string.IsNullOrEmpty(DayLine.Theme5TaskName))
                     {
                         DayLine.Theme5TaskName = recordedTask.Note;
+                        DayLine.oldTheme5TaskName = recordedTask.Note;
                         DayLine.Theme5LastTime = recordedTask.LastTime.TotalHours.ToString("F2");
                         DayLine.Theme5Reward = recordedTask.Bonus.ToString();
                         insertSuccess = true;

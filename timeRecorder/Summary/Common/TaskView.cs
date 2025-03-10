@@ -66,7 +66,6 @@ namespace Summary.Common
         {
             get { return theme1TaskName; }
             set {
-                oldTheme1TaskName = theme1TaskName;
                 theme1TaskName = value; OnPropertyChanged(); }
         }
         public string Theme1LastTime { get; set; } = "";
@@ -78,7 +77,6 @@ namespace Summary.Common
         {
             get { return theme2TaskName; }
             set {
-                oldTheme2TaskName = theme2TaskName;
                 theme2TaskName = value; OnPropertyChanged(); }
         }
         public string Theme2LastTime { get; set; } = "";
@@ -90,7 +88,6 @@ namespace Summary.Common
         {
             get { return theme3TaskName; }
             set {
-                oldTheme3TaskName = theme3TaskName;
                 theme3TaskName = value; OnPropertyChanged(); }
         }
         public string Theme3LastTime { get; set; } = "";
@@ -102,7 +99,6 @@ namespace Summary.Common
         {
             get { return theme4TaskName; }
             set {
-                oldTheme4TaskName = theme4TaskName;
                 theme4TaskName = value; OnPropertyChanged(); }
         }
         public string Theme4LastTime { get; set; } = "";
@@ -114,7 +110,6 @@ namespace Summary.Common
         {
             get { return theme5TaskName; }
             set {
-                oldTheme5TaskName = theme5TaskName;
                 theme5TaskName = value; OnPropertyChanged(); }
         }
         public string Theme5LastTime { get; set; } = "";

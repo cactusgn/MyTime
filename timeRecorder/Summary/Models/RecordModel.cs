@@ -1012,17 +1012,20 @@ namespace Summary.Models
                     RemindWindow rw = new RemindWindow();
                     if(rw.ShowDialog()==true){
                         restCon = rw.InputTextBox.Text == "" ? restCon : rw.InputTextBox.Text;
+                        GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
+                        int typeId = findTask != null ? findTask.TypeId : 0;
+                        string type = IdCategoryDic.ContainsKey(typeId) ? IdCategoryDic[typeId] : "none";
+                        int taskId = findTask == null ? 0 : findTask.Id;
+                        var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
+                        await SQLCommands.AddObj(newObj);
+                        Helper.UpdateColor(newObj, type.ToString());
+                        AllTimeViewObjs[0].DailyObjs.Add(newObj);
                     }
+                }else{
+                    lastViewObj.EndTime = WorkStartTime;
+                    AllTimeViewObjs[0].DailyObjs = new ObservableCollection<TimeViewObj>(AllTimeViewObjs[0].DailyObjs.OrderBy(item => item.StartTime));
+                    await SQLCommands.UpdateObj(lastViewObj);
                 }
-                
-                GeneratedToDoTask findTask = SQLCommands.QueryTodo(restCon);
-                int typeId = findTask!=null?findTask.TypeId:0;
-                string type = IdCategoryDic.ContainsKey(typeId)?IdCategoryDic[typeId]:"none";
-                int taskId = findTask==null? 0:findTask.Id;
-                var newObj = Helper.CreateNewTimeObj(lastViewObj.EndTime, WorkStartTime, restCon, DateTime.Today, type, lastIndex, height, "record", taskId);
-                await SQLCommands.AddObj(newObj);
-                Helper.UpdateColor(newObj, type.ToString());
-                AllTimeViewObjs[0].DailyObjs.Add(newObj);
             }
             else
             {

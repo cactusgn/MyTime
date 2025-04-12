@@ -98,23 +98,24 @@
 
                         <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" ></TextBlock>
                         <DatePicker
-                  Width="100" Margin="10" HorizontalContentAlignment="Center"
+                  Width="150" Margin="10" HorizontalContentAlignment="Center"
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
                         </DatePicker>
                         <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
 
                         <DatePicker
-                  Width="100" Margin="10"  HorizontalContentAlignment="Center"
+                  Width="150" Margin="10"  HorizontalContentAlignment="Center"
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
                         </DatePicker>
                             <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"></Button>
                             <Button Content="上周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastWeek" Foreground="Black"></Button>
                             <Button Content="下周"  Margin="10" BorderBrush="AntiqueWhite" Background="AntiqueWhite" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextWeek" Foreground="Black"></Button>
-                            <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"></Button>
+                                <Button Content="记录"  Margin="10"  BorderBrush="LightGreen" Background="LightGreen" Command="{Binding ClickDiaryButtonCommand}" Foreground="Black"></Button>
+                                <Button Content="上月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="LastMonth" Foreground="Black"></Button>
                             <Button Content="下月"  Margin="10" BorderBrush="AliceBlue" Background="AliceBlue" Command="{Binding ClickOkButtonCommand}" CommandParameter="NextMonth" Foreground="Black"></Button>
-                            <Button Content="记录"  Margin="10"  BorderBrush="LightGreen" Background="LightGreen" Command="{Binding ClickDiaryButtonCommand}" Foreground="Black"></Button>
+                          
                             <Button Width="25" Height="25" Margin="10"  Command="{Binding ClickOkButtonCommand}" CommandParameter="ThisWeek"
         Background="{DynamicResource PrimaryHueMidBrush}"
                                 BorderBrush="{DynamicResource PrimaryHueMidBrush}"

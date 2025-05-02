@@ -340,9 +340,6 @@ Background="{DynamicResource PrimaryHueMidBrush}"
                               Header="单日"  Background="{DynamicResource MaterialDesignCardBackground}">
                                     <StackPanel>
                                             <WrapPanel Margin="10" Orientation="Horizontal"  x:Name="SingleDayTypeRadioGroupPanel">
-                                            <!--<Label FontSize="14" Margin="10,0">Type:</Label>
-                                                <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="ThirdLevelRB" GroupName="SingleDayType" Margin="5,0" IsChecked="True" Command="{Binding SingleDayRBChangedCommand}" >基础层级</RadioButton>
-                                                <RadioButton IsEnabled="{Binding SelectedTimeObj.IsEnabled}" FontSize="14" x:Name="FirstLevelRB" GroupName="SingleDayType" Margin="5,0" Command="{Binding SingleDayRBChangedCommand}" >总计</RadioButton>-->
                                         </WrapPanel>
                                         <ScottPlot:WpfPlot x:Name="SingleDayPlot" Height="300"/>
                                     </StackPanel>
@@ -361,7 +358,7 @@ Background="{DynamicResource PrimaryHueMidBrush}"
                                     <Border
 Style="{StaticResource HorizontalDividerBorder}" />
                                     <Expander Header="记录" Background="{DynamicResource MaterialDesignCardBackground}" Padding="15,0">
-                                            <Grid MaxHeight="{Binding RecordHeight}" Name="DiaryGrid"
+                                            <Grid Height="{Binding DiaryGridHeight}"
                                               KeyboardNavigation.TabNavigation="None">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto"></RowDefinition>

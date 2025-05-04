@@ -98,15 +98,15 @@
 
                         <TextBlock Text="起始日期" VerticalAlignment="Center" Margin="10" ></TextBlock>
                         <DatePicker
-                  Width="150" Margin="10" HorizontalContentAlignment="Center"
+                  Width="130" Margin="10" HorizontalContentAlignment="Center"
                   materialDesign:CalendarAssist.IsHeaderVisible="False"
                   materialDesign:HintAssist.Hint="Start Date" SelectedDate="{Binding StartTime}">
                         </DatePicker>
                         <TextBlock Text="结束日期" VerticalAlignment="Center" Margin="10"></TextBlock>
 
                         <DatePicker
-                  Width="150" Margin="10"  HorizontalContentAlignment="Center"
-                  materialDesign:CalendarAssist.IsHeaderVisible="False"
+                  Width="130" Margin="10"  HorizontalContentAlignment="Center"
+                  materialDesign:CalendarAssist.IsHeaderVisible="False"  
                   materialDesign:HintAssist.Hint="End Date" SelectedDate="{Binding EndTime}">
                         </DatePicker>
                             <Button Content="确定"  Margin="10"  BorderBrush="LightPink" Background="LightPink" Command="{Binding ClickOkButtonCommand}" Foreground="Black"></Button>
@@ -137,7 +137,22 @@
                 ToolTip="缩小">
                             <!--<materialDesign:PackIcon Kind="Alarm" />--> -
                         </Button>
-                    </StackPanel>
+                               
+                                <Button Width="25" Height="25" Margin="10"  Command="{Binding ImportCommand}" 
+Background="{DynamicResource PrimaryHueMidBrush}"
+                        BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+        Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+        ToolTip="导入">
+                                    <materialDesign:PackIcon Kind="ArrowDown" />
+                                </Button>
+                                <Button Width="25" Height="25" Margin="10"  Command="{Binding ExportCommand}" 
+Background="{DynamicResource PrimaryHueMidBrush}"
+                        BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+        Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}"
+        ToolTip="导出">
+                                    <materialDesign:PackIcon Kind="ArrowUp" />
+                                </Button>
+                            </StackPanel>
                 </Border>
                     <Border Background="Silver" Grid.Row="1"></Border>
                 <!--左边panel-->

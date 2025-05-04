@@ -23,7 +23,7 @@ namespace Summary.Data
                 return context.Diaries.Where(x => x.Date.Date >= startTime && x.Type == 0 && x.Date.Date <= endTime).ToListAsync();
             }
         }
-        public  Diary GetDiary(DateTime date, DiaryType type = 0)
+        public Diary GetDiary(DateTime date, DiaryType type = 0)
         {
             using(var context = new MytimeContext())
             {
@@ -46,9 +46,19 @@ namespace Summary.Data
                 if(context.Diaries.Any(x=>x.Date.Date ==date&&x.Type== (int)type))
                 {
                     return context.Diaries.FirstOrDefault(x=>x.Date.Date == date&&x.Type== (int)type);
+                }else{
+                    Diary template = context.Diaries.FirstOrDefault(x => x.Type == (int)DiaryType.Template);
+                    Diary diary = new Diary();
+                    diary.Title = Helper.getTitle(date);
+                    diary.Date = date;
+                    diary.Type = (int)DiaryType.DailyDiary;
+                    diary.Note = template.Note;
+                    diary.UpdateTime = DateTime.Now;
+                    context.Diaries.Add(diary);
+                    context.SaveChanges();
+                    return diary;
                 }
             }
-            return null;
         }
         public async Task<bool> SaveDiaryAsync(Diary diary)
         {
@@ -157,20 +167,20 @@ namespace Summary.Data
             }
             return 1;
         }
-        public static void PrintStackTrace([CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
-        {
-            // 使用System.Diagnostics.StackTrace  
-            var stackTrace = new StackTrace(true); // 传递true以捕获文件、行和列信息  
-            var frame = stackTrace.GetFrame(0); // 获取当前方法的帧  
+        //public static void PrintStackTrace([CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        //{
+        //    // 使用System.Diagnostics.StackTrace  
+        //    var stackTrace = new StackTrace(true); // 传递true以捕获文件、行和列信息  
+        //    var frame = stackTrace.GetFrame(0); // 获取当前方法的帧  
 
-            // 打印当前方法的信息  
-            Helper.DebugMessage($"Method: {memberName} in {filePath}:{lineNumber}");
+        //    // 打印当前方法的信息  
+        //    Helper.DebugMessage($"Method: {memberName} in {filePath}:{lineNumber}");
 
-            // 打印整个堆栈跟踪  
-            Helper.DebugMessage("Stack Trace:");
-            Helper.DebugMessage(stackTrace.ToString());
+        //    // 打印整个堆栈跟踪  
+        //    Helper.DebugMessage("Stack Trace:");
+        //    Helper.DebugMessage(stackTrace.ToString());
 
-        }
+        //}
         public async Task<int> UpdateObj(MyTime obj)
         {
            
@@ -357,10 +367,7 @@ namespace Summary.Data
             return 1;
         }
         public async Task<int> UpdateTodo(GeneratedToDoTask obj){
-            if (obj.Note == "休息" && obj.TypeId != 0)
-            {
-                PrintStackTrace();
-            }
+           
             using (var context = new MytimeContext())
             {
                 var item = context.ToDos.Where(x => x.Id == obj.Id);

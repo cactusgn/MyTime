@@ -46,13 +46,123 @@ namespace Summary.Common.Utils
         public static Dictionary<string, int> NameIdDic = new Dictionary<string, int>();
         public static MainWindow MainWindow;
         //public static RecordModel recordModel;
-        public static void DebugMessage(String name)
+        public static async Task import(ISQLCommands SQLCommands, string filename)
         {
-            FileStream fs = new FileStream(@"C:\temp\timerecorder_debug.txt", FileMode.Append, FileAccess.Write);
+            var importDirectory = Helper.GetAppSetting("ImportDirectory");
+            string text = System.IO.File.ReadAllText(importDirectory + "\\" + filename);
+            string fileDate = filename.Substring(11,10);
+            DateTime createDate = DateTime.Parse(fileDate);
+            string[] lines = text.Split(new char[2] { '\r', '\n' });
+            TimeSpan startTime = new TimeSpan();
+            TimeSpan stopTime = new TimeSpan();
+            string timeType = "none";
+            string comment = "";
+            bool startDiary = false;
+            string diaryTitle = "";
+            string diaryContent = "";
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("开始时间"))
+                {
+                    startTime = TimeSpan.Parse(lines[i].Substring(5, 8));
+                }
+                if (lines[i].StartsWith("结束时间"))
+                {
+                    stopTime = TimeSpan.Parse(lines[i].Substring(5, 8));
+                }
+                if (lines[i].StartsWith("类型"))
+                {
+                    timeType = lines[i].Substring(3);
+                }
+                if (lines[i].StartsWith("备注"))
+                {
+                    comment = lines[i].Substring(3);
+                    var newObj = Helper.CreateNewTimeObj(startTime, stopTime, comment, createDate, timeType, 1, 0, "record");
+                    await SQLCommands.AddObj(newObj);
+                }
+                if (lines[i].StartsWith("日记标题"))
+                {
+                    diaryTitle = lines[i].Substring(5);
+                }
+                if (lines[i].StartsWith("日记内容"))
+                {
+                    diaryContent = lines[i].Substring(5);
+                    startDiary = true;
+                    continue;
+                }
+                if (startDiary && !string.IsNullOrEmpty(lines[i]))
+                {
+                    diaryContent += "\r" + lines[i];
+                }
+
+            }
+            Diary currentDateDiary = SQLCommands.GetDiary(createDate);
+            currentDateDiary.Title = diaryTitle;
+            currentDateDiary.Note = diaryContent;
+            await SQLCommands.SaveDiaryAsync(currentDateDiary);
+        }
+        public static string ExportFile(string filename, ObservableCollection<TimeViewObj> TodayDailyObj, string diaryTitle, string diaryContent)
+        {
+            if (File.Exists(Helper.GetAppSetting("OutputDirectory") + "\\"+ filename))
+            {
+                try
+                {
+                    deleteFile(Helper.GetAppSetting("OutputDirectory"), filename);
+                }
+                catch (Exception)
+                {
+                    return "删除旧记录时出错，请检查导出目录是否存在";
+                }
+            }
+            if (!Directory.Exists(Helper.GetAppSetting("OutputDirectory")))
+            {
+                try
+                {
+                    Directory.CreateDirectory(Helper.GetAppSetting("OutputDirectory"));
+                }
+                catch (Exception)
+                {
+                    return "创建导出目录时出错，请检查导出目录是否存在";
+                }
+            }
+
+            for (int i = 0; i < TodayDailyObj.Count; i++)
+            {
+                addText("开始时间：" + TodayDailyObj[i].StartTime, filename);
+
+                addText("间隔时间：" + (TodayDailyObj[i].EndTime - TodayDailyObj[i].StartTime), filename);
+                addText("结束时间：" + TodayDailyObj[i].EndTime, filename);
+                addText("类型：" + TodayDailyObj[i].Type, filename);
+                addText("备注：" + TodayDailyObj[i].Note, filename);
+                addText("", filename);
+            }
+            addText("日记标题：" + diaryTitle, filename);
+            addText("日记内容：" + diaryContent, filename);
+            return "true";
+        }
+        public static void DeleteDirectory(string directoryPath, string fileName)
+        {
+            //删除文件
+            for (int i = 0; i < Directory.GetFiles(directoryPath).ToList().Count; i++)
+            {
+                if (Directory.GetFiles(directoryPath)[i].Substring(directoryPath.Length + 1) == fileName)
+                {
+                    File.Delete(Directory.GetFiles(directoryPath)[i]);
+                }
+            }
+        }
+        public static void deleteFile(string filepath, string filename)
+        {
+            DeleteDirectory(filepath, filename);
+        }
+        public static void addText(String name, string filename)
+        {
+            FileStream fs = new FileStream(Helper.GetAppSetting("OutputDirectory") + "\\" + filename, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(fs);
-            sw.WriteLine(DateTime.Now.ToString() + " " + name);
+            sw.WriteLine(name);
             sw.Dispose();
         }
+       
         public static bool IsDarkTheme()
         {
             return bool.Parse(Helper.GetAppSetting("IsDark"));
@@ -60,20 +170,20 @@ namespace Summary.Common.Utils
         public static Diary getInitDiary(ISQLCommands SQLCommands,DateTime currentDate)
         {
             Diary initDateDiary = SQLCommands.GetDiary(currentDate, DiaryType.DailyDiary);
-            if (initDateDiary == null || string.IsNullOrEmpty(initDateDiary.Note))
-            {
-                Diary template = Helper.getTemplateDiary(SQLCommands);
-                initDateDiary = new Diary()
-                {
-                    Year = currentDate.Year,
-                    Week = Helper.getWeekNo(currentDate),
-                    Date = currentDate,
-                    UpdateTime = currentDate,
-                    Note = template.Note,
-                    Title = Helper.getTitle(currentDate)
-                };
-                SQLCommands.SaveDiaryAsync(initDateDiary);
-            }
+            //if (initDateDiary == null || string.IsNullOrEmpty(initDateDiary.Note))
+            //{
+            //    Diary template = Helper.getTemplateDiary(SQLCommands);
+            //    initDateDiary = new Diary()
+            //    {
+            //        Year = currentDate.Year,
+            //        Week = Helper.getWeekNo(currentDate),
+            //        Date = currentDate,
+            //        UpdateTime = currentDate,
+            //        Note = template.Note,
+            //        Title = Helper.getTitle(currentDate)
+            //    };
+            //    SQLCommands.SaveDiaryAsync(initDateDiary);
+            //}
            return initDateDiary;
         }
         public static Diary getTemplateDiary(ISQLCommands SQLCommands)

@@ -1,4 +1,5 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignDemo.Domain;
+using MaterialDesignThemes.Wpf;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ScottPlot;
 using ScottPlot.Drawing.Colormaps;
@@ -14,6 +15,7 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -76,6 +78,8 @@ namespace Summary.Models
         public MyCommand DiaryLostFocusCommand { get; set; }
         public MyCommand TitleLostFocusCommand { get; set; }
         public MyCommand ClickDiaryButtonCommand { get; set; }
+        public MyCommand ExportCommand { get; set; }
+        public MyCommand ImportCommand { get; set; }
         public ISQLCommands SQLCommands { get; set; }
         public WpfPlot SingleDayPlot { get; set; }
         public WpfPlot SummaryPlot { get; set; }
@@ -87,7 +91,7 @@ namespace Summary.Models
         public MyCommand TextBoxLostFocusCommand { get; set; }
         public MyCommand MergeCommand { get; set; }
         public List<RadioButton> SingleDayRadioButtons = new List<RadioButton>();
-        public StackPanel drawerDiaryPanel {get;set;}
+        public StackPanel drawerDiaryPanel { get; set; }
         public bool RadioButtonEnabled
         {
             get
@@ -159,6 +163,8 @@ namespace Summary.Models
             Return_ClickCommand = new MyCommand(ReturnKeySub);
             MergeCommand = new MyCommand(Merge);
             ClickDiaryButtonCommand = new MyCommand(ClickDiaryButton);
+            ExportCommand = new MyCommand(ExportFiles);
+            ImportCommand = new MyCommand(ImportFiles);
             EndTime = DateTime.Today;
             StartTime = DateTime.Today.AddDays(-6);
             SQLCommands = SqlCommands;
@@ -169,13 +175,53 @@ namespace Summary.Models
             Helper.initColor(SqlCommands);
         }
 
-        
+        private async void ImportFiles(object obj)
+        {
+            YESNOWindow dialog = new YESNOWindow("提示", "确定覆盖现在的时间块吗", "确定", "取消");
+            if (dialog.ShowDialog() == true){
+                var importDirectory = Helper.GetAppSetting("ImportDirectory");
+                var importDate = "";
+                await Task.Run(() => { openDialog(); })
+                             .ContinueWith(async delegate
+                             {
+                                 foreach (var dailyViewObjs in AllTimeViewObjs)
+                                 {
+                                     string filename = $"timerecord_{dailyViewObjs.createdDate.ToString("yyyy-MM-dd")}.txt";
+                                     if (!File.Exists(importDirectory + "\\" + filename))
+                                     {
+                                         continue;
+                                     }
+                                     await SQLCommands.DeleteObjByDate(dailyViewObjs.createdDate);
+                                     await Helper.import(SQLCommands, filename);
+                                     importDate += $"{dailyViewObjs.createdDate.ToString("yyyy-MM-dd")} ";
+                                 }
+                                 await showTimeView();
+                                 closeDialog();
+                             });
+                ShowMessagebox($"成功导入：{importDate}");
+            }
+        }
+
+        private void ExportFiles(object obj)
+        {
+            foreach (var dailyViewObjs in AllTimeViewObjs)
+            {
+                Diary currentDayDiary = SQLCommands.GetDiary(dailyViewObjs.createdDate);
+                string res = Helper.ExportFile($"timerecord_{dailyViewObjs.createdDate.ToString("yyyy-MM-dd")}.txt", dailyViewObjs.DailyObjs, currentDayDiary.Title, currentDayDiary.Note);
+                if (res != "true")
+                {
+                    ShowMessagebox(res);
+                    return;
+                }
+            }
+            ShowMessagebox("导出成功！");
+        }
 
         private async void ClickDiaryButton(object obj)
         {
             ThemeOpen = true;
-            List<Diary> AllDiaries1 = await SQLCommands.GetDiaries(StartTime, EndTime); 
-            AllDiaries = new ObservableCollection<Diary>(AllDiaries1.OrderBy(x=>x.Date));
+            List<Diary> AllDiaries1 = await SQLCommands.GetDiaries(StartTime, EndTime);
+            AllDiaries = new ObservableCollection<Diary>(AllDiaries1.OrderBy(x => x.Date));
         }
 
         private void ReturnKeySub(object obj)
@@ -196,7 +242,7 @@ namespace Summary.Models
         }
         private void TitleLostFocus(object obj)
         {
-            Diary currentDayDiary = SQLCommands.GetDiary( SelectedTimeObj.CreatedDate);
+            Diary currentDayDiary = SQLCommands.GetDiary(SelectedTimeObj.CreatedDate);
             currentDayDiary.Title = DiaryTitle;
             SQLCommands.SaveDiaryAsync(currentDayDiary);
         }
@@ -214,13 +260,13 @@ namespace Summary.Models
 
         public void RefreshSingleDayRadioButtons()
         {
-            if (SingleDayTypeRadioGroupPanel!=null)
+            if (SingleDayTypeRadioGroupPanel != null)
             {
                 SingleDayTypeRadioGroupPanel.Children.Clear();
                 Label label = new Label();
                 label.Margin = new Thickness(10, 0, 10, 0);
                 label.Content = "Type:";
-                label.FontSize=14;
+                label.FontSize = 14;
                 SingleDayTypeRadioGroupPanel.Children.Add(label);
                 int maxDepth = Helper.getMaxDepth(1, 0);
                 SingleDayRadioButtons.Clear();
@@ -235,13 +281,13 @@ namespace Summary.Models
                     AllRadioButton.GroupName = "SingleDayType";
                     AllRadioButton.Margin = new Thickness(5, 5, 5, 5);
                     AllRadioButton.Command = SingleDayRBChangedCommand;
-                    AllRadioButton.CommandParameter = (i+1).ToString();
+                    AllRadioButton.CommandParameter = (i + 1).ToString();
                     AllRadioButton.Content = "层级" + (i + 1).ToString();
                     //if (i == 0) AllRadioButton.IsChecked = true;
                     SingleDayTypeRadioGroupPanel.Children.Add(AllRadioButton);
                     SingleDayRadioButtons.Add(AllRadioButton);
                 }
-                if (SingleDayRadioButtons.Count()>0)
+                if (SingleDayRadioButtons.Count() > 0)
                 {
                     SingleDayRadioButtons[0].IsChecked = true;
                 }
@@ -254,25 +300,25 @@ namespace Summary.Models
             TypeRadioGroupPanel.Children.Clear();
             radioButtons.Clear();
             int index = 0;
-             List<Category> mainCategoriesWithNone = new List<Category>();
-            mainCategoriesWithNone.Add(new Category(){ Name="none", Color="#F3F3F3"});
+            List<Category> mainCategoriesWithNone = new List<Category>();
+            mainCategoriesWithNone.Add(new Category() { Name = "none", Color = "#F3F3F3" });
             mainCategoriesWithNone.AddRange(Helper.mainCategories);
 
             Label label = new Label();
-            label.Margin = new Thickness(10,0,10,0);
+            label.Margin = new Thickness(10, 0, 10, 0);
             label.Content = "Type:";
-            label.FontSize=14;
+            label.FontSize = 14;
             TypeRadioGroupPanel.Children.Add(label);
 
             RadioButton AllRadioButton = new RadioButton();
             Binding BindingObj = new Binding();
             BindingObj.Path = new PropertyPath("RadioButtonEnabled");
             AllRadioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
-            AllRadioButton.FontSize= 14;
+            AllRadioButton.FontSize = 14;
             AllRadioButton.Name = "AllRB";
             AllRadioButton.GroupName = "Type";
             AllRadioButton.Margin = new Thickness(5, 0, 5, 0);
-            AllRadioButton.Command=SummaryRBChangedCommand;
+            AllRadioButton.Command = SummaryRBChangedCommand;
             AllRadioButton.CommandParameter = "All";
             AllRadioButton.Content = "All";
             AllRadioButton.IsChecked = true;
@@ -296,29 +342,29 @@ namespace Summary.Models
                 TextBlock textBlock2 = new TextBlock();
                 textBlock2.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
                 textBlock2.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                textBlock2.TextAlignment = System.Windows.TextAlignment.Center; 
+                textBlock2.TextAlignment = System.Windows.TextAlignment.Center;
                 textBlock2.Text = category.Name;
 
                 stackPanel.Children.Add(textBlock2);
 
                 ComboBoxItem item = new ComboBoxItem();
-                
+
                 item.Content = stackPanel;
                 item.Tag = category.Name;
                 item.PreviewMouseLeftButtonUp += Type_PreviewMouseLeftButtonUp;
 
                 TypeComboBox.Items.Add(item);
 
-                if (category.Name=="none") continue;
+                if (category.Name == "none") continue;
                 RadioButton radioButton = new RadioButton();
                 BindingObj = new Binding();
                 BindingObj.Path = new PropertyPath("RadioButtonEnabled");
                 radioButton.SetBinding(RadioButton.IsEnabledProperty, BindingObj);
-                radioButton.FontSize= 14;
-                radioButton.Name = "sum" +category.Id+"RB";
+                radioButton.FontSize = 14;
+                radioButton.Name = "sum" + category.Id + "RB";
                 radioButton.GroupName = "Type";
                 radioButton.Margin = new Thickness(5, 0, 5, 0);
-                radioButton.Command=SummaryRBChangedCommand;
+                radioButton.Command = SummaryRBChangedCommand;
                 radioButton.CommandParameter = category.Name;
                 radioButton.Content = category.Name;
                 TypeRadioGroupPanel.Children.Add(radioButton);
@@ -330,7 +376,7 @@ namespace Summary.Models
         {
             string a = ((ComboBoxItem)sender).Tag.ToString();
 
-            if (SelectedTimeObj.Type!=a)
+            if (SelectedTimeObj.Type != a)
             {
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(SelectedTimeObj.Note);
                 var id = 0;
@@ -348,7 +394,7 @@ namespace Summary.Models
                 }
                 foreach (var dailyViewObjs in AllTimeViewObjs)
                 {
-                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note == selectedTimeObj.Note);
                     foreach (var obj in TodayAllObjectWithSameNote)
                     {
                         obj.Type = a.ToString();
@@ -361,7 +407,16 @@ namespace Summary.Models
                 refreshSummaryPlot(currentSummaryRBType);
             }
         }
-
+        private async void ShowProgressBar()
+        {
+            
+        }
+        private async void ShowMessagebox(string message)
+        {
+            
+                var view = new SampleMessageDialog(message);
+                await DialogHost.Show(view, "SubRootDialog");
+        }
         private async void Merge(object obj)
         {
             var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
@@ -409,24 +464,26 @@ namespace Summary.Models
         }
         private async void updateOldItems()
         {
-            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900,1,1), DateTime.Today);
+            List<GeneratedToDoTask> allTasks = SQLCommands.GetTasks(new DateTime(1900, 1, 1), DateTime.Today);
             //foreach (GeneratedToDoTask task in allTasks) {
             //    if(task.TypeId==0){
             //        task.TypeId = getTaskId(task.CategoryId);
             //        await SQLCommands.UpdateTodo(task);
             //    }
             //}
-            List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1900,1,1),DateTime.Today);
+            List<MyTime> AllTimeObjs = await SQLCommands.GetAllTimeObjs(new DateTime(1900, 1, 1), DateTime.Today);
             if (AllTimeObjs != null)
             {
                 foreach (MyTime timeObj in AllTimeObjs)
                 {
-                    if (timeObj.type==null||timeObj.type.Trim()==""|| !Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
+                    if (timeObj.type == null || timeObj.type.Trim() == "" || !Helper.categoryDic.ContainsKey(timeObj.type.Trim()))
                     {
-                        if(timeObj.taskId!=0&& SQLCommands.QueryTodo(timeObj.taskId)!=null)
+                        if (timeObj.taskId != 0 && SQLCommands.QueryTodo(timeObj.taskId) != null)
                         {
-                            timeObj.type = Helper.mainCategories.FirstOrDefault(x => x.Id == SQLCommands.QueryTodo(timeObj.taskId).TypeId, new Category(){ Name="none"}).Name;
-                        }else{
+                            timeObj.type = Helper.mainCategories.FirstOrDefault(x => x.Id == SQLCommands.QueryTodo(timeObj.taskId).TypeId, new Category() { Name = "none" }).Name;
+                        }
+                        else
+                        {
                             timeObj.type = "none";
                             timeObj.taskId = 0;
                         }
@@ -436,12 +493,12 @@ namespace Summary.Models
             }
         }
 
-     
+
 
         private async void TextBoxLostFocus(object obj)
         {
             var updateTimeViewObj = (TimeViewObj)obj;
-            updateTaskColor(updateTimeViewObj);
+            await updateTaskColor(updateTimeViewObj);
             await SQLCommands.UpdateObj(updateTimeViewObj);
             refreshSingleDayPlot();
         }
@@ -457,67 +514,63 @@ namespace Summary.Models
         {
             TimeViewObj myTimeView = (TimeViewObj)obj;
             SelectedTimeObj = myTimeView;
-            if (myTimeView.CreatedDate!=CurrentDate)
+            if (myTimeView.CreatedDate != CurrentDate)
             {
                 CurrentDate = myTimeView.CreatedDate;
                 var CurrentDiary = SQLCommands.GetDiary(CurrentDate);
-                if(CurrentDiary!=null){
-                    DiaryContent = CurrentDiary.Note;
-                    DiaryTitle = CurrentDiary.Title;
-                }else{
-                    Diary initDiary = Helper.getInitDiary(SQLCommands, CurrentDate);
-                    DiaryContent = initDiary.Note;
-                    DiaryTitle = initDiary.Title;
-                }
+                DiaryContent = CurrentDiary.Note;
+                DiaryTitle = CurrentDiary.Title;
                 refreshSingleDayPlot();
             }
         }
-       
+
         public void refreshSingleDayPlot()
         {
             var TodayDailyObj = allTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs;
 
-           foreach (RadioButton radioButton in SingleDayRadioButtons)
+            foreach (RadioButton radioButton in SingleDayRadioButtons)
             {
                 radioButton.Dispatcher.Invoke(new Action(async delegate
                 {
-                    if (radioButton.IsChecked==true)
+                    if (radioButton.IsChecked == true)
                     {
                         List<ToDoObj> allTasks = new List<ToDoObj>();
-                        allTasks = TodayDailyObj.Where(x=>x.Type!="none").GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category=x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
+                        allTasks = TodayDailyObj.Where(x => x.Type != "none").GroupBy(x => new { x.Note }).Select(x => new ToDoObj() { CreatedDate = x.First().CreatedDate, Note = x.Key.Note, LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Id = x.First().Id, Type = x.First().Type, Category = x.First().Type }).OrderBy(x => x.LastTime).ThenByDescending(x => x.LastTime).ToList();
                         //update Category and Task
                         foreach (ToDoObj task in allTasks)
                         {
                             var findTask = SQLCommands.QueryTodo(task.Note);
-                            if (findTask != null&&findTask.CategoryId!=0&&Helper.IdCategoryDic.ContainsKey(findTask.CategoryId))
+                            if (findTask != null && findTask.CategoryId != 0 && Helper.IdCategoryDic.ContainsKey(findTask.CategoryId))
                             {
-                                task.Category =  Helper.IdCategoryDic[findTask.CategoryId];
-                                task.CategoryId= findTask.CategoryId;
+                                task.Category = Helper.IdCategoryDic[findTask.CategoryId];
+                                task.CategoryId = findTask.CategoryId;
                             }
-                            else if(Helper.categoryDic.ContainsKey(task.Type))
+                            else if (Helper.categoryDic.ContainsKey(task.Type))
                             {
                                 task.CategoryId = Helper.categoryDic[task.Type];
-                            }else{
+                            }
+                            else
+                            {
                                 task.CategoryId = 0;
                             }
                         }
                         await Helper.RBChanged(radioButton.CommandParameter, SingleDayPlot, SQLCommands, "", allTasks);
                     }
-                      
+
                 }));
             }
         }
-        public void refreshSummaryPlot(string type="All")
+        public void refreshSummaryPlot(string type = "All")
         {
             var AllObjs = new ObservableCollection<TimeViewObj>();
             currentSummaryRBType = type;
             foreach (var GridTemplate in allTimeViewObjs)
             {
                 var dailyObjs = GridTemplate.DailyObjs;
-                if (type != "All"&&dailyObjs!=null)
+                if (type != "All" && dailyObjs != null)
                 {
-                    var filteredObjs = dailyObjs.Where(x => (x.Type!=null && x.Type==type)).OrderBy(e => e.LastTime);
-                    if (filteredObjs!=null)
+                    var filteredObjs = dailyObjs.Where(x => (x.Type != null && x.Type == type)).OrderBy(e => e.LastTime);
+                    if (filteredObjs != null)
                     {
                         foreach (var item in filteredObjs)
                         {
@@ -527,12 +580,12 @@ namespace Summary.Models
                 }
                 else
                 {
-                    
+
                     foreach (var item in dailyObjs)
                     {
                         AllObjs.Add(item);
                     }
-                    AllObjs= new ObservableCollection<TimeViewObj>(AllObjs.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
+                    AllObjs = new ObservableCollection<TimeViewObj>(AllObjs.GroupBy(x => x.Type).Select(x => new TimeViewObj() { LastTime = new TimeSpan(x.Sum(x => x.LastTime.Ticks)), Type = x.Key, CreatedDate = DateTime.Today, Note = x.Key }));
                 }
             }
             SummaryPlot.Dispatcher.Invoke(new Action(delegate
@@ -540,7 +593,7 @@ namespace Summary.Models
                 Helper.refreshPlot(AllObjs, SummaryPlot);
             }));
         }
-        
+
         public MyCommand SelectedCommand { get; set; }
         public ComboBox TypeComboBox { get; internal set; }
         public System.Windows.Style ComboBoxItemStyle { get; internal set; }
@@ -550,51 +603,59 @@ namespace Summary.Models
         public Canvas RightSchedule { get; internal set; }
         public StackPanel rightPanel { get; internal set; }
 
-        private  void closeDialog()
+        private void closeDialog()
         {
-            IsDialogOpen=false;
+            IsDialogOpen = false;
 
         }
-        private  void openDialog()
+        private void openDialog()
         {
-            IsDialogOpen=true;
-           
+            //IsDialogOpen = true;
+            SummaryPlot.Dispatcher.Invoke(new Action(delegate
+            {
+                var view = new SampleProgressDialog();
+                DialogHost.Show(view, "RootDialog");
+                IsDialogOpen=true;
+            }));
         }
-        private async void openSplitDialog(){
+        private async void openSplitDialog()
+        {
             var view = new SampleDialog(SelectedTimeObj, sampleDialogViewModel);
             await DialogHost.Show(view, "SubRootDialog");
         }
-        private void SplitButtonClick(object a = null){
+        private void SplitButtonClick(object a = null)
+        {
             openSplitDialog();
         }
         public async void clickOkButton(object a = null)
         {
-            if (a!=null && a.ToString() == "LastWeek")
+            if (a != null && a.ToString() == "LastWeek")
             {
                 StartTime = StartTime.AddDays(-7);
                 EndTime = StartTime.AddDays(6);
             }
-            if (a!=null &&a.ToString() == "NextWeek")
+            if (a != null && a.ToString() == "NextWeek")
             {
                 StartTime = EndTime.AddDays(1);
                 EndTime = StartTime.AddDays(6);
             }
-            if (a!=null &&a.ToString() == "LastMonth")
+            if (a != null && a.ToString() == "LastMonth")
             {
                 StartTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(-1);
                 EndTime = StartTime.AddMonths(1).AddDays(-1);
             }
-            if (a!=null &&a.ToString() == "NextMonth")
+            if (a != null && a.ToString() == "NextMonth")
             {
                 StartTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(1);
                 EndTime = DateTime.ParseExact(EndTime.Year.ToString() + EndTime.Month.ToString("00") + "01", "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).AddMonths(2).AddDays(-1);
             }
-            if (a != null && a.ToString() == "ThisWeek"){
+            if (a != null && a.ToString() == "ThisWeek")
+            {
                 DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
-                if(dayOfWeek != DayOfWeek.Sunday)
+                if (dayOfWeek != DayOfWeek.Sunday)
                 {
                     StartTime = DateTime.Today.AddDays(DayOfWeek.Monday - dayOfWeek);
-                    EndTime = DateTime.Today.AddDays(DayOfWeek.Saturday - dayOfWeek+1);
+                    EndTime = DateTime.Today.AddDays(DayOfWeek.Saturday - dayOfWeek + 1);
                 }
                 else
                 {
@@ -602,20 +663,21 @@ namespace Summary.Models
                     EndTime = DateTime.Today;
                 }
             }
-           
+
             //Thread[] threads = new Thread[2];  
             //threads[0] = new Thread(openDialog);
             //threads[0].Start();
             //threads[1] = new Thread(test);
             //threads[1].Start();
-           await Task.Run( () => {  openDialog(); })
-                            .ContinueWith(async delegate { 
-                                await Task.Delay(500); 
-                                showTimeView(); 
-                                closeDialog(); 
+            await Task.Run(() => { openDialog(); })
+                             .ContinueWith(async delegate
+                             {
+                                 await showTimeView();
+                                 closeDialog();
                              });
         }
-        private async void test(){
+        private async void test()
+        {
             //延迟500ms，让它可以完整地先显示出进度条，否则进度条显示动画也会卡住, 此多线程效果和上面的task.run的效果相同
             //await Task.Delay(500);  
             //showTimeView(); 
@@ -623,7 +685,7 @@ namespace Summary.Models
         }
         private async void TimeObjType_SelectionChanged(object a)
         {
-            if (SelectedTimeObj.Type!=a.ToString())
+            if (SelectedTimeObj.Type != a.ToString())
             {
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(SelectedTimeObj.Note);
                 if (findTask != null)
@@ -632,9 +694,9 @@ namespace Summary.Models
                     findTask.CategoryId = 0;
                     await SQLCommands.UpdateTodo(findTask);
                 }
-                foreach(var dailyViewObjs in AllTimeViewObjs)
+                foreach (var dailyViewObjs in AllTimeViewObjs)
                 {
-                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note==selectedTimeObj.Note);
+                    var TodayAllObjectWithSameNote = dailyViewObjs.DailyObjs.Where(x => x.Note == selectedTimeObj.Note);
                     foreach (var obj in TodayAllObjectWithSameNote)
                     {
                         obj.Type = a.ToString();
@@ -642,17 +704,17 @@ namespace Summary.Models
                         //await SQLCommands.UpdateObj(obj);
                     }
                 }
-                
+
                 refreshSingleDayPlot();
                 refreshSummaryPlot(currentSummaryRBType);
             }
         }
         private async void TimeObjType_NoteChanged(object a)
         {
-            var currObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.First(x => x.Id==selectedTimeObj.Id);
+            var currObj = AllTimeViewObjs.First(x => x.createdDate == SelectedTimeObj.CreatedDate).DailyObjs.First(x => x.Id == selectedTimeObj.Id);
             currObj.Note = a.ToString();
             currObj.TimeNote = currObj.LastTime + "\n" + currObj.Note;
-            updateTaskColor(currObj);
+            await updateTaskColor(currObj);
             await SQLCommands.UpdateObj(SelectedTimeObj);
 
             refreshSingleDayPlot();
@@ -663,119 +725,124 @@ namespace Summary.Models
             string type;
             if (findTask != null)
             {
-                int typeId =  findTask.TypeId;
+                int typeId = findTask.TypeId;
                 type = Helper.IdCategoryDic.ContainsKey(typeId) ? Helper.IdCategoryDic[typeId] : "none";
                 currObj.TaskId = findTask.Id;
                 currObj.Type = type;
             }
             else
             {
-                type =  currObj.Type;
-                ToDoObj newObj = new ToDoObj() { CreatedDate = currObj.CreatedDate, Note = currObj.Note, Finished = false, Type = currObj.Type, CategoryId= Helper.categoryDic[currObj.Type] };
+                type = currObj.Type;
+                ToDoObj newObj = new ToDoObj() { CreatedDate = currObj.CreatedDate, Note = currObj.Note, Finished = false, Type = currObj.Type, CategoryId = Helper.categoryDic[currObj.Type] };
                 var id = await SQLCommands.AddTodo(newObj);
                 currObj.TaskId = id;
             }
             Helper.UpdateColor(currObj, type.ToString());
         }
-        public async void showTimeView()
+        public async Task showTimeView()
         {
-            AllTimeViewObjs = await Helper.BuildTimeViewObj(startTime, endTime,SQLCommands,height);
-            SelectedTimeObj = new TimeViewObj() { Type="" };
-            foreach(RadioButton radioButton in radioButtons) { 
+            AllTimeViewObjs = await Helper.BuildTimeViewObj(startTime, endTime, SQLCommands, height);
+            SelectedTimeObj = new TimeViewObj() { Type = "" };
+            foreach (RadioButton radioButton in radioButtons)
+            {
                 radioButton.Dispatcher.Invoke(new Action(delegate
                 {
-                    if (radioButton.IsChecked==true) refreshSummaryPlot(radioButton.Content.ToString());
+                    if (radioButton.IsChecked == true) refreshSummaryPlot(radioButton.Content.ToString());
                 }));
             }
             updateCanvas();
         }
 
-        public void updateCanvas(){
-            if(LeftSchedule!=null && LeftPanelHeight > 100){
-             LeftSchedule.Dispatcher.Invoke(new Action(delegate
-                {
-                    LeftSchedule.Children.Clear();
-                    RightSchedule.Children.Clear();
+        public void updateCanvas()
+        {
+            if (LeftSchedule != null && LeftPanelHeight > 100)
+            {
+                LeftSchedule.Dispatcher.Invoke(new Action(delegate
+                   {
+                       LeftSchedule.Children.Clear();
+                       RightSchedule.Children.Clear();
 
-                    System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
-                    r.Fill = new SolidColorBrush(Colors.LightGray);
-                    r.Stroke = new SolidColorBrush(Colors.LightGray);
-                    r.Width = 2;
-                    r.Height = height-100;
-                    r.SetValue(Canvas.LeftProperty, (double)65);
-                    r.SetValue(Canvas.TopProperty, (double)75);
-                   
-                    LeftSchedule.Children.Add(r);
+                       System.Windows.Shapes.Rectangle r = new System.Windows.Shapes.Rectangle();
+                       r.Fill = new SolidColorBrush(Colors.LightGray);
+                       r.Stroke = new SolidColorBrush(Colors.LightGray);
+                       r.Width = 2;
+                       r.Height = height - 100;
+                       r.SetValue(Canvas.LeftProperty, (double)65);
+                       r.SetValue(Canvas.TopProperty, (double)75);
 
-                    System.Windows.Shapes.Rectangle r1 = new System.Windows.Shapes.Rectangle();
-                    r1.Fill = new SolidColorBrush(Colors.LightGray);
-                    r1.Stroke = new SolidColorBrush(Colors.LightGray);
-                    r1.Width = 2;
-                    r1.Height = height-100;
-                    r1.SetValue(Canvas.LeftProperty, (double)7);
-                    r1.SetValue(Canvas.TopProperty, (double)75);
-                   
-                    RightSchedule.Children.Add(r1);
+                       LeftSchedule.Children.Add(r);
 
-                    int allhours = Helper.GlobalEndTimeSpan.Hours - Helper.GlobalStartTimeSpan.Hours;
-                    PaletteHelper _paletteHelper = new PaletteHelper();
-                    ITheme theme = _paletteHelper.GetTheme();
-                    //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
-                    var paletteColor =  _paletteHelper.GetTheme().PrimaryMid;
-                    for(int i = Helper.GlobalStartTimeSpan.Hours+1;i<=Helper.GlobalEndTimeSpan.Hours;i++){
-                        if(i<=Helper.GlobalEndTimeSpan.Hours){
-                            Ellipse el = new Ellipse();
-                            el.Fill = new SolidColorBrush(paletteColor.Color);
-                            el.Stroke = new SolidColorBrush(paletteColor.Color);
-                            el.Width = 10;
-                            el.Height = 10;
-                            el.SetValue(Canvas.ZIndexProperty, 1);
-                            el.SetValue(Canvas.LeftProperty, (double)61);
-                            el.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+75);
-                            LeftSchedule.Children.Add(el);
+                       System.Windows.Shapes.Rectangle r1 = new System.Windows.Shapes.Rectangle();
+                       r1.Fill = new SolidColorBrush(Colors.LightGray);
+                       r1.Stroke = new SolidColorBrush(Colors.LightGray);
+                       r1.Width = 2;
+                       r1.Height = height - 100;
+                       r1.SetValue(Canvas.LeftProperty, (double)7);
+                       r1.SetValue(Canvas.TopProperty, (double)75);
 
-                            Ellipse el2 = new Ellipse();
-                            el2.Fill = new SolidColorBrush(paletteColor.Color);
-                            el2.Stroke = new SolidColorBrush(paletteColor.Color);
-                            el2.Width = 10;
-                            el2.Height = 10;
-                            el2.SetValue(Canvas.ZIndexProperty, 1);
-                            el2.SetValue(Canvas.LeftProperty, (double)3);
-                            el2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+75);
-                            RightSchedule.Children.Add(el2);
+                       RightSchedule.Children.Add(r1);
 
-                            TextBlock a = new TextBlock();
-                            a.Text =  i.ToString("00")+":00:00";
-                            a.FontSize = 12;
-                            a.SetValue(Canvas.LeftProperty, (double)7);
-                            a.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+72);
-                            LeftSchedule.Children.Add(a);
+                       int allhours = Helper.GlobalEndTimeSpan.Hours - Helper.GlobalStartTimeSpan.Hours;
+                       PaletteHelper _paletteHelper = new PaletteHelper();
+                       ITheme theme = _paletteHelper.GetTheme();
+                       //bool IsDarkTheme = theme.GetBaseTheme() == BaseTheme.Dark;
+                       var paletteColor = _paletteHelper.GetTheme().PrimaryMid;
+                       for (int i = Helper.GlobalStartTimeSpan.Hours + 1; i <= Helper.GlobalEndTimeSpan.Hours; i++)
+                       {
+                           if (i <= Helper.GlobalEndTimeSpan.Hours)
+                           {
+                               Ellipse el = new Ellipse();
+                               el.Fill = new SolidColorBrush(paletteColor.Color);
+                               el.Stroke = new SolidColorBrush(paletteColor.Color);
+                               el.Width = 10;
+                               el.Height = 10;
+                               el.SetValue(Canvas.ZIndexProperty, 1);
+                               el.SetValue(Canvas.LeftProperty, (double)61);
+                               el.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i, 0, 0)) - Helper.GlobalStartTimeSpan).TotalSeconds / (Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds * r.Height + 75);
+                               LeftSchedule.Children.Add(el);
 
-                            TextBlock a2 = new TextBlock();
-                            a2.Text =  i.ToString("00")+":00:00";
-                            a2.FontSize = 12;
-                            a2.SetValue(Canvas.LeftProperty, (double)15);
-                            a2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i,0,0)) - Helper.GlobalStartTimeSpan).TotalSeconds/(Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds*r.Height+72);
-                            RightSchedule.Children.Add(a2);
-                        }
-                    }
-                }));
-               
+                               Ellipse el2 = new Ellipse();
+                               el2.Fill = new SolidColorBrush(paletteColor.Color);
+                               el2.Stroke = new SolidColorBrush(paletteColor.Color);
+                               el2.Width = 10;
+                               el2.Height = 10;
+                               el2.SetValue(Canvas.ZIndexProperty, 1);
+                               el2.SetValue(Canvas.LeftProperty, (double)3);
+                               el2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i, 0, 0)) - Helper.GlobalStartTimeSpan).TotalSeconds / (Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds * r.Height + 75);
+                               RightSchedule.Children.Add(el2);
+
+                               TextBlock a = new TextBlock();
+                               a.Text = i.ToString("00") + ":00:00";
+                               a.FontSize = 12;
+                               a.SetValue(Canvas.LeftProperty, (double)7);
+                               a.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i, 0, 0)) - Helper.GlobalStartTimeSpan).TotalSeconds / (Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds * r.Height + 72);
+                               LeftSchedule.Children.Add(a);
+
+                               TextBlock a2 = new TextBlock();
+                               a2.Text = i.ToString("00") + ":00:00";
+                               a2.FontSize = 12;
+                               a2.SetValue(Canvas.LeftProperty, (double)15);
+                               a2.SetValue(Canvas.TopProperty, (double)((new TimeSpan(i, 0, 0)) - Helper.GlobalStartTimeSpan).TotalSeconds / (Helper.GlobalEndTimeSpan - Helper.GlobalStartTimeSpan).TotalSeconds * r.Height + 72);
+                               RightSchedule.Children.Add(a2);
+                           }
+                       }
+                   }));
+
             }
         }
         public void resizeHeight(object a = null)
         {
             if (AllTimeViewObjs != null)
             {
-                if (a!=null)
+                if (a != null)
                 {
-                    if (a.ToString()=="amplify")
+                    if (a.ToString() == "amplify")
                     {
-                        height = height*1.5;
+                        height = height * 1.5;
                     }
-                    else if(height>LeftPanelHeight)
+                    else if (height > LeftPanelHeight)
                     {
-                        height = height/1.5;
+                        height = height / 1.5;
                     }
                 }
                 else
@@ -786,26 +853,28 @@ namespace Summary.Models
                 {
                     foreach (var obj in gridSource.DailyObjs)
                     {
-                        obj.Height = Helper.CalculateHeight(obj.LastTime,height);
+                        obj.Height = Helper.CalculateHeight(obj.LastTime, height);
                     }
                 }
-                SummaryPlot.Height = LeftPanelHeight-250>0?LeftPanelHeight-250:100;
-                SingleDayPlot.Height = LeftPanelHeight-250>0?LeftPanelHeight-250:100;
+                SummaryPlot.Height = LeftPanelHeight - 250 > 0 ? LeftPanelHeight - 250 : 100;
+                SingleDayPlot.Height = LeftPanelHeight - 250 > 0 ? LeftPanelHeight - 250 : 100;
                 updateCanvas();
                 SummaryPlot.Refresh();
                 SingleDayPlot.Refresh();
             }
         }
-        
-        public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2){
-            if(selectedTimeObj!=null){
+
+        public async void SplitTimeBlock(TimeSpan SplitTime, string content1, string content2)
+        {
+            if (selectedTimeObj != null)
+            {
                 var currentDailyObj = AllTimeViewObjs.Single(x => x.createdDate == selectedTimeObj.CreatedDate).DailyObjs;
-                var lastIndex = currentDailyObj.Max(x=>x.Id) +1;
+                var lastIndex = currentDailyObj.Max(x => x.Id) + 1;
                 string type = "none";
                 GeneratedToDoTask findTask = SQLCommands.QueryTodo(content1);
-                int taskId = findTask==null ? 0 : findTask.Id;
-               
-                if (taskId==0)
+                int taskId = findTask == null ? 0 : findTask.Id;
+
+                if (taskId == 0)
                 {
                     ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content1, Finished = false, Type = type, CategoryId = 0 };
                     taskId = await SQLCommands.AddTodo(newObj);
@@ -820,11 +889,11 @@ namespace Summary.Models
                 lastIndex++;
                 taskId = 0;
                 type = "none";
-                if (content2!="")
+                if (content2 != "")
                 {
                     findTask = SQLCommands.QueryTodo(content2);
-                    taskId =  findTask==null ? 0 : findTask.Id;
-                    if (taskId==0)
+                    taskId = findTask == null ? 0 : findTask.Id;
+                    if (taskId == 0)
                     {
                         ToDoObj newObj = new ToDoObj() { CreatedDate = SelectedTimeObj.CreatedDate, Note = content2, Finished = false, Type = type, CategoryId = 0 };
                         taskId = await SQLCommands.AddTodo(newObj);
@@ -835,12 +904,12 @@ namespace Summary.Models
                             type = Helper.IdCategoryDic[findTask.TypeId];
                     }
                 }
-                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex,height, taskId: taskId);
+                var newTimeObj2 = Helper.CreateNewTimeObj(SplitTime, selectedTimeObj.EndTime, content2, selectedTimeObj.CreatedDate, type, lastIndex, height, taskId: taskId);
                 Helper.UpdateColor(newTimeObj2, type);
                 await SQLCommands.DeleteObj(selectedTimeObj);
                 await SQLCommands.AddObj(newTimeObj1);
                 await SQLCommands.AddObj(newTimeObj2);
-                
+
                 currentDailyObj.Add(newTimeObj1);
                 currentDailyObj.Add(newTimeObj2);
                 currentDailyObj.Remove(selectedTimeObj);
@@ -851,7 +920,7 @@ namespace Summary.Models
                 refreshSummaryPlot();
             }
         }
-       
+
     }
     //表格视图的单天Template
     public class GridSourceTemplate : ViewModelBase
@@ -889,7 +958,7 @@ namespace Summary.Models
             this.createdDate = createdDate;
         }
 
-      
+
     }
     public class ChartBar
     {
@@ -898,5 +967,5 @@ namespace Summary.Models
         public TimeSpan Time { get; set; }
 
     }
-    
+
 }

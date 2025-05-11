@@ -52,6 +52,12 @@ namespace Summary.Models
             get { return leftPanelHeight; }
             set { leftPanelHeight = value; OnPropertyChanged(); resizeHeight(); }
         }
+        private double recordHeight;
+        public double RecordHeight
+        {
+            get { return recordHeight; }
+            set { recordHeight = value; OnPropertyChanged();}
+        }
         public double height;
         private bool _IsDialogOpen;
         public bool IsDialogOpen
@@ -858,6 +864,7 @@ namespace Summary.Models
                 }
                 SummaryPlot.Height = LeftPanelHeight - 250 > 0 ? LeftPanelHeight - 250 : 100;
                 SingleDayPlot.Height = LeftPanelHeight - 250 > 0 ? LeftPanelHeight - 250 : 100;
+                RecordHeight = LeftPanelHeight - 220 > 0 ? LeftPanelHeight - 220 : 100;
                 updateCanvas();
                 SummaryPlot.Refresh();
                 SingleDayPlot.Refresh();

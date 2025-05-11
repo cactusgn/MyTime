@@ -361,7 +361,7 @@ Background="{DynamicResource PrimaryHueMidBrush}"
                                     <Border
 Style="{StaticResource HorizontalDividerBorder}" />
                                     <Expander Header="记录" Background="{DynamicResource MaterialDesignCardBackground}" Padding="15,0">
-                                        <Grid MaxHeight="500"
+                                            <Grid MaxHeight="{Binding RecordHeight}" Name="DiaryGrid"
                                               KeyboardNavigation.TabNavigation="None">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto"></RowDefinition>

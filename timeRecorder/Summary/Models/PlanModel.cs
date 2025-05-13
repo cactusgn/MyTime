@@ -8,6 +8,7 @@ using Summary.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -481,16 +482,22 @@ namespace Summary.Models
                 foreach (ToDoObj recordedTask in allToDoByDate)
                 {
                     GeneratedToDoTask todo = SQLCommands.QueryTodo(recordedTask.Id);
-                    Category a = Helper.allcategories.FirstOrDefault(x => x.Id == todo.CategoryId, new Category(){ Id = 0, Name="none", ParentCategoryId=0});
-                    recordedTask.Type = a.Name;
-                    recordedTask.Bonus = Convert.ToInt32(a.BonusPerHour * recordedTask.LastTime.TotalHours);
-                    if(calculateAllAtFirstTime){
-                        CalculateBonus(recordedTask.Bonus, recordedTask.CreatedDate);
+                    if(todo==null){
+                        Trace.WriteLine($"{recordedTask.Note} {recordedTask.Id} {recordedTask.CategoryId}");
                     }
-                    if (SubWorkThemes.ContainsKey(a.Id))
-                    {
-                       recordedTask.Type = WorkThemes[i];
-                       InsertTaskIntoDayTaskViews(recordedTask, TimeObjs);
+                    if(todo!=null){
+                       
+                        Category a = Helper.allcategories.FirstOrDefault(x => x.Id == todo.CategoryId, new Category(){ Id = 0, Name="none", ParentCategoryId=0});
+                        recordedTask.Type = a.Name;
+                        recordedTask.Bonus = Convert.ToInt32(a.BonusPerHour * recordedTask.LastTime.TotalHours);
+                        if(calculateAllAtFirstTime){
+                            CalculateBonus(recordedTask.Bonus, recordedTask.CreatedDate);
+                        }
+                        if (SubWorkThemes.ContainsKey(a.Id))
+                        {
+                           recordedTask.Type = WorkThemes[i];
+                           InsertTaskIntoDayTaskViews(recordedTask, TimeObjs);
+                        }
                     }
                 }
                 calculateAllAtFirstTime = false;
